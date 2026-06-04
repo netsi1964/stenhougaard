@@ -1,104 +1,152 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="da" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sten Hougaard – Software Pilot & AI Specialist</title>
-  <meta name="description" content="Sten Hougaard – Software Pilot hos Trifork. AI er fremtiden, hvordan vi bruger den er nutiden." />
+  <meta name="description" content="Sten Hougaard – Software Pilot hos Trifork & AI Transformation Consulting via netsi.dk." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --bg:#0a0a0f;--card:#13131e;--border:rgba(255,255,255,0.07);--accent:#6c63ff;--accent2:#ff6b6b;--accent3:#43e97b;--gold:#f7b731;--text:#f0f0f8;--muted:rgba(240,240,248,0.42); }
+
+    :root, [data-theme="dark"] {
+      --bg: #0a0a0f; --bg2: #0f0f18; --card: #13131e; --border: rgba(255,255,255,0.07);
+      --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #43e97b; --gold: #f7b731;
+      --text: #f0f0f8; --muted: rgba(240,240,248,0.42); --shadow: rgba(0,0,0,0.4);
+      --toggle-bg: rgba(255,255,255,0.08); --toggle-hover: rgba(255,255,255,0.14);
+    }
+    [data-theme="light"] {
+      --bg: #f4f4fb; --bg2: #eeeef8; --card: #ffffff; --border: rgba(0,0,0,0.08);
+      --accent: #5a52e0; --accent2: #e8504f; --accent3: #27ae60; --gold: #d4930a;
+      --text: #111118; --muted: rgba(17,17,24,0.48); --shadow: rgba(0,0,0,0.10);
+      --toggle-bg: rgba(0,0,0,0.06); --toggle-hover: rgba(0,0,0,0.11);
+    }
+
     html { scroll-behavior: smooth; }
-    body { font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden; }
-    .stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-    .stars span{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,4s) var(--delay,0s) infinite alternate ease-in-out;opacity:0}
-    @keyframes twinkle{to{opacity:var(--op,.6)}}
-    .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
-    .orb1{width:600px;height:600px;background:rgba(108,99,255,0.14);top:-150px;left:-150px;animation:drift 22s ease-in-out infinite alternate}
-    .orb2{width:500px;height:500px;background:rgba(255,107,107,0.10);bottom:-150px;right:-150px;animation:drift 18s ease-in-out infinite alternate-reverse}
-    .orb3{width:350px;height:350px;background:rgba(67,233,123,0.08);top:40%;left:50%;transform:translate(-50%,-50%);animation:drift 25s ease-in-out infinite alternate}
-    @keyframes drift{to{transform:translate(50px,40px)}}
-    main{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:24px;padding:56px 20px 80px;max-width:780px;margin:0 auto}
-    .fade{animation:fadeUp 0.7s ease both}
-    .fade:nth-child(1){animation-delay:0s}.fade:nth-child(2){animation-delay:.1s}.fade:nth-child(3){animation-delay:.18s}.fade:nth-child(4){animation-delay:.26s}.fade:nth-child(5){animation-delay:.34s}.fade:nth-child(6){animation-delay:.42s}.fade:nth-child(7){animation-delay:.50s}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-    .card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px 40px}
-    .card-title{font-family:'Space Grotesk',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:22px}
-    .hero{padding:52px 48px 44px;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--gold))}
-    .avatar-wrap{position:relative;width:108px;height:108px;margin-bottom:26px}
-    .avatar{width:108px;height:108px;border-radius:50%;border:3px solid var(--accent);object-fit:cover;object-position:center top;display:block;box-shadow:0 0 0 6px rgba(108,99,255,0.14),0 10px 36px rgba(108,99,255,0.28)}
-    .online-dot{position:absolute;bottom:5px;right:5px;width:17px;height:17px;border-radius:50%;background:var(--accent3);border:2.5px solid var(--card);animation:pulse 2.2s ease-in-out infinite}
-    @keyframes pulse{0%,100%{box-shadow:0 0 8px var(--accent3)}50%{box-shadow:0 0 18px var(--accent3),0 0 36px rgba(67,233,123,0.35)}}
-    .hero-name{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.1rem,5vw,3.1rem);font-weight:700;letter-spacing:-1.5px;line-height:1.05;margin-bottom:12px;background:linear-gradient(135deg,#fff 25%,rgba(255,255,255,0.55));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
-    .badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:99px;font-size:.82rem;font-weight:500}
-    .badge-primary{background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.35);color:#a09aff}
-    .badge-secondary{background:rgba(247,183,49,0.1);border:1px solid rgba(247,183,49,0.3);color:#f7c55a}
-    .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 5px currentColor}
-    .hero-quote{font-size:1.05rem;line-height:1.68;color:var(--muted);max-width:540px;margin-bottom:26px;border-left:2px solid rgba(108,99,255,0.35);padding-left:16px;font-style:italic}
-    .hero-quote strong{color:rgba(255,255,255,0.82);font-style:normal;font-weight:500}
-    .meta{display:flex;flex-wrap:wrap;gap:18px}
-    .meta-item{display:flex;align-items:center;gap:6px;font-size:.83rem;color:var(--muted)}
-    .meta-item svg{flex-shrink:0;opacity:.7}
-    .links{display:flex;flex-wrap:wrap;gap:12px}
-    .link-btn{flex:1 1 150px;display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:14px;font-size:.88rem;font-weight:500;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);transition:all .2s ease}
-    .link-btn:hover{transform:translateY(-3px);border-color:rgba(255,255,255,0.16)}
-    .link-btn.linkedin:hover{border-color:#0077b5;box-shadow:0 8px 24px rgba(0,119,181,.22)}
-    .link-btn.github:hover{border-color:#8b6fca;box-shadow:0 8px 24px rgba(110,84,148,.22)}
-    .link-btn.web:hover{border-color:var(--accent3);box-shadow:0 8px 24px rgba(67,233,123,.18)}
-    .timeline{display:flex;flex-direction:column}
-    .tl-item{display:flex;gap:18px;padding-bottom:28px}
-    .tl-item:last-child{padding-bottom:0}
-    .tl-left{display:flex;flex-direction:column;align-items:center;width:36px;flex-shrink:0}
-    .tl-dot{width:10px;height:10px;margin-top:5px;flex-shrink:0;border-radius:50%;border:2px solid var(--accent);background:var(--accent);box-shadow:0 0 8px rgba(108,99,255,.5)}
-    .tl-dot.gold{border-color:var(--gold);background:var(--gold);box-shadow:0 0 8px rgba(247,183,49,.5)}
-    .tl-line{flex:1;width:1px;background:var(--border);margin-top:4px}
-    .tl-item:last-child .tl-line{display:none}
-    .tl-company{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;color:var(--text);margin-bottom:2px}
-    .tl-role{font-size:.87rem;color:#a09aff;font-weight:500;margin-bottom:3px}
-    .tl-period{font-size:.78rem;color:var(--muted);margin-bottom:6px}
-    .tl-desc{font-size:.85rem;color:var(--muted);line-height:1.6}
-    .tags{display:flex;flex-wrap:wrap;gap:9px}
-    .tag{padding:6px 15px;border-radius:99px;font-size:.82rem;font-weight:500;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:rgba(240,240,248,0.72);transition:all .18s ease;cursor:default}
-    .tag:hover{background:rgba(108,99,255,0.12);border-color:rgba(108,99,255,0.4);color:#a09aff;transform:translateY(-2px)}
-    .tag.ai{background:rgba(108,99,255,0.1);border-color:rgba(108,99,255,0.3);color:#b0aaff}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    @media(max-width:520px){.stats{grid-template-columns:1fr 1fr}}
-    .stat{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px 20px;display:flex;flex-direction:column;gap:4px}
-    .stat-num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .stat-label{font-size:.78rem;color:var(--muted);line-height:1.4}
-    .quote-card{position:relative}
-    .qmark{font-family:Georgia,serif;font-size:6rem;line-height:.5;color:var(--accent);opacity:.25;position:absolute;top:24px;left:32px;pointer-events:none}
-    .quote-text{font-size:1.05rem;line-height:1.72;font-style:italic;color:rgba(240,240,248,0.82);padding-left:14px;border-left:2px solid rgba(108,99,255,0.35);margin-bottom:14px}
-    .quote-by{font-size:.8rem;color:var(--muted)}
-    .quote-by strong{color:rgba(255,255,255,0.6);font-weight:500}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media(max-width:560px){.two-col{grid-template-columns:1fr}}
-    .edu-item{margin-bottom:14px}
-    .edu-item:last-child{margin-bottom:0}
-    .edu-school{font-size:.9rem;font-weight:600;color:var(--text)}
-    .edu-detail{font-size:.8rem;color:var(--muted);margin-top:2px}
-    .lang-list{display:flex;flex-direction:column;gap:10px}
-    .lang-item{display:flex;align-items:center;gap:10px}
-    .lang-flag{font-size:1.2rem}
-    .lang-name{font-size:.88rem;color:var(--text);font-weight:500}
-    .fun-card{background:linear-gradient(135deg,rgba(108,99,255,0.08),rgba(247,183,49,0.06));border-color:rgba(108,99,255,0.2)}
-    .fun-label{display:inline-flex;align-items:center;gap:6px;background:rgba(247,183,49,0.12);border:1px solid rgba(247,183,49,0.25);color:var(--gold);font-size:.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:99px;margin-bottom:14px}
-    .fun-text{font-size:.9rem;color:var(--muted);line-height:1.7}
-    .fun-text em{color:rgba(255,255,255,0.7);font-style:normal;font-weight:500}
-    footer{position:relative;z-index:1;text-align:center;padding:20px;font-size:.78rem;color:rgba(255,255,255,0.18)}
-    footer a{color:rgba(108,99,255,0.55);text-decoration:none}
-    @media(max-width:540px){.hero{padding:40px 26px 36px}.card{padding:28px 24px}}
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; transition:background .3s ease,color .3s ease; }
+
+    .theme-btn { position:fixed; top:20px; right:20px; z-index:100; width:42px; height:42px; border-radius:50%; border:1px solid var(--border); background:var(--toggle-bg); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:all .2s ease; backdrop-filter:blur(8px); }
+    .theme-btn:hover { background:var(--toggle-hover); transform:scale(1.08); }
+
+    .stars { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .stars span { position:absolute; border-radius:50%; background:#fff; animation:twinkle var(--d,4s) var(--delay,0s) infinite alternate ease-in-out; opacity:0; }
+    @keyframes twinkle { to { opacity:var(--op,.6); } }
+    [data-theme="light"] .stars { display:none; }
+
+    .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; }
+    .orb1 { width:600px; height:600px; background:rgba(108,99,255,0.14); top:-150px; left:-150px; animation:drift 22s ease-in-out infinite alternate; }
+    .orb2 { width:500px; height:500px; background:rgba(255,107,107,0.10); bottom:-150px; right:-150px; animation:drift 18s ease-in-out infinite alternate-reverse; }
+    .orb3 { width:350px; height:350px; background:rgba(67,233,123,0.08); top:40%; left:50%; transform:translate(-50%,-50%); animation:drift 25s ease-in-out infinite alternate; }
+    @keyframes drift { to { transform:translate(50px,40px); } }
+    [data-theme="light"] .orb { opacity:0.3; }
+
+    main { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:24px; padding:56px 20px 80px; max-width:780px; margin:0 auto; }
+
+    .fade { animation:fadeUp 0.7s ease both; }
+    .fade:nth-child(1){animation-delay:0s}.fade:nth-child(2){animation-delay:.08s}.fade:nth-child(3){animation-delay:.16s}.fade:nth-child(4){animation-delay:.24s}.fade:nth-child(5){animation-delay:.32s}.fade:nth-child(6){animation-delay:.40s}.fade:nth-child(7){animation-delay:.48s}.fade:nth-child(8){animation-delay:.56s}
+    @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+
+    .card { width:100%; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:36px 40px; box-shadow:0 4px 24px var(--shadow); transition:background .3s ease,border-color .3s ease,box-shadow .3s ease; }
+    .card-title { font-family:'Space Grotesk',sans-serif; font-size:.7rem; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:22px; }
+
+    .hero { padding:52px 48px 44px; position:relative; overflow:hidden; }
+    .hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--gold)); }
+
+    .avatar-wrap { position:relative; width:108px; height:108px; margin-bottom:26px; }
+    .avatar { width:108px; height:108px; border-radius:50%; border:3px solid var(--accent); object-fit:cover; object-position:center top; display:block; box-shadow:0 0 0 6px rgba(108,99,255,0.12),0 10px 36px rgba(108,99,255,0.22); }
+    .online-dot { position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%; background:var(--accent3); border:2.5px solid var(--card); animation:pulse 2.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 8px var(--accent3)} 50%{box-shadow:0 0 18px var(--accent3),0 0 36px rgba(67,233,123,0.35)} }
+
+    .hero-name { font-family:'Space Grotesk',sans-serif; font-size:clamp(2.1rem,5vw,3.1rem); font-weight:700; letter-spacing:-1.5px; line-height:1.05; margin-bottom:12px; }
+    [data-theme="dark"] .hero-name { background:linear-gradient(135deg,#fff 25%,rgba(255,255,255,0.55)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    .badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+    .badge { display:inline-flex; align-items:center; gap:7px; padding:5px 14px; border-radius:99px; font-size:.82rem; font-weight:500; }
+    .badge-primary { background:rgba(108,99,255,0.12); border:1px solid rgba(108,99,255,0.3); color:var(--accent); }
+    .badge-secondary { background:rgba(247,183,49,0.08); border:1px solid rgba(247,183,49,0.28); color:var(--gold); }
+    .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 5px currentColor; }
+
+    .hero-quote { font-size:1.05rem; line-height:1.68; color:var(--muted); max-width:540px; margin-bottom:26px; border-left:2px solid rgba(108,99,255,0.3); padding-left:16px; font-style:italic; }
+    .hero-quote strong { color:var(--text); font-style:normal; font-weight:500; }
+
+    .meta { display:flex; flex-wrap:wrap; gap:16px; }
+    .meta-item { display:flex; align-items:center; gap:6px; font-size:.83rem; color:var(--muted); }
+    .meta-item svg { flex-shrink:0; opacity:.65; }
+
+    .links { display:flex; flex-wrap:wrap; gap:12px; }
+    .link-btn { flex:1 1 150px; display:inline-flex; align-items:center; gap:10px; padding:13px 20px; border-radius:14px; font-size:.88rem; font-weight:500; text-decoration:none; color:var(--text); background:var(--card); border:1px solid var(--border); box-shadow:0 2px 12px var(--shadow); transition:all .2s ease; }
+    .link-btn:hover { transform:translateY(-3px); border-color:rgba(108,99,255,0.4); box-shadow:0 8px 24px var(--shadow); }
+    .link-btn.linkedin:hover { border-color:#0077b5; }
+    .link-btn.github:hover { border-color:#8b6fca; }
+    .link-btn.web:hover { border-color:var(--accent3); }
+
+    .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media(max-width:560px){ .services-grid { grid-template-columns:1fr; } }
+    .service-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:20px 22px; transition:all .2s ease; }
+    .service-card:hover { border-color:rgba(108,99,255,0.35); transform:translateY(-2px); }
+    .service-icon { font-size:1.4rem; margin-bottom:10px; }
+    .service-title { font-size:.9rem; font-weight:600; color:var(--text); margin-bottom:5px; }
+    .service-desc { font-size:.8rem; color:var(--muted); line-height:1.5; }
+
+    .timeline { display:flex; flex-direction:column; }
+    .tl-item { display:flex; gap:18px; padding-bottom:28px; }
+    .tl-item:last-child { padding-bottom:0; }
+    .tl-left { display:flex; flex-direction:column; align-items:center; width:36px; flex-shrink:0; }
+    .tl-dot { width:10px; height:10px; margin-top:5px; flex-shrink:0; border-radius:50%; border:2px solid var(--accent); background:var(--accent); box-shadow:0 0 8px rgba(108,99,255,.4); }
+    .tl-dot.gold { border-color:var(--gold); background:var(--gold); box-shadow:0 0 8px rgba(247,183,49,.4); }
+    .tl-line { flex:1; width:1px; background:var(--border); margin-top:4px; }
+    .tl-item:last-child .tl-line { display:none; }
+    .tl-company { font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .tl-role { font-size:.87rem; color:var(--accent); font-weight:500; margin-bottom:3px; }
+    .tl-period { font-size:.78rem; color:var(--muted); margin-bottom:6px; }
+    .tl-desc { font-size:.85rem; color:var(--muted); line-height:1.6; }
+
+    .tags { display:flex; flex-wrap:wrap; gap:9px; }
+    .tag { padding:6px 15px; border-radius:99px; font-size:.82rem; font-weight:500; border:1px solid var(--border); background:transparent; color:var(--muted); transition:all .18s ease; cursor:default; }
+    .tag:hover { background:rgba(108,99,255,0.1); border-color:rgba(108,99,255,0.35); color:var(--accent); transform:translateY(-2px); }
+    .tag.ai { background:rgba(108,99,255,0.08); border-color:rgba(108,99,255,0.25); color:var(--accent); }
+
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    @media(max-width:520px){ .stats { grid-template-columns:1fr 1fr; } }
+    .stat { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:24px 20px; display:flex; flex-direction:column; gap:4px; box-shadow:0 2px 12px var(--shadow); }
+    .stat-num { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .stat-label { font-size:.78rem; color:var(--muted); line-height:1.4; }
+
+    .quote-card { position:relative; }
+    .qmark { font-family:Georgia,serif; font-size:6rem; line-height:.5; color:var(--accent); opacity:.2; position:absolute; top:24px; left:32px; pointer-events:none; }
+    .quote-text { font-size:1.05rem; line-height:1.72; font-style:italic; color:var(--muted); padding-left:14px; border-left:2px solid rgba(108,99,255,0.3); margin-bottom:14px; }
+    .quote-by { font-size:.8rem; color:var(--muted); }
+    .quote-by strong { color:var(--text); opacity:.7; font-weight:500; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media(max-width:560px){ .two-col { grid-template-columns:1fr; } }
+    .edu-item { margin-bottom:14px; }
+    .edu-item:last-child { margin-bottom:0; }
+    .edu-school { font-size:.9rem; font-weight:600; color:var(--text); }
+    .edu-detail { font-size:.8rem; color:var(--muted); margin-top:2px; }
+    .lang-list { display:flex; flex-direction:column; gap:10px; }
+    .lang-item { display:flex; align-items:center; gap:10px; }
+    .lang-flag { font-size:1.2rem; }
+    .lang-name { font-size:.88rem; color:var(--text); font-weight:500; }
+
+    footer { position:relative; z-index:1; text-align:center; padding:20px; font-size:.78rem; color:var(--muted); }
+    footer a { color:var(--accent); opacity:.7; text-decoration:none; }
+    footer a:hover { opacity:1; }
+
+    @media(max-width:540px){ .hero{padding:40px 26px 36px} .card{padding:28px 24px} }
   </style>
 </head>
 <body>
+
+<button class="theme-btn" id="themeBtn" title="Skift tema" aria-label="Skift mellem lys og mørk tilstand">🌙</button>
+
 <div class="stars" id="stars"></div>
 <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+
 <main>
+
   <div class="card hero fade">
     <div class="avatar-wrap">
       <img class="avatar" src="https://github.com/netsi1964.png" alt="Sten Hougaard" />
@@ -107,7 +155,7 @@
     <h1 class="hero-name">Sten Hougaard</h1>
     <div class="badges">
       <span class="badge badge-primary"><span class="badge-dot"></span>Software Pilot · Trifork</span>
-      <span class="badge badge-secondary"><span class="badge-dot"></span>Ejer · netsi.dk – Defitit</span>
+      <span class="badge badge-secondary"><span class="badge-dot"></span>AI Consulting · netsi.dk</span>
     </div>
     <p class="hero-quote"><strong>AI er fremtiden, hvordan vi bruger den er nutiden</strong> — det er hvad jeg brænder for: At få AI inddraget i dagligdagen og i vores arbejdsliv.</p>
     <div class="meta">
@@ -120,14 +168,24 @@
   <div class="links fade" style="width:100%">
     <a href="https://www.linkedin.com/in/stenhougaard" target="_blank" rel="noopener" class="link-btn linkedin"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
     <a href="https://github.com/netsi1964" target="_blank" rel="noopener" class="link-btn github"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
-    <a href="http://www.netsi.dk" target="_blank" rel="noopener" class="link-btn web"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>netsi.dk</a>
+    <a href="https://www.netsi.dk" target="_blank" rel="noopener" class="link-btn web"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>netsi.dk</a>
+  </div>
+
+  <div class="card fade">
+    <div class="card-title">AI Transformation · <a href="https://www.netsi.dk" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-size:inherit;font-weight:inherit;letter-spacing:inherit;text-transform:inherit">netsi.dk</a></div>
+    <div class="services-grid">
+      <div class="service-card"><div class="service-icon">🤖</div><div class="service-title">LLM Integration</div><div class="service-desc">Integrér avancerede sprogmodeller fra OpenAI, Google og x.ai i din virksomhed — fra kundeservice til vidensstyring.</div></div>
+      <div class="service-card"><div class="service-icon">⚡</div><div class="service-title">Workflow Automation</div><div class="service-desc">AI-drevet procesautomatisering der lærer og forbedrer sig over tid — friгør tid og reducér fejl.</div></div>
+      <div class="service-card"><div class="service-icon">📄</div><div class="service-title">Dokumentanalyse</div><div class="service-desc">Omdan ustruktureret data til brugbar indsigt med intelligent dokumentbehandling og analyse.</div></div>
+      <div class="service-card"><div class="service-icon">💬</div><div class="service-title">Custom GPT-løsninger</div><div class="service-desc">Skræddersyede GPT-løsninger til intern brug — hjælp medarbejdere med regler, processer og firmainfo.</div></div>
+    </div>
   </div>
 
   <div class="card fade">
     <div class="card-title">Erfaring</div>
     <div class="timeline">
       <div class="tl-item"><div class="tl-left"><div class="tl-dot gold"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">Trifork</div><div class="tl-role">Software Pilot</div><div class="tl-period">November 2017 – nu</div><div class="tl-desc">AI-konsulentbistand, udvikling, undervisning og indsalg af AI-løsninger til virksomheder.</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">netsi.dk – Defitit</div><div class="tl-role">Ejer &amp; Director</div><div class="tl-period">Januar 1995 – nu · 30+ år</div><div class="tl-desc">Specialist i Umbraco, Dynamicweb, WordPress og custom løsninger.</div></div></div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">netsi.dk</div><div class="tl-role">Ejer &amp; Director</div><div class="tl-period">Januar 1995 – nu · 30+ år</div><div class="tl-desc">AI Transformation Consulting. Specialist i Umbraco, Dynamicweb og WordPress.</div></div></div>
       <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">Kamstrup</div><div class="tl-role">Software Developer – Front-end</div><div class="tl-period">Januar 2016 – Juni 2017</div><div class="tl-desc">Udvikling af frameworks til webapps i ReactJS.</div></div></div>
       <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">AFS Interkulturel Udveksling</div><div class="tl-role">Frivillig stab</div><div class="tl-period">Maj 2021 – Juni 2023</div><div class="tl-desc">Kommunikationsbistand til AFS Aarhus.</div></div></div>
       <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div class="tl-right"><div class="tl-company">Tidligere</div><div class="tl-role">Web &amp; Frontend Developer</div><div class="tl-period">727 online · mediekulturen.dk · Dynamicweb Software A/S · m.fl.</div></div></div>
@@ -137,12 +195,10 @@
   <div class="card fade">
     <div class="card-title">Kompetencer</div>
     <div class="tags">
-      <span class="tag ai">Artificial Intelligence</span><span class="tag ai">LLM</span><span class="tag ai">AI-konsulentbistand</span>
-      <span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">React / ReactJS</span>
-      <span class="tag">HTML5 &amp; CSS3</span><span class="tag">Web Components</span><span class="tag">Frontend Development</span>
-      <span class="tag">C# / .NET</span><span class="tag">Umbraco</span><span class="tag">Dynamicweb CMS</span>
-      <span class="tag">WordPress</span><span class="tag">REST APIs</span><span class="tag">Jamstack</span>
-      <span class="tag">Creative Problem Solving</span>
+      <span class="tag ai">Artificial Intelligence</span><span class="tag ai">LLM</span><span class="tag ai">AI-konsulentbistand</span><span class="tag ai">Prompt Engineering</span>
+      <span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">React / ReactJS</span><span class="tag">HTML5 &amp; CSS3</span>
+      <span class="tag">Web Components</span><span class="tag">Frontend Development</span><span class="tag">C# / .NET</span><span class="tag">Umbraco</span>
+      <span class="tag">Dynamicweb CMS</span><span class="tag">WordPress</span><span class="tag">REST APIs</span><span class="tag">Creative Problem Solving</span>
     </div>
   </div>
 
@@ -153,7 +209,7 @@
   </div>
 
   <div class="card quote-card fade">
-    <div class="qmark">"</div>
+    <div class="qmark">“</div>
     <div class="card-title">Anbefaling</div>
     <p class="quote-text">En programmørernes programmør med suverænt overblik over tilgængelige teknologier og stærk evne til at vurdere, hvilke programmeringstilgange der giver mening i et forretningsmæssigt miljø.</p>
     <div class="quote-by">— <strong>Anders Brandstrup</strong></div>
@@ -176,18 +232,23 @@
     </div>
   </div>
 
-  <div class="card fun-card fade">
-    <div class="fun-label">✦ Fun Fact</div>
-    <p class="fun-text">Det allerførste neurale netværk, <em>Perceptronen</em>, blev opfundet helt tilbage i <em>1957</em> — og blev spået til snart at kunne både gå, tale og reproducere sig selv. Det tog dog lige et par årtier (og lidt mere regnekraft) at nå dertil!</p>
-  </div>
 </main>
 
-<footer><a href="https://www.linkedin.com/in/stenhougaard" target="_blank">stenhougaard</a> · 2025</footer>
+<footer>
+  <a href="https://www.netsi.dk" target="_blank">netsi.dk</a> ·
+  <a href="https://www.linkedin.com/in/stenhougaard" target="_blank">LinkedIn</a> ·
+  <a href="https://github.com/netsi1964" target="_blank">GitHub</a>
+</footer>
 
 <script>
   const c=document.getElementById('stars');
   for(let i=0;i<130;i++){const s=document.createElement('span');const z=Math.random()*2+0.4;s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*5+2).toFixed(1)}s;--delay:-${(Math.random()*9).toFixed(1)}s;--op:${(Math.random()*0.5+0.08).toFixed(2)}`;c.appendChild(s)}
   document.addEventListener('mousemove',e=>{const x=e.clientX/innerWidth-.5,y=e.clientY/innerHeight-.5;document.querySelectorAll('.orb').forEach((o,i)=>{o.style.transform=`translate(${x*(i+1)*20}px,${y*(i+1)*20}px)`})});
+  const btn=document.getElementById('themeBtn'),html=document.documentElement;
+  const saved=localStorage.getItem('theme')||'dark';
+  html.setAttribute('data-theme',saved);
+  btn.textContent=saved==='dark'?'☀️':'🌙';
+  btn.addEventListener('click',()=>{const next=html.getAttribute('data-theme')==='dark'?'light':'dark';html.setAttribute('data-theme',next);btn.textContent=next==='dark'?'☀️':'🌙';localStorage.setItem('theme',next)});
 </script>
 </body>
 </html>
