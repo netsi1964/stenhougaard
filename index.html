@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="da" data-theme="dark">
+<html lang="da" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -44,15 +44,17 @@
 
     main { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:24px; padding:56px 20px 80px; max-width:780px; margin:0 auto; }
 
-    .fade { animation:fadeUp 0.7s ease both; }
-    .fade:nth-child(1){animation-delay:0s}.fade:nth-child(2){animation-delay:.08s}.fade:nth-child(3){animation-delay:.16s}.fade:nth-child(4){animation-delay:.24s}.fade:nth-child(5){animation-delay:.32s}.fade:nth-child(6){animation-delay:.40s}.fade:nth-child(7){animation-delay:.48s}.fade:nth-child(8){animation-delay:.56s}
-    @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+    .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.6s ease,transform 0.6s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
 
-    .card { width:100%; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:36px 40px; box-shadow:0 4px 24px var(--shadow); transition:background .3s ease,border-color .3s ease,box-shadow .3s ease; }
+    .hero::before { background-size:200% 100%; animation:shimmer 4s linear infinite; }
+    @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+
+    .card { transform-style:preserve-3d; width:100%; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:36px 40px; box-shadow:0 4px 24px var(--shadow); transition:background .3s ease,border-color .3s ease,box-shadow .3s ease,transform .15s ease; }
     .card-title { font-family:'Space Grotesk',sans-serif; font-size:.7rem; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:22px; }
 
     .hero { padding:52px 48px 44px; position:relative; overflow:hidden; }
-    .hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--gold)); }
+    .hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--gold),var(--accent)); }
 
     .avatar-wrap { position:relative; width:108px; height:108px; margin-bottom:26px; }
     .avatar { width:108px; height:108px; border-radius:50%; border:3px solid var(--accent); object-fit:cover; object-position:center top; display:block; box-shadow:0 0 0 6px rgba(108,99,255,0.12),0 10px 36px rgba(108,99,255,0.22); }
@@ -83,7 +85,7 @@
     .link-btn.web:hover { border-color:var(--accent3); }
 
     .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    @media(max-width:560px){ .services-grid { grid-template-columns:1fr; } }
+    @media(max-width:560px){ .services-grid{grid-template-columns:1fr} }
     .service-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:20px 22px; transition:all .2s ease; }
     .service-card:hover { border-color:rgba(108,99,255,0.35); transform:translateY(-2px); }
     .service-icon { font-size:1.4rem; margin-bottom:10px; }
@@ -109,7 +111,7 @@
     .tag.ai { background:rgba(108,99,255,0.08); border-color:rgba(108,99,255,0.25); color:var(--accent); }
 
     .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    @media(max-width:520px){ .stats { grid-template-columns:1fr 1fr; } }
+    @media(max-width:520px){ .stats{grid-template-columns:1fr 1fr} }
     .stat { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:24px 20px; display:flex; flex-direction:column; gap:4px; box-shadow:0 2px 12px var(--shadow); }
     .stat-num { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
     .stat-label { font-size:.78rem; color:var(--muted); line-height:1.4; }
@@ -121,7 +123,7 @@
     .quote-by strong { color:var(--text); opacity:.7; font-weight:500; }
 
     .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    @media(max-width:560px){ .two-col { grid-template-columns:1fr; } }
+    @media(max-width:560px){ .two-col{grid-template-columns:1fr} }
     .edu-item { margin-bottom:14px; }
     .edu-item:last-child { margin-bottom:0; }
     .edu-school { font-size:.9rem; font-weight:600; color:var(--text); }
@@ -141,13 +143,11 @@
 <body>
 
 <button class="theme-btn" id="themeBtn" title="Skift tema" aria-label="Skift mellem lys og mørk tilstand">🌙</button>
-
 <div class="stars" id="stars"></div>
 <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
 
 <main>
-
-  <div class="card hero fade">
+  <div class="card hero reveal">
     <div class="avatar-wrap">
       <img class="avatar" src="https://github.com/netsi1964.png" alt="Sten Hougaard" />
       <div class="online-dot"></div>
@@ -165,34 +165,34 @@
     </div>
   </div>
 
-  <div class="links fade" style="width:100%">
+  <div class="links reveal" style="width:100%">
     <a href="https://www.linkedin.com/in/stenhougaard" target="_blank" rel="noopener" class="link-btn linkedin"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
     <a href="https://github.com/netsi1964" target="_blank" rel="noopener" class="link-btn github"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
     <a href="https://www.netsi.dk" target="_blank" rel="noopener" class="link-btn web"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>netsi.dk</a>
   </div>
 
-  <div class="card fade">
+  <div class="card reveal">
     <div class="card-title">AI Transformation · <a href="https://www.netsi.dk" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-size:inherit;font-weight:inherit;letter-spacing:inherit;text-transform:inherit">netsi.dk</a></div>
     <div class="services-grid">
-      <div class="service-card"><div class="service-icon">🤖</div><div class="service-title">LLM Integration</div><div class="service-desc">Integrér avancerede sprogmodeller fra OpenAI, Google og x.ai i din virksomhed — fra kundeservice til vidensstyring.</div></div>
-      <div class="service-card"><div class="service-icon">⚡</div><div class="service-title">Workflow Automation</div><div class="service-desc">AI-drevet procesautomatisering der lærer og forbedrer sig over tid — friгør tid og reducér fejl.</div></div>
+      <div class="service-card"><div class="service-icon">🤖</div><div class="service-title">LLM Integration</div><div class="service-desc">Integrér avancerede sprogmodeller fra OpenAI, Google og x.ai — fra kundeservice til vidensstyring.</div></div>
+      <div class="service-card"><div class="service-icon">⚡</div><div class="service-title">Workflow Automation</div><div class="service-desc">AI-drevet procesautomatisering der lærer og forbedrer sig over tid — frigør tid og reducér fejl.</div></div>
       <div class="service-card"><div class="service-icon">📄</div><div class="service-title">Dokumentanalyse</div><div class="service-desc">Omdan ustruktureret data til brugbar indsigt med intelligent dokumentbehandling og analyse.</div></div>
       <div class="service-card"><div class="service-icon">💬</div><div class="service-title">Custom GPT-løsninger</div><div class="service-desc">Skræddersyede GPT-løsninger til intern brug — hjælp medarbejdere med regler, processer og firmainfo.</div></div>
     </div>
   </div>
 
-  <div class="card fade">
+  <div class="card reveal">
     <div class="card-title">Erfaring</div>
     <div class="timeline">
       <div class="tl-item"><div class="tl-left"><div class="tl-dot gold"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">Trifork</div><div class="tl-role">Software Pilot</div><div class="tl-period">November 2017 – nu</div><div class="tl-desc">AI-konsulentbistand, udvikling, undervisning og indsalg af AI-løsninger til virksomheder.</div></div></div>
       <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">netsi.dk</div><div class="tl-role">Ejer &amp; Director</div><div class="tl-period">Januar 1995 – nu · 30+ år</div><div class="tl-desc">AI Transformation Consulting. Specialist i Umbraco, Dynamicweb og WordPress.</div></div></div>
       <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">Kamstrup</div><div class="tl-role">Software Developer – Front-end</div><div class="tl-period">Januar 2016 – Juni 2017</div><div class="tl-desc">Udvikling af frameworks til webapps i ReactJS.</div></div></div>
       <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">AFS Interkulturel Udveksling</div><div class="tl-role">Frivillig stab</div><div class="tl-period">Maj 2021 – Juni 2023</div><div class="tl-desc">Kommunikationsbistand til AFS Aarhus.</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div class="tl-right"><div class="tl-company">Tidligere</div><div class="tl-role">Web &amp; Frontend Developer</div><div class="tl-period">727 online · mediekulturen.dk · Dynamicweb Software A/S · m.fl.</div></div></div>
+      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div class="tl-right"><div class="tl-company">Tidligere</div><div class="tl-role">Web &amp; Frontend Developer</div><div class="tl-period">727 online · Dynamicweb Software A/S · m.fl.</div></div></div>
     </div>
   </div>
 
-  <div class="card fade">
+  <div class="card reveal">
     <div class="card-title">Kompetencer</div>
     <div class="tags">
       <span class="tag ai">Artificial Intelligence</span><span class="tag ai">LLM</span><span class="tag ai">AI-konsulentbistand</span><span class="tag ai">Prompt Engineering</span>
@@ -202,20 +202,20 @@
     </div>
   </div>
 
-  <div class="stats fade" style="width:100%">
-    <div class="stat"><div class="stat-num">30+</div><div class="stat-label">Års erfaring i branchen</div></div>
-    <div class="stat"><div class="stat-num">138+</div><div class="stat-label">GitHub-projekter</div></div>
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Sprog: DA · EN · DE</div></div>
+  <div class="stats reveal" style="width:100%">
+    <div class="stat"><div class="stat-num" data-count="30" data-suffix="+">0</div><div class="stat-label">Års erfaring i branchen</div></div>
+    <div class="stat"><div class="stat-num" data-count="138" data-suffix="+">0</div><div class="stat-label">GitHub-projekter</div></div>
+    <div class="stat"><div class="stat-num" data-count="3" data-suffix="">0</div><div class="stat-label">Sprog: DA · EN · DE</div></div>
   </div>
 
-  <div class="card quote-card fade">
+  <div class="card quote-card reveal">
     <div class="qmark">“</div>
     <div class="card-title">Anbefaling</div>
     <p class="quote-text">En programmørernes programmør med suverænt overblik over tilgængelige teknologier og stærk evne til at vurdere, hvilke programmeringstilgange der giver mening i et forretningsmæssigt miljø.</p>
     <div class="quote-by">— <strong>Anders Brandstrup</strong></div>
   </div>
 
-  <div class="two-col fade" style="width:100%">
+  <div class="two-col reveal" style="width:100%">
     <div class="card">
       <div class="card-title">Uddannelse</div>
       <div class="edu-item"><div class="edu-school">EDB Skole i Odense</div><div class="edu-detail">1985 – 1986</div></div>
@@ -231,7 +231,6 @@
       </div>
     </div>
   </div>
-
 </main>
 
 <footer>
@@ -243,12 +242,21 @@
 <script>
   const c=document.getElementById('stars');
   for(let i=0;i<130;i++){const s=document.createElement('span');const z=Math.random()*2+0.4;s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*5+2).toFixed(1)}s;--delay:-${(Math.random()*9).toFixed(1)}s;--op:${(Math.random()*0.5+0.08).toFixed(2)}`;c.appendChild(s)}
+
   document.addEventListener('mousemove',e=>{const x=e.clientX/innerWidth-.5,y=e.clientY/innerHeight-.5;document.querySelectorAll('.orb').forEach((o,i)=>{o.style.transform=`translate(${x*(i+1)*20}px,${y*(i+1)*20}px)`})});
+
   const btn=document.getElementById('themeBtn'),html=document.documentElement;
-  const saved=localStorage.getItem('theme')||'dark';
+  const saved=localStorage.getItem('theme')||'light';
   html.setAttribute('data-theme',saved);
   btn.textContent=saved==='dark'?'☀️':'🌙';
   btn.addEventListener('click',()=>{const next=html.getAttribute('data-theme')==='dark'?'light':'dark';html.setAttribute('data-theme',next);btn.textContent=next==='dark'?'☀️':'🌙';localStorage.setItem('theme',next)});
+
+  const obs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){const el=entry.target;setTimeout(()=>el.classList.add('visible'),el.dataset.delay||0);obs.unobserve(el);el.querySelectorAll('[data-count]').forEach(animateCount);}});},{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{el.dataset.delay=i*60;obs.observe(el)});
+
+  function animateCount(el){const target=parseInt(el.dataset.count),suffix=el.dataset.suffix||'',dur=900,start=performance.now();(function step(now){const p=Math.min((now-start)/dur,1),ease=1-Math.pow(1-p,3);el.textContent=Math.floor(ease*target)+suffix;if(p<1)requestAnimationFrame(step)})(start);}
+
+  document.querySelectorAll('.card').forEach(card=>{card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(700px) rotateY(${x*4}deg) rotateX(${-y*4}deg) translateY(-2px)`});card.addEventListener('mouseleave',()=>{card.style.transform=''})});
 </script>
 </body>
 </html>
