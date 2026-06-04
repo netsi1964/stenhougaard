@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="da" data-theme="dark">
+<html lang="da" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -96,15 +96,36 @@
       max-width: 780px; margin: 0 auto;
     }
 
-    .fade { animation: fadeUp 0.7s ease both; }
-    .fade:nth-child(1){animation-delay:0s}.fade:nth-child(2){animation-delay:.08s}
-    .fade:nth-child(3){animation-delay:.16s}.fade:nth-child(4){animation-delay:.24s}
-    .fade:nth-child(5){animation-delay:.32s}.fade:nth-child(6){animation-delay:.40s}
-    .fade:nth-child(7){animation-delay:.48s}.fade:nth-child(8){animation-delay:.56s}
+    /* scroll-reveal: hidden until JS adds .visible */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* first card still fades in immediately */
+    .hero.reveal { transition-delay: 0s; }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(22px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* gradient shimmer on hero top bar */
+    .hero::before {
+      background-size: 200% 100%;
+      animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
+
+    /* card tilt */
+    .card { transform-style: preserve-3d; }
 
     /* ── Card ── */
     .card {
@@ -285,7 +306,7 @@
 <main>
 
   <!-- Hero -->
-  <div class="card hero fade">
+  <div class="card hero reveal">
     <div class="avatar-wrap">
       <img class="avatar" src="https://github.com/netsi1964.png" alt="Sten Hougaard" />
       <div class="online-dot"></div>
@@ -316,7 +337,7 @@
   </div>
 
   <!-- Links -->
-  <div class="links fade" style="width:100%">
+  <div class="links reveal" style="width:100%">
     <a href="https://www.linkedin.com/in/stenhougaard" target="_blank" rel="noopener" class="link-btn linkedin">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
       LinkedIn
@@ -332,7 +353,7 @@
   </div>
 
   <!-- netsi.dk services -->
-  <div class="card fade">
+  <div class="card reveal">
     <div class="card-title">AI Transformation · <a href="https://www.netsi.dk" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-size:inherit;font-weight:inherit;letter-spacing:inherit;text-transform:inherit">netsi.dk</a></div>
     <div class="services-grid">
       <div class="service-card">
@@ -359,7 +380,7 @@
   </div>
 
   <!-- Experience -->
-  <div class="card fade">
+  <div class="card reveal">
     <div class="card-title">Erfaring</div>
     <div class="timeline">
       <div class="tl-item">
@@ -403,14 +424,14 @@
         <div class="tl-right">
           <div class="tl-company">Tidligere</div>
           <div class="tl-role">Web & Frontend Developer</div>
-          <div class="tl-period">727 online · mediekulturen.dk · Dynamicweb Software A/S · m.fl.</div>
+          <div class="tl-period">727 online · Dynamicweb Software A/S · m.fl.</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Skills -->
-  <div class="card fade">
+  <div class="card reveal">
     <div class="card-title">Kompetencer</div>
     <div class="tags">
       <span class="tag ai">Artificial Intelligence</span>
@@ -433,14 +454,14 @@
   </div>
 
   <!-- Stats -->
-  <div class="stats fade" style="width:100%">
-    <div class="stat"><div class="stat-num">30+</div><div class="stat-label">Års erfaring i branchen</div></div>
-    <div class="stat"><div class="stat-num">138+</div><div class="stat-label">GitHub-projekter</div></div>
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Sprog: DA · EN · DE</div></div>
+  <div class="stats reveal" style="width:100%">
+    <div class="stat"><div class="stat-num" data-count="30" data-suffix="+">0</div><div class="stat-label">Års erfaring i branchen</div></div>
+    <div class="stat"><div class="stat-num" data-count="138" data-suffix="+">0</div><div class="stat-label">GitHub-projekter</div></div>
+    <div class="stat"><div class="stat-num" data-count="3" data-suffix="">0</div><div class="stat-label">Sprog: DA · EN · DE</div></div>
   </div>
 
   <!-- Quote -->
-  <div class="card quote-card fade">
+  <div class="card quote-card reveal">
     <div class="qmark">"</div>
     <div class="card-title">Anbefaling</div>
     <p class="quote-text">En programmørernes programmør med suverænt overblik over tilgængelige teknologier og stærk evne til at vurdere, hvilke programmeringstilgange der giver mening i et forretningsmæssigt miljø.</p>
@@ -448,7 +469,7 @@
   </div>
 
   <!-- Education + Languages -->
-  <div class="two-col fade" style="width:100%">
+  <div class="two-col reveal" style="width:100%">
     <div class="card">
       <div class="card-title">Uddannelse</div>
       <div class="edu-item"><div class="edu-school">EDB Skole i Odense</div><div class="edu-detail">1985 – 1986</div></div>
@@ -474,7 +495,7 @@
 </footer>
 
 <script>
-  // Stars
+  // ── Stars (dark mode) ──
   const c = document.getElementById('stars');
   for (let i = 0; i < 130; i++) {
     const s = document.createElement('span');
@@ -483,7 +504,7 @@
     c.appendChild(s);
   }
 
-  // Parallax orbs
+  // ── Parallax orbs ──
   document.addEventListener('mousemove', e => {
     const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
     document.querySelectorAll('.orb').forEach((o, i) => {
@@ -491,10 +512,10 @@
     });
   });
 
-  // Theme toggle
+  // ── Theme toggle ──
   const btn = document.getElementById('themeBtn');
   const html = document.documentElement;
-  const saved = localStorage.getItem('theme') || 'dark';
+  const saved = localStorage.getItem('theme') || 'light';
   html.setAttribute('data-theme', saved);
   btn.textContent = saved === 'dark' ? '☀️' : '🌙';
 
@@ -503,6 +524,53 @@
     html.setAttribute('data-theme', next);
     btn.textContent = next === 'dark' ? '☀️' : '🌙';
     localStorage.setItem('theme', next);
+  });
+
+  // ── Scroll-reveal ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => el.classList.add('visible'), delay);
+        observer.unobserve(el);
+        // trigger counter if inside a stats block
+        el.querySelectorAll('[data-count]').forEach(animateCount);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.dataset.delay = i * 60;
+    observer.observe(el);
+  });
+
+  // ── Animated counters ──
+  function animateCount(el) {
+    const target = parseInt(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const dur = 900;
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(ease * target) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ── Card tilt on hover ──
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform = `perspective(700px) rotateY(${x*4}deg) rotateX(${-y*4}deg) translateY(-2px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
   });
 </script>
 </body>
