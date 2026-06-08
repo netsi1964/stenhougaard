@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="da" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tre-Legeme Problem – Interaktiv Simulation</title>
+  <title>Three-Body Problem – Interactive Simulation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -384,16 +384,40 @@
     }
     .toggle input:checked + .toggle-slider { background: var(--accent); }
     .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+    /* ── Language picker ── */
+    .lang-picker { display: flex; gap: 3px; }
+    .lang-btn {
+      padding: 4px 7px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.70rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all .15s;
+      line-height: 1;
+    }
+    .lang-btn:hover { color: var(--text); border-color: var(--accent); }
+    .lang-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(124,115,255,0.12); }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-title">⚛ Tre-Legeme Problem</div>
+  <div class="header-title" data-i18n="header">⚛ Three-Body Problem</div>
   <div class="header-actions">
     <span class="speed-badge" id="fpsDisplay">60 fps</span>
-    <button class="btn btn-icon" id="themeBtn" title="Skift tema">🌙</button>
-    <a href="index.html" class="btn" style="text-decoration:none">← Portfolio</a>
+    <div class="lang-picker" id="langPicker">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="da">DA</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+      <button class="lang-btn" data-lang="zh">中文</button>
+    </div>
+    <button class="btn btn-icon" id="themeBtn" data-i18n-title="themeTitle" title="Toggle theme">🌙</button>
+    <a href="index.html" class="btn" style="text-decoration:none" data-i18n="portfolio">← Portfolio</a>
   </div>
 </header>
 
@@ -407,7 +431,7 @@
       <div class="stat-pill" id="energyDisplay">E = –</div>
     </div>
     <div class="paused-banner">
-      <div class="paused-text" id="pausedText">PAUSE</div>
+      <div class="paused-text" id="pausedText" data-i18n="pause_word">PAUSED</div>
     </div>
   </div>
 
@@ -416,48 +440,48 @@
 
     <!-- Play controls -->
     <div class="panel">
-      <div class="section-title">Afspilning</div>
+      <div class="section-title" data-i18n="sec_playback">Playback</div>
       <div class="play-controls">
-        <button class="btn primary" id="playBtn">⏸ Pause</button>
-        <button class="btn danger" id="resetBtn">↺ Nulstil</button>
+        <button class="btn primary" id="playBtn" data-i18n="btn_pause">⏸ Pause</button>
+        <button class="btn danger" id="resetBtn" data-i18n="btn_reset">↺ Reset</button>
       </div>
     </div>
 
     <!-- Presets -->
     <div class="panel">
-      <div class="section-title">Forudindstillinger</div>
+      <div class="section-title" data-i18n="sec_presets">Presets</div>
       <div class="preset-grid">
-        <button class="preset-btn active" data-preset="figure8">Figur-8</button>
-        <button class="preset-btn" data-preset="lagrange">Lagrange</button>
-        <button class="preset-btn" data-preset="solar">Sol-system</button>
-        <button class="preset-btn" data-preset="chaotic">Kaotisk</button>
+        <button class="preset-btn active" data-preset="figure8" data-i18n="preset_figure8">Figure-8</button>
+        <button class="preset-btn" data-preset="lagrange" data-i18n="preset_lagrange">Lagrange</button>
+        <button class="preset-btn" data-preset="solar" data-i18n="preset_solar">Solar System</button>
+        <button class="preset-btn" data-preset="chaotic" data-i18n="preset_chaotic">Chaotic</button>
       </div>
     </div>
 
     <!-- Global -->
     <div class="panel">
-      <div class="section-title">Globale parametre</div>
+      <div class="section-title" data-i18n="sec_global">Global Parameters</div>
       <div class="global-row">
-        <span class="ctrl-label">Tyngde G</span>
+        <span class="ctrl-label" data-i18n="lbl_gravity">Gravity G</span>
         <input type="range" id="slG" min="0.1" max="5" step="0.05" value="1">
         <span class="ctrl-val" id="valG">1.00</span>
       </div>
       <div class="global-row">
-        <span class="ctrl-label">Tidstrin</span>
+        <span class="ctrl-label" data-i18n="lbl_timestep">Time Step</span>
         <input type="range" id="slDt" min="0.1" max="3" step="0.05" value="1">
         <span class="ctrl-val" id="valDt">1×</span>
       </div>
       <div class="global-row">
-        <span class="ctrl-label">Sporbærer</span>
+        <span class="ctrl-label" data-i18n="lbl_trail">Trail Length</span>
         <input type="range" id="slTrail" min="50" max="2000" step="50" value="600">
         <span class="ctrl-val" id="valTrail">600</span>
       </div>
       <div class="toggle-row">
-        <span class="toggle-label">Vis baner</span>
+        <span class="toggle-label" data-i18n="lbl_showtrails">Show trails</span>
         <label class="toggle"><input type="checkbox" id="chkTrail" checked><span class="toggle-slider"></span></label>
       </div>
       <div class="toggle-row">
-        <span class="toggle-label">Vis vektorer</span>
+        <span class="toggle-label" data-i18n="lbl_showvec">Show vectors</span>
         <label class="toggle"><input type="checkbox" id="chkVectors"><span class="toggle-slider"></span></label>
       </div>
     </div>
@@ -466,11 +490,11 @@
     <div class="panel body-panel b1">
       <div class="body-header">
         <div class="body-dot" style="background:var(--c1)"></div>
-        <span class="body-name">Legeme 1</span>
+        <span class="body-name" data-i18n="lbl_body1">Body 1</span>
         <span class="body-pos" id="pos1">x:0  y:0</span>
       </div>
       <div class="ctrl-row">
-        <span class="ctrl-label">Masse</span>
+        <span class="ctrl-label" data-i18n="lbl_mass">Mass</span>
         <input type="range" id="slM1" min="0.1" max="10" step="0.1" value="1">
         <span class="ctrl-val" id="valM1">1.0</span>
       </div>
@@ -478,7 +502,7 @@
         <span></span><span>Vx</span><span>Vy</span>
       </div>
       <div class="vel-row">
-        <span class="ctrl-label">Hastighed</span>
+        <span class="ctrl-label" data-i18n="lbl_velocity">Velocity</span>
         <input class="vel-input" type="number" id="vx1" step="0.01" value="0.347">
         <input class="vel-input" type="number" id="vy1" step="0.01" value="0.533">
       </div>
@@ -488,11 +512,11 @@
     <div class="panel body-panel b2">
       <div class="body-header">
         <div class="body-dot" style="background:var(--c2)"></div>
-        <span class="body-name">Legeme 2</span>
+        <span class="body-name" data-i18n="lbl_body2">Body 2</span>
         <span class="body-pos" id="pos2">x:0  y:0</span>
       </div>
       <div class="ctrl-row">
-        <span class="ctrl-label">Masse</span>
+        <span class="ctrl-label" data-i18n="lbl_mass">Mass</span>
         <input type="range" id="slM2" min="0.1" max="10" step="0.1" value="1">
         <span class="ctrl-val" id="valM2">1.0</span>
       </div>
@@ -500,7 +524,7 @@
         <span></span><span>Vx</span><span>Vy</span>
       </div>
       <div class="vel-row">
-        <span class="ctrl-label">Hastighed</span>
+        <span class="ctrl-label" data-i18n="lbl_velocity">Velocity</span>
         <input class="vel-input" type="number" id="vx2" step="0.01" value="0.347">
         <input class="vel-input" type="number" id="vy2" step="0.01" value="0.533">
       </div>
@@ -510,11 +534,11 @@
     <div class="panel body-panel b3">
       <div class="body-header">
         <div class="body-dot" style="background:var(--c3)"></div>
-        <span class="body-name">Legeme 3</span>
+        <span class="body-name" data-i18n="lbl_body3">Body 3</span>
         <span class="body-pos" id="pos3">x:0  y:0</span>
       </div>
       <div class="ctrl-row">
-        <span class="ctrl-label">Masse</span>
+        <span class="ctrl-label" data-i18n="lbl_mass">Mass</span>
         <input type="range" id="slM3" min="0.1" max="10" step="0.1" value="1">
         <span class="ctrl-val" id="valM3">1.0</span>
       </div>
@@ -522,7 +546,7 @@
         <span></span><span>Vx</span><span>Vy</span>
       </div>
       <div class="vel-row">
-        <span class="ctrl-label">Hastighed</span>
+        <span class="ctrl-label" data-i18n="lbl_velocity">Velocity</span>
         <input class="vel-input" type="number" id="vx3" step="0.01" value="-0.694">
         <input class="vel-input" type="number" id="vy3" step="0.01" value="-1.066">
       </div>
@@ -530,12 +554,12 @@
 
     <!-- Info -->
     <div class="panel">
-      <div class="section-title">Om simuleringen</div>
-      <p class="info-text">
-        <strong>Tre-legeme problemet</strong> beskriver bevægelsen af tre himmellegemer under gensidig tyngdekraft.<br><br>
-        Integrationsmetode: <strong>RK4</strong> (4. ordens Runge-Kutta).<br>
-        Bevægelsesenhed: AU/år-lignende enheder.<br><br>
-        Klik og træk på canvas for at <strong>flytte legemer</strong>.
+      <div class="section-title" data-i18n="sec_info">About</div>
+      <p class="info-text" data-i18n-html="info_html">
+        <strong>Three-body problem</strong> describes the motion of three bodies under mutual gravitational attraction.<br><br>
+        Integration: <strong>RK4</strong> (4th-order Runge-Kutta).<br>
+        Units: AU/year-like.<br><br>
+        Click and drag on the canvas to <strong>move bodies</strong>.
       </p>
     </div>
 
@@ -577,6 +601,9 @@ let fpsSmooth = 60;
 
 // CSS canvas dimensions (updated in resizeCanvas)
 let cssW = 0, cssH = 0;
+
+// Active language (used by playBtn handler before TRANSLATIONS block loads)
+let currentLang = localStorage.getItem('three-body-lang') || 'en';
 
 // ── Presets ────────────────────────────────────────────────────────────────
 const PRESETS = {
@@ -926,7 +953,8 @@ function loop(timestamp) {
 // ── Controls wiring ────────────────────────────────────────────────────────
 document.getElementById('playBtn').addEventListener('click', () => {
   running = !running;
-  document.getElementById('playBtn').textContent = running ? '⏸ Pause' : '▶ Afspil';
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  document.getElementById('playBtn').textContent = running ? t.btn_pause : t.btn_play;
   document.getElementById('pausedText').classList.toggle('show', !running);
 });
 
@@ -1079,6 +1107,160 @@ canvas.addEventListener('wheel', e => {
   view.scale = Math.max(20, Math.min(800, view.scale * factor));
 }, { passive: false });
 
+// ── i18n ───────────────────────────────────────────────────────────────────
+const TRANSLATIONS = {
+  en: {
+    title:          'Three-Body Problem – Interactive Simulation',
+    header:         '⚛ Three-Body Problem',
+    themeTitle:     'Toggle theme',
+    portfolio:      '← Portfolio',
+    pause_word:     'PAUSED',
+    sec_playback:   'Playback',
+    btn_pause:      '⏸ Pause',
+    btn_play:       '▶ Play',
+    btn_reset:      '↺ Reset',
+    sec_presets:    'Presets',
+    preset_figure8: 'Figure-8',
+    preset_lagrange:'Lagrange',
+    preset_solar:   'Solar System',
+    preset_chaotic: 'Chaotic',
+    sec_global:     'Global Parameters',
+    lbl_gravity:    'Gravity G',
+    lbl_timestep:   'Time Step',
+    lbl_trail:      'Trail Length',
+    lbl_showtrails: 'Show trails',
+    lbl_showvec:    'Show vectors',
+    lbl_body1:      'Body 1',
+    lbl_body2:      'Body 2',
+    lbl_body3:      'Body 3',
+    lbl_mass:       'Mass',
+    lbl_velocity:   'Velocity',
+    sec_info:       'About',
+    info_html:      '<strong>Three-body problem</strong> describes the motion of three bodies under mutual gravitational attraction.<br><br>Integration: <strong>RK4</strong> (4th-order Runge-Kutta).<br>Units: AU/year-like.<br><br>Click and drag on the canvas to <strong>move bodies</strong>.',
+  },
+  da: {
+    title:          'Tre-Legeme Problem – Interaktiv Simulation',
+    header:         '⚛ Tre-Legeme Problem',
+    themeTitle:     'Skift tema',
+    portfolio:      '← Portfolio',
+    pause_word:     'PAUSE',
+    sec_playback:   'Afspilning',
+    btn_pause:      '⏸ Pause',
+    btn_play:       '▶ Afspil',
+    btn_reset:      '↺ Nulstil',
+    sec_presets:    'Forudindstillinger',
+    preset_figure8: 'Figur-8',
+    preset_lagrange:'Lagrange',
+    preset_solar:   'Sol-system',
+    preset_chaotic: 'Kaotisk',
+    sec_global:     'Globale parametre',
+    lbl_gravity:    'Tyngde G',
+    lbl_timestep:   'Tidstrin',
+    lbl_trail:      'Sporbærer',
+    lbl_showtrails: 'Vis baner',
+    lbl_showvec:    'Vis vektorer',
+    lbl_body1:      'Legeme 1',
+    lbl_body2:      'Legeme 2',
+    lbl_body3:      'Legeme 3',
+    lbl_mass:       'Masse',
+    lbl_velocity:   'Hastighed',
+    sec_info:       'Om simuleringen',
+    info_html:      '<strong>Tre-legeme problemet</strong> beskriver bevægelsen af tre himmellegemer under gensidig tyngdekraft.<br><br>Integrationsmetode: <strong>RK4</strong> (4. ordens Runge-Kutta).<br>Bevægelsesenhed: AU/år-lignende enheder.<br><br>Klik og træk på canvas for at <strong>flytte legemer</strong>.',
+  },
+  es: {
+    title:          'Problema de los Tres Cuerpos – Simulación Interactiva',
+    header:         '⚛ Problema de los Tres Cuerpos',
+    themeTitle:     'Cambiar tema',
+    portfolio:      '← Portfolio',
+    pause_word:     'PAUSA',
+    sec_playback:   'Reproducción',
+    btn_pause:      '⏸ Pausar',
+    btn_play:       '▶ Reproducir',
+    btn_reset:      '↺ Reiniciar',
+    sec_presets:    'Preajustes',
+    preset_figure8: 'Figura-8',
+    preset_lagrange:'Lagrange',
+    preset_solar:   'Sistema Solar',
+    preset_chaotic: 'Caótico',
+    sec_global:     'Parámetros globales',
+    lbl_gravity:    'Gravedad G',
+    lbl_timestep:   'Paso temporal',
+    lbl_trail:      'Long. del rastro',
+    lbl_showtrails: 'Mostrar rastros',
+    lbl_showvec:    'Mostrar vectores',
+    lbl_body1:      'Cuerpo 1',
+    lbl_body2:      'Cuerpo 2',
+    lbl_body3:      'Cuerpo 3',
+    lbl_mass:       'Masa',
+    lbl_velocity:   'Velocidad',
+    sec_info:       'Acerca de',
+    info_html:      '<strong>El problema de los tres cuerpos</strong> describe el movimiento de tres cuerpos bajo atracción gravitacional mutua.<br><br>Integración: <strong>RK4</strong> (Runge-Kutta de 4.° orden).<br>Unidades: similares a UA/año.<br><br>Haz clic y arrastra en el canvas para <strong>mover los cuerpos</strong>.',
+  },
+  zh: {
+    title:          '三体问题 – 交互式模拟',
+    header:         '⚛ 三体问题',
+    themeTitle:     '切换主题',
+    portfolio:      '← 主页',
+    pause_word:     '已暂停',
+    sec_playback:   '播放控制',
+    btn_pause:      '⏸ 暂停',
+    btn_play:       '▶ 播放',
+    btn_reset:      '↺ 重置',
+    sec_presets:    '预设配置',
+    preset_figure8: '八字形',
+    preset_lagrange:'拉格朗日',
+    preset_solar:   '太阳系',
+    preset_chaotic: '混沌',
+    sec_global:     '全局参数',
+    lbl_gravity:    '引力 G',
+    lbl_timestep:   '时间步长',
+    lbl_trail:      '轨迹长度',
+    lbl_showtrails: '显示轨迹',
+    lbl_showvec:    '显示速度向量',
+    lbl_body1:      '天体 1',
+    lbl_body2:      '天体 2',
+    lbl_body3:      '天体 3',
+    lbl_mass:       '质量',
+    lbl_velocity:   '速度',
+    sec_info:       '关于模拟',
+    info_html:      '<strong>三体问题</strong>描述了三个天体在相互引力作用下的运动规律。<br><br>积分方法：<strong>RK4</strong>（四阶龙格-库塔）。<br>单位：天文单位／年。<br><br>在画布上点击并拖拽以<strong>移动天体</strong>。',
+  },
+};
+
+function applyLang(code) {
+  const t = TRANSLATIONS[code] || TRANSLATIONS.en;
+  currentLang = code;
+  localStorage.setItem('three-body-lang', code);
+
+  document.documentElement.lang = code;
+  document.title = t.title;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.dataset.i18nHtml;
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.dataset.i18nTitle;
+    if (t[key] !== undefined) el.title = t[key];
+  });
+
+  // Keep playBtn in sync with running state
+  document.getElementById('playBtn').textContent = running ? t.btn_pause : t.btn_play;
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === code);
+  });
+}
+
+document.getElementById('langPicker').addEventListener('click', e => {
+  const btn = e.target.closest('.lang-btn');
+  if (btn) applyLang(btn.dataset.lang);
+});
+
 // ── Init ───────────────────────────────────────────────────────────────────
 window.addEventListener('resize', () => {
   resizeCanvas();
@@ -1086,6 +1268,7 @@ window.addEventListener('resize', () => {
 
 resizeCanvas();
 loadPreset('figure8');
+applyLang(currentLang);
 requestAnimationFrame(loop);
 </script>
 </body>
