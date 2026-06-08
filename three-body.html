@@ -575,6 +575,9 @@ let lastFrameTime = 0;
 let frameCount = 0;
 let fpsSmooth = 60;
 
+// CSS canvas dimensions (updated in resizeCanvas)
+let cssW = 0, cssH = 0;
+
 // ── Presets ────────────────────────────────────────────────────────────────
 const PRESETS = {
   figure8: {
@@ -614,6 +617,13 @@ const PRESETS = {
 // ── Helpers ────────────────────────────────────────────────────────────────
 function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
 
+function snapView() {
+  let cx = 0, cy = 0, totalM = 0;
+  bodies.forEach(b => { cx += b.x * b.m; cy += b.y * b.m; totalM += b.m; });
+  view.cx = cx / totalM;
+  view.cy = cy / totalM;
+}
+
 function loadPreset(name) {
   const p = PRESETS[name];
   if (!p) return;
@@ -624,6 +634,7 @@ function loadPreset(name) {
   initState = deepCopy(bodies);
   trails = [[], [], []];
   simTime = 0;
+  snapView();
 
   // Update UI
   document.getElementById('slG').value = G;
@@ -645,7 +656,7 @@ function loadPreset(name) {
 
 // ── Physics (RK4) ──────────────────────────────────────────────────────────
 function acceleration(bs) {
-  const eps = 0.01; // softening
+  const eps = 1e-4; // softening
   return bs.map((b, i) => {
     let ax = 0, ay = 0;
     bs.forEach((other, j) => {
@@ -717,43 +728,41 @@ function totalEnergy(bs) {
 let view = { cx: 0, cy: 0, scale: 120 };
 
 function toScreen(x, y) {
-  const W = canvas.width, H = canvas.height;
   return {
-    sx: W/2 + (x - view.cx) * view.scale,
-    sy: H/2 - (y - view.cy) * view.scale,
+    sx: cssW/2 + (x - view.cx) * view.scale,
+    sy: cssH/2 - (y - view.cy) * view.scale,
   };
 }
 
 function toWorld(sx, sy) {
-  const W = canvas.width, H = canvas.height;
   return {
-    x: (sx - W/2) / view.scale + view.cx,
-    y: (H/2 - sy) / view.scale + view.cy,
+    x: (sx - cssW/2) / view.scale + view.cx,
+    y: (cssH/2 - sy) / view.scale + view.cy,
   };
 }
 
 // ── Rendering ─────────────────────────────────────────────────────────────
 function resizeCanvas() {
   const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width  = rect.width  * window.devicePixelRatio;
-  canvas.height = rect.height * window.devicePixelRatio;
-  canvas.style.width  = rect.width  + 'px';
-  canvas.style.height = rect.height + 'px';
+  cssW = rect.width;
+  cssH = rect.height;
+  canvas.width  = cssW * window.devicePixelRatio;
+  canvas.height = cssH * window.devicePixelRatio;
+  canvas.style.width  = cssW + 'px';
+  canvas.style.height = cssH + 'px';
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  view.scale = Math.min(rect.width, rect.height) * 0.12;
+  view.scale = Math.min(cssW, cssH) * 0.12;
 }
 
 function drawGrid() {
-  const W = canvas.width / window.devicePixelRatio;
-  const H = canvas.height / window.devicePixelRatio;
   ctx.save();
   ctx.strokeStyle = 'rgba(255,255,255,0.04)';
   ctx.lineWidth = 1;
   const step = view.scale;
-  const ox = (W/2 - view.cx * view.scale) % step;
-  const oy = (H/2 + view.cy * view.scale) % step;
-  for (let x = ox; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for (let y = oy; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  const ox = (cssW/2 - view.cx * view.scale) % step;
+  const oy = (cssH/2 + view.cy * view.scale) % step;
+  for (let x = ox; x < cssW; x += step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,cssH); ctx.stroke(); }
+  for (let y = oy; y < cssH; y += step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cssW,y); ctx.stroke(); }
   ctx.restore();
 }
 
@@ -840,12 +849,9 @@ function drawCenterOfMass() {
 }
 
 function render() {
-  const W = canvas.width / window.devicePixelRatio;
-  const H = canvas.height / window.devicePixelRatio;
-
-  ctx.clearRect(0, 0, W, H);
+  ctx.clearRect(0, 0, cssW, cssH);
   ctx.fillStyle = '#03030a';
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, cssW, cssH);
 
   drawGrid();
   drawCenterOfMass();
@@ -928,7 +934,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   bodies = deepCopy(initState);
   trails = [[], [], []];
   simTime = 0;
-  view.cx = 0; view.cy = 0;
+  snapView();
   running = true;
   document.getElementById('playBtn').textContent = '⏸ Pause';
   document.getElementById('pausedText').classList.remove('show');
