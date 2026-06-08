@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tre-Legeme Problem – Interaktiv Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #07070f;
+      --bg2: #0d0d1a;
+      --card: #11111e;
+      --border: rgba(255,255,255,0.08);
+      --accent: #7c73ff;
+      --text: #eeeef8;
+      --muted: rgba(238,238,248,0.45);
+      --shadow: rgba(0,0,0,0.5);
+      --c1: #ff6b6b;
+      --c2: #43e97b;
+      --c3: #ffd166;
+    }
+    [data-theme="light"] {
+      --bg: #f0f0fa;
+      --bg2: #e8e8f5;
+      --card: #ffffff;
+      --border: rgba(0,0,0,0.09);
+      --accent: #5a52e0;
+      --text: #111120;
+      --muted: rgba(17,17,32,0.5);
+      --shadow: rgba(0,0,0,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+    .header-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      transition: all .18s ease;
+      font-family: inherit;
+    }
+    .btn:hover { background: rgba(124,115,255,0.12); border-color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary:hover { opacity: 0.88; }
+    .btn.danger  { background: rgba(255,107,107,0.14); border-color: rgba(255,107,107,0.4); color: var(--c1); }
+    .btn.danger:hover { background: rgba(255,107,107,0.24); }
+    .btn-icon { padding: 7px; border-radius: 50%; width: 34px; height: 34px; justify-content: center; font-size: 0.95rem; }
+
+    /* ── Main layout ── */
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+      overflow: hidden;
+      height: calc(100vh - 57px);
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; height: auto; }
+      .sidebar { order: 2; max-height: 50vh; overflow-y: auto; }
+      .canvas-area { height: 55vw; min-height: 280px; }
+    }
+
+    /* ── Canvas ── */
+    .canvas-area {
+      position: relative;
+      background: #03030a;
+      overflow: hidden;
+    }
+    [data-theme="light"] .canvas-area { background: #0a0a18; }
+    #simCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .canvas-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
+      color: rgba(255,255,255,0.7);
+      backdrop-filter: blur(6px);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .paused-banner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .paused-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.18);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      display: none;
+    }
+    .paused-text.show { display: block; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    /* Body panels */
+    .body-panel { border-left: 3px solid; }
+    .body-panel.b1 { border-left-color: var(--c1); }
+    .body-panel.b2 { border-left-color: var(--c2); }
+    .body-panel.b3 { border-left-color: var(--c3); }
+
+    .body-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .body-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .body-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .body-pos {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-left: auto;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Sliders */
+    .ctrl-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 48px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .ctrl-label {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(124,115,255,0.5);
+    }
+    .ctrl-val {
+      font-size: 0.76rem;
+      color: var(--text);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Velocity inputs */
+    .vel-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .vel-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 4px 7px;
+      font-size: 0.76rem;
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .vel-input:focus { border-color: var(--accent); }
+    .vel-header {
+      display: grid;
+      grid-template-columns: 64px 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .vel-header span {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Presets */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .preset-btn {
+      padding: 9px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .18s;
+      text-align: center;
+    }
+    .preset-btn:hover {
+      background: rgba(124,115,255,0.12);
+      border-color: var(--accent);
+    }
+    .preset-btn.active {
+      background: rgba(124,115,255,0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Global controls */
+    .global-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 48px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Play controls */
+    .play-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .play-controls .btn { flex: 1; justify-content: center; }
+
+    /* Info */
+    .info-text {
+      font-size: 0.76rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .info-text strong { color: var(--text); font-weight: 500; }
+
+    /* Speed display */
+    .speed-badge {
+      background: rgba(124,115,255,0.15);
+      border: 1px solid rgba(124,115,255,0.3);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Scrollbar */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Trail toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .toggle-label { font-size: 0.78rem; color: var(--muted); }
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--border);
+      border-radius: 20px;
+      transition: background .2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 3px; top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform .2s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">⚛ Tre-Legeme Problem</div>
+  <div class="header-actions">
+    <span class="speed-badge" id="fpsDisplay">60 fps</span>
+    <button class="btn btn-icon" id="themeBtn" title="Skift tema">🌙</button>
+    <a href="index.html" class="btn" style="text-decoration:none">← Portfolio</a>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Canvas -->
+  <div class="canvas-area">
+    <canvas id="simCanvas"></canvas>
+    <div class="canvas-overlay">
+      <div class="stat-pill" id="timeDisplay">t = 0.00</div>
+      <div class="stat-pill" id="energyDisplay">E = –</div>
+    </div>
+    <div class="paused-banner">
+      <div class="paused-text" id="pausedText">PAUSE</div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <!-- Play controls -->
+    <div class="panel">
+      <div class="section-title">Afspilning</div>
+      <div class="play-controls">
+        <button class="btn primary" id="playBtn">⏸ Pause</button>
+        <button class="btn danger" id="resetBtn">↺ Nulstil</button>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="panel">
+      <div class="section-title">Forudindstillinger</div>
+      <div class="preset-grid">
+        <button class="preset-btn active" data-preset="figure8">Figur-8</button>
+        <button class="preset-btn" data-preset="lagrange">Lagrange</button>
+        <button class="preset-btn" data-preset="solar">Sol-system</button>
+        <button class="preset-btn" data-preset="chaotic">Kaotisk</button>
+      </div>
+    </div>
+
+    <!-- Global -->
+    <div class="panel">
+      <div class="section-title">Globale parametre</div>
+      <div class="global-row">
+        <span class="ctrl-label">Tyngde G</span>
+        <input type="range" id="slG" min="0.1" max="5" step="0.05" value="1">
+        <span class="ctrl-val" id="valG">1.00</span>
+      </div>
+      <div class="global-row">
+        <span class="ctrl-label">Tidstrin</span>
+        <input type="range" id="slDt" min="0.1" max="3" step="0.05" value="1">
+        <span class="ctrl-val" id="valDt">1×</span>
+      </div>
+      <div class="global-row">
+        <span class="ctrl-label">Sporbærer</span>
+        <input type="range" id="slTrail" min="50" max="2000" step="50" value="600">
+        <span class="ctrl-val" id="valTrail">600</span>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Vis baner</span>
+        <label class="toggle"><input type="checkbox" id="chkTrail" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Vis vektorer</span>
+        <label class="toggle"><input type="checkbox" id="chkVectors"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <!-- Body 1 -->
+    <div class="panel body-panel b1">
+      <div class="body-header">
+        <div class="body-dot" style="background:var(--c1)"></div>
+        <span class="body-name">Legeme 1</span>
+        <span class="body-pos" id="pos1">x:0  y:0</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Masse</span>
+        <input type="range" id="slM1" min="0.1" max="10" step="0.1" value="1">
+        <span class="ctrl-val" id="valM1">1.0</span>
+      </div>
+      <div class="vel-header">
+        <span></span><span>Vx</span><span>Vy</span>
+      </div>
+      <div class="vel-row">
+        <span class="ctrl-label">Hastighed</span>
+        <input class="vel-input" type="number" id="vx1" step="0.01" value="0.347">
+        <input class="vel-input" type="number" id="vy1" step="0.01" value="0.533">
+      </div>
+    </div>
+
+    <!-- Body 2 -->
+    <div class="panel body-panel b2">
+      <div class="body-header">
+        <div class="body-dot" style="background:var(--c2)"></div>
+        <span class="body-name">Legeme 2</span>
+        <span class="body-pos" id="pos2">x:0  y:0</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Masse</span>
+        <input type="range" id="slM2" min="0.1" max="10" step="0.1" value="1">
+        <span class="ctrl-val" id="valM2">1.0</span>
+      </div>
+      <div class="vel-header">
+        <span></span><span>Vx</span><span>Vy</span>
+      </div>
+      <div class="vel-row">
+        <span class="ctrl-label">Hastighed</span>
+        <input class="vel-input" type="number" id="vx2" step="0.01" value="0.347">
+        <input class="vel-input" type="number" id="vy2" step="0.01" value="0.533">
+      </div>
+    </div>
+
+    <!-- Body 3 -->
+    <div class="panel body-panel b3">
+      <div class="body-header">
+        <div class="body-dot" style="background:var(--c3)"></div>
+        <span class="body-name">Legeme 3</span>
+        <span class="body-pos" id="pos3">x:0  y:0</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Masse</span>
+        <input type="range" id="slM3" min="0.1" max="10" step="0.1" value="1">
+        <span class="ctrl-val" id="valM3">1.0</span>
+      </div>
+      <div class="vel-header">
+        <span></span><span>Vx</span><span>Vy</span>
+      </div>
+      <div class="vel-row">
+        <span class="ctrl-label">Hastighed</span>
+        <input class="vel-input" type="number" id="vx3" step="0.01" value="-0.694">
+        <input class="vel-input" type="number" id="vy3" step="0.01" value="-1.066">
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="panel">
+      <div class="section-title">Om simuleringen</div>
+      <p class="info-text">
+        <strong>Tre-legeme problemet</strong> beskriver bevægelsen af tre himmellegemer under gensidig tyngdekraft.<br><br>
+        Integrationsmetode: <strong>RK4</strong> (4. ordens Runge-Kutta).<br>
+        Bevægelsesenhed: AU/år-lignende enheder.<br><br>
+        Klik og træk på canvas for at <strong>flytte legemer</strong>.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('simCanvas');
+const ctx    = canvas.getContext('2d');
+
+let G    = 1.0;
+let dtBase = 0.001;
+let dtMult = 1.0;
+let simTime = 0;
+let running = true;
+let showTrails   = true;
+let showVectors  = false;
+let maxTrail     = 600;
+let activePreset = 'figure8';
+
+// Body state: position, velocity, mass
+let bodies = [];
+let initState = null;  // for reset
+
+const COLORS = ['#ff6b6b', '#43e97b', '#ffd166'];
+const RADII  = [7, 7, 7];
+
+// Trail buffers
+let trails = [[], [], []];
+
+// Drag state
+let drag = null;  // { bodyIdx, offsetX, offsetY }
+
+// FPS
+let lastFrameTime = 0;
+let frameCount = 0;
+let fpsSmooth = 60;
+
+// ── Presets ────────────────────────────────────────────────────────────────
+const PRESETS = {
+  figure8: {
+    bodies: [
+      { x: -0.97000436,  y:  0.24308753, vx: 0.93240737/2, vy: 0.86473146/2, m: 1 },
+      { x:  0.97000436,  y: -0.24308753, vx: 0.93240737/2, vy: 0.86473146/2, m: 1 },
+      { x:  0,           y:  0,          vx:-0.93240737,    vy:-0.86473146,   m: 1 },
+    ],
+    G: 1, dt: 1.0, label: 'Figur-8'
+  },
+  lagrange: {
+    bodies: [
+      { x:  1,  y:  0,           vx: 0,    vy:  1.0, m: 1 },
+      { x: -0.5, y:  0.866025,   vx: -0.866, vy: -0.5, m: 1 },
+      { x: -0.5, y: -0.866025,   vx:  0.866, vy: -0.5, m: 1 },
+    ],
+    G: 1, dt: 0.7, label: 'Lagrange'
+  },
+  solar: {
+    bodies: [
+      { x:  0,     y:  0,    vx:  0,     vy:  0,    m: 8 },
+      { x:  2,     y:  0,    vx:  0,     vy:  2.0,  m: 0.5 },
+      { x: -3.5,   y:  0,    vx:  0,     vy: -1.5,  m: 0.3 },
+    ],
+    G: 1, dt: 0.6, label: 'Sol-system'
+  },
+  chaotic: {
+    bodies: [
+      { x:  0.5,   y:  0.3,  vx:  0.2,   vy: -0.5,  m: 1.2 },
+      { x: -0.8,   y:  0.6,  vx: -0.3,   vy:  0.3,  m: 0.9 },
+      { x:  0.1,  y: -0.9,   vx:  0.1,   vy:  0.2,  m: 1.5 },
+    ],
+    G: 1.5, dt: 1.0, label: 'Kaotisk'
+  }
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
+
+function loadPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+  activePreset = name;
+  G = p.G;
+  dtMult = p.dt;
+  bodies = deepCopy(p.bodies);
+  initState = deepCopy(bodies);
+  trails = [[], [], []];
+  simTime = 0;
+
+  // Update UI
+  document.getElementById('slG').value = G;
+  document.getElementById('valG').textContent = G.toFixed(2);
+  document.getElementById('slDt').value = dtMult;
+  document.getElementById('valDt').textContent = dtMult.toFixed(1) + '×';
+
+  bodies.forEach((b, i) => {
+    document.getElementById(`slM${i+1}`).value = b.m;
+    document.getElementById(`valM${i+1}`).textContent = b.m.toFixed(1);
+    document.getElementById(`vx${i+1}`).value = b.vx.toFixed(3);
+    document.getElementById(`vy${i+1}`).value = b.vy.toFixed(3);
+  });
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === name);
+  });
+}
+
+// ── Physics (RK4) ──────────────────────────────────────────────────────────
+function acceleration(bs) {
+  const eps = 0.01; // softening
+  return bs.map((b, i) => {
+    let ax = 0, ay = 0;
+    bs.forEach((other, j) => {
+      if (i === j) return;
+      const dx = other.x - b.x;
+      const dy = other.y - b.y;
+      const r2 = dx*dx + dy*dy + eps*eps;
+      const r  = Math.sqrt(r2);
+      const f  = G * other.m / r2;
+      ax += f * dx / r;
+      ay += f * dy / r;
+    });
+    return { ax, ay };
+  });
+}
+
+function rk4Step(bs, dt) {
+  const n = bs.length;
+
+  function deriv(state) {
+    const acc = acceleration(state);
+    return state.map((b, i) => ({
+      dx: b.vx, dy: b.vy, dvx: acc[i].ax, dvy: acc[i].ay
+    }));
+  }
+
+  function addScaled(state, d, h) {
+    return state.map((b, i) => ({
+      ...b,
+      x: b.x + h * d[i].dx,
+      y: b.y + h * d[i].dy,
+      vx: b.vx + h * d[i].dvx,
+      vy: b.vy + h * d[i].dvy,
+    }));
+  }
+
+  const k1 = deriv(bs);
+  const s2 = addScaled(bs, k1, dt/2);
+  const k2 = deriv(s2);
+  const s3 = addScaled(bs, k2, dt/2);
+  const k3 = deriv(s3);
+  const s4 = addScaled(bs, k3, dt);
+  const k4 = deriv(s4);
+
+  return bs.map((b, i) => ({
+    ...b,
+    x:  b.x  + (dt/6)*(k1[i].dx  + 2*k2[i].dx  + 2*k3[i].dx  + k4[i].dx),
+    y:  b.y  + (dt/6)*(k1[i].dy  + 2*k2[i].dy  + 2*k3[i].dy  + k4[i].dy),
+    vx: b.vx + (dt/6)*(k1[i].dvx + 2*k2[i].dvx + 2*k3[i].dvx + k4[i].dvx),
+    vy: b.vy + (dt/6)*(k1[i].dvy + 2*k2[i].dvy + 2*k3[i].dvy + k4[i].dvy),
+  }));
+}
+
+function totalEnergy(bs) {
+  let KE = 0, PE = 0;
+  bs.forEach(b => { KE += 0.5 * b.m * (b.vx*b.vx + b.vy*b.vy); });
+  for (let i = 0; i < bs.length; i++) {
+    for (let j = i+1; j < bs.length; j++) {
+      const dx = bs[j].x - bs[i].x;
+      const dy = bs[j].y - bs[i].y;
+      const r  = Math.sqrt(dx*dx + dy*dy) || 1e-9;
+      PE -= G * bs[i].m * bs[j].m / r;
+    }
+  }
+  return KE + PE;
+}
+
+// ── Coordinate transform ───────────────────────────────────────────────────
+let view = { cx: 0, cy: 0, scale: 120 };
+
+function toScreen(x, y) {
+  const W = canvas.width, H = canvas.height;
+  return {
+    sx: W/2 + (x - view.cx) * view.scale,
+    sy: H/2 - (y - view.cy) * view.scale,
+  };
+}
+
+function toWorld(sx, sy) {
+  const W = canvas.width, H = canvas.height;
+  return {
+    x: (sx - W/2) / view.scale + view.cx,
+    y: (H/2 - sy) / view.scale + view.cy,
+  };
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width  = rect.width  * window.devicePixelRatio;
+  canvas.height = rect.height * window.devicePixelRatio;
+  canvas.style.width  = rect.width  + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  view.scale = Math.min(rect.width, rect.height) * 0.12;
+}
+
+function drawGrid() {
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  const step = view.scale;
+  const ox = (W/2 - view.cx * view.scale) % step;
+  const oy = (H/2 + view.cy * view.scale) % step;
+  for (let x = ox; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = oy; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  ctx.restore();
+}
+
+function drawTrail(trail, color) {
+  if (trail.length < 2) return;
+  ctx.save();
+  for (let i = 1; i < trail.length; i++) {
+    const a = (i / trail.length);
+    const p0 = toScreen(trail[i-1].x, trail[i-1].y);
+    const p1 = toScreen(trail[i].x,   trail[i].y);
+    ctx.beginPath();
+    ctx.strokeStyle = color + Math.floor(a * 180).toString(16).padStart(2,'0');
+    ctx.lineWidth = a * 2;
+    ctx.moveTo(p0.sx, p0.sy);
+    ctx.lineTo(p1.sx, p1.sy);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawBody(b, color, radius) {
+  const { sx, sy } = toScreen(b.x, b.y);
+  const r = radius + Math.sqrt(b.m) * 2;
+
+  // Glow
+  const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 3.5);
+  grad.addColorStop(0, color + 'cc');
+  grad.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.arc(sx, sy, r * 3.5, 0, Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Body
+  ctx.beginPath();
+  ctx.arc(sx, sy, r, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function drawVelocityVector(b, color) {
+  const { sx, sy } = toScreen(b.x, b.y);
+  const scale = 30;
+  const ex = sx + b.vx * scale;
+  const ey = sy - b.vy * scale;
+  ctx.save();
+  ctx.strokeStyle = color + 'aa';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Arrowhead
+  const angle = Math.atan2(ey - sy, ex - sx);
+  ctx.fillStyle = color + 'aa';
+  ctx.beginPath();
+  ctx.translate(ex, ey);
+  ctx.rotate(angle);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-7, -4);
+  ctx.lineTo(-7,  4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCenterOfMass() {
+  let cx = 0, cy = 0, totalM = 0;
+  bodies.forEach(b => { cx += b.x * b.m; cy += b.y * b.m; totalM += b.m; });
+  cx /= totalM; cy /= totalM;
+  const { sx, sy } = toScreen(cx, cy);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1;
+  const s = 5;
+  ctx.beginPath(); ctx.moveTo(sx-s,sy); ctx.lineTo(sx+s,sy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(sx,sy-s); ctx.lineTo(sx,sy+s); ctx.stroke();
+  ctx.restore();
+}
+
+function render() {
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#03030a';
+  ctx.fillRect(0, 0, W, H);
+
+  drawGrid();
+  drawCenterOfMass();
+
+  if (showTrails) {
+    trails.forEach((trail, i) => drawTrail(trail, COLORS[i]));
+  }
+
+  bodies.forEach((b, i) => {
+    if (showVectors) drawVelocityVector(b, COLORS[i]);
+    drawBody(b, COLORS[i], RADII[i]);
+  });
+}
+
+// ── Simulation step ────────────────────────────────────────────────────────
+const STEPS_PER_FRAME = 8;
+
+function step() {
+  const dt = dtBase * dtMult;
+  for (let s = 0; s < STEPS_PER_FRAME; s++) {
+    bodies = rk4Step(bodies, dt);
+    simTime += dt;
+  }
+
+  if (showTrails) {
+    bodies.forEach((b, i) => {
+      trails[i].push({ x: b.x, y: b.y });
+      if (trails[i].length > maxTrail) trails[i].shift();
+    });
+  }
+
+  // Update position displays
+  bodies.forEach((b, i) => {
+    document.getElementById(`pos${i+1}`).textContent =
+      `x:${b.x.toFixed(2)} y:${b.y.toFixed(2)}`;
+  });
+
+  document.getElementById('timeDisplay').textContent = `t = ${simTime.toFixed(2)}`;
+  document.getElementById('energyDisplay').textContent = `E = ${totalEnergy(bodies).toFixed(3)}`;
+}
+
+// ── Auto-follow center of mass ─────────────────────────────────────────────
+function updateView() {
+  let cx = 0, cy = 0, totalM = 0;
+  bodies.forEach(b => { cx += b.x * b.m; cy += b.y * b.m; totalM += b.m; });
+  cx /= totalM; cy /= totalM;
+  view.cx += (cx - view.cx) * 0.02;
+  view.cy += (cy - view.cy) * 0.02;
+}
+
+// ── Animation loop ─────────────────────────────────────────────────────────
+function loop(timestamp) {
+  requestAnimationFrame(loop);
+
+  // FPS
+  frameCount++;
+  const elapsed = timestamp - lastFrameTime;
+  if (elapsed >= 1000) {
+    fpsSmooth = Math.round(frameCount * 1000 / elapsed);
+    document.getElementById('fpsDisplay').textContent = fpsSmooth + ' fps';
+    frameCount = 0;
+    lastFrameTime = timestamp;
+  }
+
+  if (running) {
+    step();
+    updateView();
+  }
+  render();
+}
+
+// ── Controls wiring ────────────────────────────────────────────────────────
+document.getElementById('playBtn').addEventListener('click', () => {
+  running = !running;
+  document.getElementById('playBtn').textContent = running ? '⏸ Pause' : '▶ Afspil';
+  document.getElementById('pausedText').classList.toggle('show', !running);
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  bodies = deepCopy(initState);
+  trails = [[], [], []];
+  simTime = 0;
+  view.cx = 0; view.cy = 0;
+  running = true;
+  document.getElementById('playBtn').textContent = '⏸ Pause';
+  document.getElementById('pausedText').classList.remove('show');
+});
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => loadPreset(btn.dataset.preset));
+});
+
+// G slider
+document.getElementById('slG').addEventListener('input', e => {
+  G = parseFloat(e.target.value);
+  document.getElementById('valG').textContent = G.toFixed(2);
+});
+
+// dt slider
+document.getElementById('slDt').addEventListener('input', e => {
+  dtMult = parseFloat(e.target.value);
+  document.getElementById('valDt').textContent = dtMult.toFixed(1) + '×';
+});
+
+// Trail length slider
+document.getElementById('slTrail').addEventListener('input', e => {
+  maxTrail = parseInt(e.target.value);
+  document.getElementById('valTrail').textContent = maxTrail;
+  trails.forEach(t => { while (t.length > maxTrail) t.shift(); });
+});
+
+document.getElementById('chkTrail').addEventListener('change', e => {
+  showTrails = e.target.checked;
+  if (!showTrails) trails = [[], [], []];
+});
+
+document.getElementById('chkVectors').addEventListener('change', e => {
+  showVectors = e.target.checked;
+});
+
+// Mass sliders
+[1,2,3].forEach(i => {
+  document.getElementById(`slM${i}`).addEventListener('input', e => {
+    const val = parseFloat(e.target.value);
+    document.getElementById(`valM${i}`).textContent = val.toFixed(1);
+    bodies[i-1].m = val;
+    if (initState) initState[i-1].m = val;
+  });
+});
+
+// Velocity inputs — only apply on blur/enter (pause sim while editing)
+[1,2,3].forEach(i => {
+  ['vx','vy'].forEach(axis => {
+    const el = document.getElementById(`${axis}${i}`);
+    const applyVel = () => {
+      const val = parseFloat(el.value);
+      if (!isNaN(val)) {
+        bodies[i-1][axis] = val;
+        if (initState) initState[i-1][axis] = val;
+        trails[i-1] = [];
+      }
+    };
+    el.addEventListener('change', applyVel);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') applyVel(); });
+  });
+});
+
+// Theme toggle
+const themeBtn = document.getElementById('themeBtn');
+const html = document.documentElement;
+const saved = localStorage.getItem('three-body-theme') || 'dark';
+html.setAttribute('data-theme', saved);
+themeBtn.textContent = saved === 'dark' ? '☀️' : '🌙';
+
+themeBtn.addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('three-body-theme', next);
+});
+
+// ── Mouse / touch drag ─────────────────────────────────────────────────────
+function getEventPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio;
+  if (e.touches) {
+    return { mx: e.touches[0].clientX - rect.left, my: e.touches[0].clientY - rect.top };
+  }
+  return { mx: e.clientX - rect.left, my: e.clientY - rect.top };
+}
+
+canvas.addEventListener('mousedown', e => {
+  const { mx, my } = getEventPos(e);
+  const w = toWorld(mx, my);
+  bodies.forEach((b, i) => {
+    const { sx, sy } = toScreen(b.x, b.y);
+    const dx = mx - sx, dy = my - sy;
+    if (Math.sqrt(dx*dx + dy*dy) < 20) {
+      drag = { bodyIdx: i, wox: b.x - w.x, woy: b.y - w.y };
+    }
+  });
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const { mx, my } = getEventPos(e);
+  const w = toWorld(mx, my);
+  bodies[drag.bodyIdx].x = w.x + drag.wox;
+  bodies[drag.bodyIdx].y = w.y + drag.woy;
+  trails[drag.bodyIdx] = [];
+});
+
+canvas.addEventListener('mouseup',   () => { drag = null; });
+canvas.addEventListener('mouseleave',() => { drag = null; });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const { mx, my } = getEventPos(e);
+  const w = toWorld(mx, my);
+  bodies.forEach((b, i) => {
+    const { sx, sy } = toScreen(b.x, b.y);
+    const dx = mx - sx, dy = my - sy;
+    if (Math.sqrt(dx*dx + dy*dy) < 28) {
+      drag = { bodyIdx: i, wox: b.x - w.x, woy: b.y - w.y };
+    }
+  });
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!drag) return;
+  const { mx, my } = getEventPos(e);
+  const w = toWorld(mx, my);
+  bodies[drag.bodyIdx].x = w.x + drag.wox;
+  bodies[drag.bodyIdx].y = w.y + drag.woy;
+  trails[drag.bodyIdx] = [];
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => { drag = null; });
+
+// Scroll to zoom
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.08 : 0.92;
+  view.scale = Math.max(20, Math.min(800, view.scale * factor));
+}, { passive: false });
+
+// ── Init ───────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  resizeCanvas();
+});
+
+resizeCanvas();
+loadPreset('figure8');
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
