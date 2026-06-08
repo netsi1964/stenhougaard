@@ -1111,80 +1111,111 @@ canvas.addEventListener('wheel', e => {
 }, { passive: false });
 
 // ── Sound engine (Web Audio API) ──────────────────────────────────────────
+//
+// Architecture:
+//   • 3 "pair" oscillators — one per body pair (0-1, 0-2, 1-2).
+//     Frequency maps 1/distance → 80 Hz (far) … 800 Hz (close).
+//     Volume also scales with proximity so distant pairs fade out.
+//   • 3 "body" oscillators — one per body.
+//     Base note A2/C#3/E3; pitch glides up by up to an octave as speed rises.
+//   • Low-pass filtered noise (space ambience, constant).
+//
 class SoundEngine {
   constructor() {
-    this.ac = null;
-    this.master = null;
-    this.enabled = false;
-    this.droneGains = [];
-    this.lastPing = 0;
+    this.ac         = null;
+    this.master     = null;
+    this.enabled    = false;
+    this.pairOscs   = [];  // [osc, osc, osc]
+    this.pairGains  = [];  // [gain, gain, gain]
+    this.bodyOscs   = [];  // [osc, osc, osc]
+    this.bodyGains  = [];  // [gain, gain, gain]
   }
 
   _init() {
     if (this.ac) return;
-    this.ac = new (window.AudioContext || window.webkitAudioContext)();
+    this.ac     = new (window.AudioContext || window.webkitAudioContext)();
     this.master = this.ac.createGain();
     this.master.gain.value = 0;
     this.master.connect(this.ac.destination);
 
-    // Ambient filtered noise (space hum)
-    const rate = this.ac.sampleRate;
-    const buf  = this.ac.createBuffer(1, rate * 3, rate);
-    const d    = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    // ── Ambient noise ──────────────────────────────────────────────────────
+    const len = this.ac.sampleRate * 3;
+    const buf = this.ac.createBuffer(1, len, this.ac.sampleRate);
+    const dat = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) dat[i] = Math.random() * 2 - 1;
     const ns = this.ac.createBufferSource();
     ns.buffer = buf; ns.loop = true;
-    const nf = this.ac.createBiquadFilter();
-    nf.type = 'lowpass'; nf.frequency.value = 80;
-    const ng = this.ac.createGain(); ng.gain.value = 0.045;
+    const nf = this.ac.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 65;
+    const ng = this.ac.createGain(); ng.gain.value = 0.028;
     ns.connect(nf); nf.connect(ng); ng.connect(this.master);
     ns.start();
 
-    // Three body drones: A1, D2, A2
-    [55, 73.4, 110].forEach((freq, i) => {
+    // ── Pair interaction oscillators ───────────────────────────────────────
+    for (let k = 0; k < 3; k++) {
       const g  = this.ac.createGain(); g.gain.value = 0;
-      const lp = this.ac.createBiquadFilter();
-      lp.type = 'lowpass'; lp.frequency.value = 700;
+      const bp = this.ac.createBiquadFilter();
+      bp.type = 'bandpass'; bp.Q.value = 1.2;
+      g.connect(bp); bp.connect(this.master);
+
+      const o = this.ac.createOscillator();
+      o.type = 'sine'; o.frequency.value = 80;
+      o.connect(g); o.start();
+
+      this.pairOscs.push(o);
+      this.pairGains.push(g);
+    }
+
+    // ── Body oscillators (A major triad: A2, C#3, E3) ─────────────────────
+    [110, 138.6, 165].forEach((baseF, i) => {
+      const g  = this.ac.createGain(); g.gain.value = 0;
+      const lp = this.ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 550;
       g.connect(lp); lp.connect(this.master);
-      [-1.5, 0, 1.5].forEach(det => {
+
+      // Slightly detuned pair for warmth
+      [-1.8, 0].forEach(det => {
         const o = this.ac.createOscillator();
-        o.type = 'sine'; o.frequency.value = freq; o.detune.value = det;
+        o.type = 'triangle'; o.frequency.value = baseF; o.detune.value = det;
         o.connect(g); o.start();
       });
-      this.droneGains.push(g);
+
+      // Track the "lead" oscillator for pitch modulation
+      const lead = this.ac.createOscillator();
+      lead.type = 'triangle'; lead.frequency.value = baseF;
+      lead.connect(g); lead.start();
+
+      this.bodyOscs.push(lead);
+      this.bodyGains.push(g);
     });
   }
 
   update(bs) {
     if (!this.enabled || !this.ac) return;
     const now = this.ac.currentTime;
-    bs.forEach((b, i) => {
-      if (!this.droneGains[i]) return;
-      const spd = Math.hypot(b.vx, b.vy);
-      const vol = Math.min(0.18, 0.02 + spd * 0.055) * Math.sqrt(b.m);
-      this.droneGains[i].gain.setTargetAtTime(vol, now, 0.35);
-    });
-    // Close-approach ping
-    for (let i = 0; i < bs.length - 1; i++) {
-      for (let j = i + 1; j < bs.length; j++) {
-        const r = Math.hypot(bs[j].x - bs[i].x, bs[j].y - bs[i].y);
-        if (r < 0.4 && now - this.lastPing > 0.9) {
-          this._ping(110 * (i + j + 1), 0.1 * (1 - r / 0.4));
-          this.lastPing = now;
-        }
-      }
-    }
-  }
+    const T   = 0.10; // smoothing time constant (seconds)
 
-  _ping(freq, vol) {
-    const now = this.ac.currentTime;
-    const o = this.ac.createOscillator();
-    const g = this.ac.createGain();
-    o.type = 'sine'; o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, now);
-    g.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
-    o.connect(g); g.connect(this.master);
-    o.start(now); o.stop(now + 1.4);
+    // Pair interactions — frequency driven by 1 / distance
+    const PAIRS = [[0,1],[0,2],[1,2]];
+    PAIRS.forEach(([a, b], k) => {
+      const r    = Math.max(0.04, Math.hypot(bs[b].x - bs[a].x, bs[b].y - bs[a].y));
+      const norm = Math.min(1, 0.6 / r);                    // 0 = far, 1 = very close
+      const freq = 80 * Math.pow(10, norm);                  // 80 Hz → 800 Hz (log)
+      const vol  = Math.min(0.14, 0.01 + 0.11 * norm * norm);
+
+      this.pairOscs[k].frequency.setTargetAtTime(freq, now, T);
+      this.pairGains[k].gain.setTargetAtTime(vol,  now, T);
+    });
+
+    // Individual body tones — pitch follows orbital speed
+    const BASE = [110, 138.6, 165];
+    bs.forEach((b, i) => {
+      if (!this.bodyOscs[i]) return;
+      const spd  = Math.hypot(b.vx, b.vy);
+      const freq = BASE[i] * Math.pow(2, Math.min(1, spd * 0.35)); // up to +1 octave
+      const vol  = Math.min(0.07, 0.006 + spd * 0.022) * Math.sqrt(b.m);
+
+      this.bodyOscs[i].frequency.setTargetAtTime(freq, now, T * 2);
+      this.bodyGains[i].gain.setTargetAtTime(vol,  now, T * 2);
+    });
   }
 
   toggle() {
@@ -1192,7 +1223,7 @@ class SoundEngine {
     this.ac.resume();
     this.enabled = !this.enabled;
     const now = this.ac.currentTime;
-    this.master.gain.setTargetAtTime(this.enabled ? 0.65 : 0, now, 0.4);
+    this.master.gain.setTargetAtTime(this.enabled ? 0.68 : 0, now, 0.4);
     return this.enabled;
   }
 }
