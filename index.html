@@ -84,6 +84,16 @@
     .link-btn.github:hover { border-color:#8b6fca; }
     .link-btn.web:hover { border-color:var(--accent3); }
 
+    .labs-grid { display:flex; flex-direction:column; gap:10px; }
+    .lab-card { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px; border:1px solid var(--border); background:var(--bg2); text-decoration:none; color:var(--text); transition:all .2s ease; }
+    .lab-card:hover { border-color:rgba(108,99,255,0.4); transform:translateX(3px); box-shadow:0 4px 16px var(--shadow); }
+    .lab-icon { font-size:1.4rem; width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:rgba(108,99,255,0.1); border-radius:10px; flex-shrink:0; }
+    .lab-body { flex:1; min-width:0; }
+    .lab-title { font-size:.9rem; font-weight:600; color:var(--text); margin-bottom:3px; }
+    .lab-desc { font-size:.78rem; color:var(--muted); line-height:1.5; }
+    .lab-arrow { color:var(--accent); font-size:1rem; opacity:.55; transition:transform .2s,opacity .2s; flex-shrink:0; }
+    .lab-card:hover .lab-arrow { transform:translateX(4px); opacity:1; }
+
     .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     @media(max-width:560px){ .services-grid{grid-template-columns:1fr} }
     .service-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:20px 22px; transition:all .2s ease; }
@@ -169,6 +179,20 @@
     <a href="https://www.linkedin.com/in/stenhougaard" target="_blank" rel="noopener" class="link-btn linkedin"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
     <a href="https://github.com/netsi1964" target="_blank" rel="noopener" class="link-btn github"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
     <a href="https://www.netsi.dk" target="_blank" rel="noopener" class="link-btn web"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>netsi.dk</a>
+  </div>
+
+  <div class="card reveal">
+    <div class="card-title">Labs &amp; Eksperimenter</div>
+    <div class="labs-grid">
+      <a class="lab-card" href="three-body.html">
+        <div class="lab-icon">⚛</div>
+        <div class="lab-body">
+          <div class="lab-title">Tre-Legeme Problem</div>
+          <div class="lab-desc">Interaktiv gravitationssimulation med RK4-integration, banespor, masse- og hastighedskontrol og URL-deling.</div>
+        </div>
+        <span class="lab-arrow">→</span>
+      </a>
+    </div>
   </div>
 
   <div class="card reveal">
