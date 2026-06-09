@@ -119,6 +119,9 @@ mark{background:rgba(255,149,0,.3);color:inherit;border-radius:2px}
 .pmeta{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .ilbl{font-size:11px;color:var(--text3);letter-spacing:1.5px}
 .pdesc{font-size:14px;line-height:1.75;color:var(--text2);margin:16px 0 20px}
+.sunion{border-left:3px solid var(--orange);padding:10px 14px 10px 16px;margin:0 0 20px;background:rgba(255,106,0,.07);border-radius:0 8px 8px 0;font-size:13px;font-style:italic;color:var(--text2);line-height:1.65;position:relative}
+[data-theme="light"] .sunion{background:rgba(255,106,0,.06)}
+.sunion-src{display:block;font-size:10px;color:var(--orange);font-style:normal;margin-top:6px;font-weight:600;letter-spacing:.3px;opacity:.8}
 .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
 .plinks{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
 .plink{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border);text-decoration:none;color:var(--text);font-size:13px;font-weight:500;transition:all .15s;background:var(--bg3)}
@@ -299,6 +302,7 @@ const FEATURES = [
          desc:'Scrolling i App Library, Safari og system-apps er mærkbart jævnere med forbedret frametiming og reduceret jitter, særligt på ProMotion-skærme.' },
     url:'https://www.apple.com/ios/',
     vid:{ url:BASE+'321/', title:'Dive into lazy stacks and scrolling with SwiftUI' },
+    quote:'SwiftUI brings more speed, richer interactions, and new capabilities. Drag to reorder and swipe actions now work in any container. Nested layouts resize up to twice as fast, and async image caches automatically.',
     prompt:'How did Apple improve scrolling performance in iOS 27 and iPadOS 27 at WWDC 2026? What changes were made to the rendering pipeline and frame timing? How does this benefit ProMotion 120Hz display users?' },
 
   { id:'faster-airdrop', cat:'performance', plat:['ios','ipados','macos'], impact:2,
@@ -332,6 +336,7 @@ const FEATURES = [
          desc:'Det raffinerede Liquid Glass UI-system bringer en opacitetsskyder til justerbar gennemsigtighed, mere konsistente hjørneradier og sammenhængende ikoner på tværs af platforme.' },
     url:'https://developer.apple.com/design/',
     vid:{ url:BASE+'250/', title:'Principles of great design' },
+    quote:'The new design with liquid glass is more consistent, more personalizable, and better tuned to maintain exceptional readability. Every window on macOS shares the same tighter corner radius. App icons get sharper rendering automatically, and you can add new refraction effects in Icon Composer.',
     prompt:'Describe the Liquid Glass design language refinements at WWDC 2026. What specific changes were made to readability, opacity controls, and corner radius consistency? How do developers adopt these changes using SwiftUI and UIKit APIs?' },
 
   { id:'siri-ai', cat:'ai', plat:['ios','ipados','macos','watchos'], impact:3,
@@ -341,6 +346,7 @@ const FEATURES = [
          desc:'Siri får en transformativ opgradering med konversationskontekst, on-screen awareness og dyb app-integration. Drevet af Apples on-device-modeller og valgfri Gemini-integration.' },
     url:'https://www.apple.com/apple-intelligence/',
     vid:{ url:BASE+'121/', title:"Announcing Apple's next big step for Siri and iPhone" },
+    quote:'App Intents connect your app to Apple Intelligence, making your users\' content discoverable and your app\'s actions available through natural language in Siri. And the new View Annotations API even lets people act on what\'s on screen just by asking. Together, in-app and system-wide intelligence unlock experiences neither could deliver alone.',
     prompt:'Explain the complete overhaul of Siri announced at WWDC 2026. What are the specific capabilities of the new conversational context system and on-screen awareness? How does Siri integrate with third-party apps via App Intents? How does Gemini integration work, and what are the privacy implications of the hybrid on-device/cloud model?' },
 
   { id:'apple-intelligence', cat:'ai', plat:['ios','ipados','macos'], impact:3,
@@ -350,6 +356,7 @@ const FEATURES = [
          desc:'Store opdateringer bringer forbedret fotoredigering (Cleanup, Extend, Spatial Reframe), smartere tværs-app-forslag og opdateret Genmoji og Image Playground.' },
     url:'https://www.apple.com/apple-intelligence/',
     vid:{ url:BASE+'241/', title:"What's new in the Foundation Models framework" },
+    quote:'Apple Intelligence has been rebuilt from the ground up. Working together with Google and leveraging the technologies behind their Gemini family of models, we created the latest Apple Foundation Models for our integrated Apple Intelligence experiences. The Foundation Models framework expands to include image input and support for cloud models. So if you have a more complex task requiring more advanced frontier models, the API can now integrate with the cloud model provider of your choice.',
     prompt:'What new capabilities does Apple Intelligence 2.0 bring at WWDC 2026? Explain the new photo editing features (Cleanup, Extend, Spatial Reframe), how cross-app context awareness works, updates to Genmoji and Image Playground, and what new Foundation Models APIs are available to developers.' },
 
   { id:'ai-dictation', cat:'ai', plat:['ios','ipados','macos'], impact:2,
@@ -368,6 +375,7 @@ const FEATURES = [
          desc:'Beskriv automatiseringer med naturligt sprog, og Siri bygger genvejen for dig. Genveje-appen får AI-drevne handlingsforslag og forstår komplekse flertrins-anmodninger.' },
     url:'https://www.apple.com/ios/',
     vid:{ url:BASE+'310/', title:"What's new in Shortcuts" },
+    quote:'We included dynamic profiles to help you build AI agents and skills with a lot less code by swapping tools in and out and updating instructions on the fly. App Intents connect your app to Apple Intelligence, making your users\' content discoverable and your app\'s actions available through natural language in Siri.',
     prompt:'Describe the natural language Shortcuts creation announced at WWDC 2026. How does the AI understand complex automation requests? What are the current limits? What App Intents API changes allow third-party apps to be used in AI-generated Shortcuts?' },
 
   { id:'text-recognition', cat:'ai', plat:['ios','ipados','macos'], impact:2,
@@ -526,6 +534,7 @@ const FEATURES = [
          desc:'Stage Manager forbedres markant med bedre vinduesstyring, ny support til flydende paneler, forbedret ekstern skærmhåndtering og mere intuitiv app-skift med visuel kontekst.' },
     url:'https://www.apple.com/ipados/',
     vid:{ url:BASE+'278/', title:'Modernize your UIKit app' },
+    quote:'iOS apps are now resizable, so users can take advantage of their larger displays when running one on iPads or Macs using iPhone mirroring. And the new resizable iOS simulator and previews make it easy to test across sizes.',
     prompt:'What improvements were made to Stage Manager and multitasking in iPadOS 27 at WWDC 2026? How do the new floating panels work? What changed in external display support? What UIKit and SwiftUI APIs enable developers to support the improved window management model?' },
 
   { id:'macos-golden-gate', cat:'platform', plat:['macos'], impact:3,
@@ -535,6 +544,7 @@ const FEATURES = [
          desc:'macOS 27 Golden Gate har hurtigere Finder-browsing, forbedret Spotlight med Siri AI-integration, nyt tilpasseligt Control Center og forbedret ProMotion-støtte til eksterne skærme.' },
     url:'https://www.apple.com/macos/',
     vid:{ url:BASE+'289/', title:'Modernize your AppKit app' },
+    quote:'Every window on macOS shares the same tighter corner radius. App icons get sharper rendering automatically, and you can add new refraction effects in Icon Composer. iOS apps are now resizable, so users can take advantage of their larger displays when running one on iPads or Macs using iPhone mirroring.',
     prompt:'What are the key features of macOS 27 Golden Gate announced at WWDC 2026? How was Finder performance improved? How does Spotlight integrate with Siri AI for natural language queries? What new Control Center customization options are available, and what framework changes should macOS developers know about?' },
 
   { id:'watchos', cat:'platform', plat:['watchos'], impact:2,
@@ -553,6 +563,7 @@ const FEATURES = [
          desc:'visionOS 3 bringer en redesignet 3D Siri-visualisering, genopbygget Control Center med buede vinduer, forbedret hånd-tracking-præcision og nye rumlige computerkapaciteter til enterprise.' },
     url:'https://www.apple.com/visionos/',
     vid:{ url:BASE+'287/', title:'Build next-generation experiences with visionOS 27' },
+    quote:'On Apple Vision Pro, the new Spatial Preview Framework streams 3D models from your Mac into the space around you.',
     prompt:'What are the new features in visionOS 3 announced at WWDC 2026? How does the 3D Siri visualization work in spatial computing? What changed in the curved Control Center design? How was hand tracking precision improved? What new RealityKit and SwiftUI APIs are available for visionOS developers?' },
 
   { id:'carplay', cat:'platform', plat:['carplay'], impact:2,
@@ -696,6 +707,7 @@ function openPanel(id) {
     </div>
     <div class="chips" style="margin-bottom:4px">${chips(f.plat)}</div>
     <p class="pdesc">${f[l].desc}</p>
+    ${f.quote ? `<blockquote class="sunion">${f.quote}<span class="sunion-src">— Platform State of the Union · WWDC 2026</span></blockquote>` : ''}
     <hr class="divider">
     <div class="plinks">
       <a class="plink prime" href="${f.url}" target="_blank" rel="noopener">🍎 ${T('apple_pg')}</a>
