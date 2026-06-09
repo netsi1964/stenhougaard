@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENTROPIA – Familiespil</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root,[data-theme="dark"]{
+  --bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c24;--bg4:#26262f;
+  --border:rgba(255,255,255,0.09);
+  --text:#f0f0f2;--text2:#a8a8ad;--text3:#67676d;
+  --orange:#ff6a00;--orange-soft:rgba(255,106,0,.15);
+  --ok:#34c759;--err:#ff3b30;
+  --shadow:0 2px 12px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.4);
+  --radius:16px;
+}
+[data-theme="light"]{
+  --bg:#f5f5f7;--bg2:#ffffff;--bg3:#f0f0f3;--bg4:#e5e5ea;
+  --border:rgba(0,0,0,0.09);
+  --text:#1d1d1f;--text2:#515154;--text3:#909095;
+  --orange:#ff6a00;--orange-soft:rgba(255,106,0,.12);
+  --ok:#34c759;--err:#ff3b30;
+  --shadow:0 2px 12px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.05);
+  --radius:16px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh;transition:background .25s,color .25s;
+}
+
+header{
+  position:sticky;top:0;z-index:100;height:56px;
+  display:flex;align-items:center;gap:12px;padding:0 20px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.back-link{color:var(--orange);text-decoration:none;font-size:13px;white-space:nowrap;transition:opacity .15s}
+.back-link:hover{opacity:.6}
+.brand{font-size:15px;font-weight:700;flex:1;letter-spacing:.05em}
+.brand span{color:var(--orange)}
+
+.theme-btn{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  color:var(--text2);cursor:pointer;font-size:16px;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,color .15s;
+}
+.theme-btn:hover{border-color:var(--orange);color:var(--orange)}
+
+button{font-family:inherit}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;font-weight:600;padding:12px 20px;border-radius:12px;min-height:44px;
+  border:1px solid var(--border);background:var(--bg3);color:var(--text);
+  cursor:pointer;transition:all .18s ease;
+}
+.btn:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn-primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn-primary:hover{background:#e85f00;color:#fff;box-shadow:0 4px 16px rgba(255,106,0,.4);transform:translateY(-1px)}
+
+footer{text-align:center;padding:18px;font-size:12px;color:var(--text3)}
+footer a{color:var(--orange);text-decoration:none}
+
+/* ===== SCREENS ===== */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ===== SETUP SCREEN ===== */
+#setup-screen{
+  display:none;
+  flex-direction:column;align-items:center;
+  padding:40px 20px 80px;min-height:calc(100vh - 56px);
+}
+#setup-screen.active{display:flex}
+
+.setup-hero{text-align:center;margin-bottom:40px}
+.entropia-title{
+  font-size:clamp(52px,14vw,96px);font-weight:900;
+  letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,#ff6a00 0%,#bf5af2 40%,#0a84ff 80%,#34c759 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:8px;
+}
+.entropia-sub{font-size:13px;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.setup-tagline{font-size:15px;color:var(--text2);max-width:440px;margin:0 auto;line-height:1.6}
+
+.setup-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:28px;width:100%;max-width:480px;
+}
+.setup-section{margin-bottom:24px}
+.setup-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.player-count-btns{display:flex;gap:8px}
+.player-count-btns .btn{flex:1;font-size:18px;font-weight:800}
+.player-count-btns .btn.selected{background:var(--orange);border-color:var(--orange);color:#fff}
+
+.player-rows{display:flex;flex-direction:column;gap:8px}
+.player-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border-radius:12px;padding:10px 12px;
+  border:1px solid var(--border);
+}
+.player-row-num{font-size:11px;font-weight:800;width:16px;text-align:center}
+.player-name-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-size:15px;font-family:inherit;min-width:0;
+}
+.player-name-input::placeholder{color:var(--text3)}
+.emoji-row{display:flex;gap:4px}
+.emoji-btn{
+  font-size:18px;background:none;border:2px solid transparent;
+  border-radius:8px;cursor:pointer;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,transform .1s;
+}
+.emoji-btn.selected{border-color:var(--orange);transform:scale(1.15)}
+.emoji-btn:hover{border-color:var(--border)}
+
+/* ===== GAME SCREEN ===== */
+#game-screen{display:none}
+#game-screen.active{display:block}
+
+.game-layout{
+  display:flex;flex-direction:column;
+  padding:12px;gap:12px;
+  max-width:1200px;margin:0 auto;
+}
+@media(min-width:800px){
+  .game-layout{flex-direction:row;align-items:flex-start;padding:16px;gap:16px}
+  .board-wrap{flex:0 0 auto;width:min(520px,55vw)}
+  .game-panel{flex:1;min-width:260px}
+}
+
+/* ===== BOARD ===== */
+.board{
+  display:grid;
+  grid-template-columns:repeat(11,1fr);
+  grid-template-rows:repeat(11,1fr);
+  width:100%;
+  aspect-ratio:1;
+  gap:2px;
+  background:var(--bg4);
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+
+.field{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;overflow:hidden;
+  min-width:0;min-height:0;padding:1px;
+}
+.field-icon{font-size:clamp(9px,2vw,16px);line-height:1;pointer-events:none}
+.field-name{
+  font-size:clamp(4px,0.8vw,7px);font-weight:600;text-align:center;
+  color:rgba(255,255,255,0.8);line-height:1.1;pointer-events:none;
+  display:none;padding:0 1px;
+}
+@media(min-width:500px){.field-name{display:block}}
+
+.field-start  {background:#0d2e14;border:2px solid #34c759}
+.field-corner {background:#14133a;border:1px solid #5e5ce6}
+.field-dev    {background:#041830;border:1px solid #007aff}
+.field-temp   {background:#300808;border:1px solid #ff3b30}
+.field-help   {background:#301500;border:1px solid #ff9500}
+.field-choice {background:#261c00;border:1px solid #ffd60a}
+.field-coop   {background:#042210;border:1px solid #30d158}
+.field-chal   {background:#1a1a1a;border:1px solid #636366}
+.field-event  {background:#001830;border:1px solid #0a84ff}
+
+[data-theme="light"] .field-start  {background:#d4f5de;border:2px solid #34c759}
+[data-theme="light"] .field-corner {background:#e0dfff;border:1px solid #5e5ce6}
+[data-theme="light"] .field-dev    {background:#d0e8ff;border:1px solid #007aff}
+[data-theme="light"] .field-temp   {background:#ffd5d5;border:1px solid #ff3b30}
+[data-theme="light"] .field-help   {background:#ffe8cc;border:1px solid #ff9500}
+[data-theme="light"] .field-choice {background:#fff5cc;border:1px solid #d4a800}
+[data-theme="light"] .field-coop   {background:#ccf5da;border:1px solid #30d158}
+[data-theme="light"] .field-chal   {background:#e5e5e5;border:1px solid #636366}
+[data-theme="light"] .field-event  {background:#ccebff;border:1px solid #0a84ff}
+
+/* Board center */
+.board-center{
+  grid-column:2/11;grid-row:2/11;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg2);gap:4px;padding:6px;
+}
+.center-title{
+  font-size:clamp(12px,3.2vw,26px);font-weight:900;letter-spacing:.1em;text-transform:uppercase;
+  background:linear-gradient(135deg,#ff6a00,#bf5af2,#0a84ff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.center-sub{font-size:clamp(6px,1.2vw,10px);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;text-align:center;line-height:1.4}
+.center-logo{font-size:clamp(20px,5vw,40px);line-height:1}
+
+/* Player pieces */
+.piece{
+  position:absolute;
+  width:clamp(9px,1.8vw,14px);height:clamp(9px,1.8vw,14px);
+  border-radius:50%;border:1.5px solid rgba(255,255,255,.7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(5px,1vw,9px);line-height:1;
+  z-index:10;
+  box-shadow:0 1px 4px rgba(0,0,0,.5);
+}
+.piece.active-piece{
+  box-shadow:0 0 0 2px var(--orange),0 0 6px rgba(255,106,0,.6);
+  animation:pulse-piece 1.5s ease-in-out infinite;
+}
+@keyframes pulse-piece{
+  0%,100%{box-shadow:0 0 0 2px var(--orange),0 0 5px rgba(255,106,0,.5)}
+  50%{box-shadow:0 0 0 3px var(--orange),0 0 10px rgba(255,106,0,.4)}
+}
+
+/* ===== GAME PANEL ===== */
+.game-panel{display:flex;flex-direction:column;gap:10px}
+
+.panel-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px;
+}
+.panel-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+
+.turn-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.turn-emoji{font-size:26px;line-height:1}
+.turn-name{font-size:17px;font-weight:700}
+.turn-sub{font-size:11px;color:var(--text2)}
+
+.stat-row{margin-bottom:10px}
+.stat-label{font-size:11px;color:var(--text3);font-weight:600;display:flex;justify-content:space-between;margin-bottom:3px}
+.ep-bar{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.ep-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#34c759,#ff9500,#ff3b30);transition:width .4s ease}
+.intent-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:8px;background:var(--bg3);
+  font-size:12px;font-weight:600;border:1px solid var(--border);
+}
+
+/* Dice */
+.dice-area{display:flex;flex-direction:column;gap:10px;align-items:center}
+.dice-row{display:flex;gap:14px;justify-content:center}
+.die{
+  width:50px;height:50px;background:var(--bg3);border:2px solid var(--border);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;color:var(--text);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 2px 8px rgba(0,0,0,.3);
+}
+.die.rolling{animation:roll-die .8s ease}
+@keyframes roll-die{
+  0%{transform:rotate(0deg) scale(1)}
+  25%{transform:rotate(180deg) scale(1.1)}
+  50%{transform:rotate(360deg) scale(0.9)}
+  75%{transform:rotate(540deg) scale(1.1)}
+  100%{transform:rotate(720deg) scale(1)}
+}
+.die-sum{font-size:12px;color:var(--text2);font-weight:600}
+
+/* Card overlay */
+.card-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(4px);
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.card-overlay.show{opacity:1;pointer-events:all}
+.card-modal{
+  background:var(--bg2);border-radius:20px 20px 0 0;
+  border:1px solid var(--border);border-bottom:none;
+  width:100%;max-width:560px;padding:24px 20px 44px;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  max-height:88vh;overflow-y:auto;
+}
+.card-overlay.show .card-modal{transform:translateY(0)}
+@media(min-width:600px){
+  .card-overlay{align-items:center;padding:20px}
+  .card-modal{border-radius:20px;border-bottom:1px solid var(--border);max-height:80vh}
+}
+.card-type-tag{
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 10px;border-radius:6px;margin-bottom:12px;display:inline-block;
+}
+.card-modal h2{font-size:19px;font-weight:800;margin-bottom:8px}
+.card-story{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.choice-btn{
+  display:block;width:100%;text-align:left;
+  padding:13px 15px;margin-bottom:8px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:14px;font-weight:500;line-height:1.4;
+  cursor:pointer;transition:all .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--orange);transform:translateX(3px);color:var(--orange)}
+.choice-btn:active{transform:scale(.98)}
+
+/* Feedback */
+.feedback-card{
+  background:var(--bg3);border-radius:12px;padding:14px;
+  border:1px solid var(--border);margin-bottom:12px;
+}
+.feedback-title{font-size:13px;font-weight:700;margin-bottom:5px}
+.feedback-text{font-size:13px;color:var(--text2);line-height:1.6}
+.feedback-effects{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+.effect-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px}
+.effect-good{background:rgba(52,199,89,.15);color:#34c759;border:1px solid rgba(52,199,89,.25)}
+.effect-bad{background:rgba(255,59,48,.15);color:#ff3b30;border:1px solid rgba(255,59,48,.25)}
+.effect-neutral{background:var(--bg4);color:var(--text2);border:1px solid var(--border)}
+
+/* Players strip */
+.players-strip{
+  display:flex;gap:8px;flex-wrap:wrap;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px;box-shadow:var(--shadow);
+}
+.player-chip{
+  flex:1;min-width:90px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:9px 10px;transition:border-color .15s;
+}
+.player-chip.active-chip{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange)}
+.chip-top{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.chip-emoji{font-size:16px}
+.chip-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip-ep{font-size:10px;font-weight:700}
+.chip-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.chip-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#34c759,#ff9500,#ff3b30);transition:width .4s}
+.chip-up{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:9px 16px;font-size:13px;font-weight:600;white-space:nowrap;
+  box-shadow:var(--shadow);z-index:300;
+  opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== END SCREEN ===== */
+#end-screen{
+  display:none;flex-direction:column;align-items:center;
+  padding:40px 20px 80px;min-height:calc(100vh - 56px);
+}
+#end-screen.active{display:flex}
+.end-winner{font-size:clamp(48px,14vw,88px);margin-bottom:10px;text-align:center}
+.end-title{font-size:22px;font-weight:900;margin-bottom:4px;text-align:center}
+.end-sub{font-size:14px;color:var(--text2);margin-bottom:32px;text-align:center}
+.end-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;width:100%;max-width:460px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.result-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.result-row:last-child{border-bottom:none}
+.result-emoji{font-size:20px}
+.result-name{font-weight:700;flex:1}
+.result-stats{font-size:11px;color:var(--text2);text-align:right;line-height:1.5}
+
+.collective-win-banner{
+  background:linear-gradient(135deg,rgba(52,199,89,.15),rgba(10,132,255,.15));
+  border:1px solid rgba(52,199,89,.4);border-radius:12px;padding:14px;
+  text-align:center;margin-bottom:16px;font-weight:600;font-size:14px;
+  max-width:460px;width:100%;
+}
+
+/* Confetti */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
+.confetti-piece{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:confetti-fall linear forwards;
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+/* Field highlight */
+.field.highlight-field{animation:field-pulse .5s ease}
+@keyframes field-pulse{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(2)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="back-link">← Labs</a>
+  <div class="brand">ENTRO<span>PIA</span></div>
+  <button class="theme-btn" id="theme-btn" title="Skift tema">🌙</button>
+</header>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="screen active">
+  <div class="setup-hero">
+    <div class="entropia-title">ENTROPIA</div>
+    <div class="entropia-sub">Familiespil om bevidsthed og kærlighed</div>
+    <p class="setup-tagline">Sænk din entropi gennem visdom, samarbejde og kærlighed. Inspireret af Tom Campbells My Big TOE-filosofi.</p>
+  </div>
+  <div class="setup-card">
+    <div class="setup-section">
+      <div class="setup-label">Antal spillere</div>
+      <div class="player-count-btns">
+        <button class="btn" data-count="2">2</button>
+        <button class="btn selected" data-count="3">3</button>
+        <button class="btn" data-count="4">4</button>
+      </div>
+    </div>
+    <div class="setup-section">
+      <div class="setup-label">Spillere</div>
+      <div class="player-rows" id="player-rows"></div>
+    </div>
+    <button class="btn btn-primary" id="start-btn" style="width:100%;font-size:15px;padding:14px">
+      ✨ Start spillet
+    </button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <div class="game-layout">
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+    </div>
+    <div class="game-panel">
+      <div class="panel-card" id="turn-panel">
+        <div class="turn-header" id="turn-header">
+          <div class="turn-emoji" id="turn-emoji">🔴</div>
+          <div>
+            <div class="turn-name" id="turn-name">Spiller 1</div>
+            <div class="turn-sub" id="turn-sub">Din tur</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">
+            <span>Entropi (EP)</span>
+            <span id="ep-val">80</span>
+          </div>
+          <div class="ep-bar"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label"><span>Visdom</span><span id="up-val">0 UP</span></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="intent-badge" id="intent-badge">😐 Neutral</div>
+        </div>
+        <div id="action-area"></div>
+      </div>
+      <div id="field-info-card" class="panel-card" style="display:none">
+        <div class="panel-title">Aktuelt felt</div>
+        <div id="field-info-content"></div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 12px 16px">
+    <div class="players-strip" id="players-strip"></div>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen" class="screen">
+  <div class="end-winner" id="end-winner">🏆</div>
+  <div class="end-title" id="end-title">Vi har en vinder!</div>
+  <div class="end-sub" id="end-sub">Entropien er besejret</div>
+  <div id="collective-win-banner" class="collective-win-banner" style="display:none">
+    🌍 KOLLEKTIV SEJR – alle spillere nåede under 20 EP!
+  </div>
+  <div class="end-card" id="results-card"></div>
+  <button class="btn btn-primary" id="play-again-btn" style="font-size:15px;padding:13px 28px">🔄 Spil igen</button>
+</div>
+
+<!-- Card overlay -->
+<div class="card-overlay" id="card-overlay">
+  <div class="card-modal">
+    <span class="card-type-tag" id="card-type-tag">Valg</span>
+    <h2 id="card-title">Titel</h2>
+    <p class="card-story" id="card-story">…</p>
+    <div id="card-choices"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confetti -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<footer>
+  <a href="index.html">← Labs</a> · ENTROPIA er et ikke-kommercielt kunstprojekt
+</footer>
+
+<script>
+'use strict';
+
+/* =========================================================
+   THEME
+   ========================================================= */
+const themeBtn = document.getElementById('theme-btn');
+let currentTheme = 'dark';
+themeBtn.addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+});
+
+/* =========================================================
+   DATA
+   ========================================================= */
+const FIELDS = [
+  {id:0,  type:'start',  name:'START',            icon:'🌟', desc:'Ny rejse! Alle der passerer: +5 UP'},
+  {id:1,  type:'dev',    name:'Meditation',        icon:'🧘', desc:'Tegn Selvudvikling-kort'},
+  {id:2,  type:'temp',   name:'Hurtig gevinst',    icon:'😈', desc:'Tegn Fristelse-kort'},
+  {id:3,  type:'help',   name:'Hjælp nogen',       icon:'🤝', desc:'−5 EP, næste spiller +5 UP'},
+  {id:4,  type:'choice', name:'Livets valg',       icon:'⚖️', desc:'Tegn Livets Valg-kort'},
+  {id:5,  type:'coop',   name:'Samarbejde',        icon:'🌍', desc:'Alle spillere −5 EP'},
+  {id:6,  type:'chal',   name:'Gamle mønstre',     icon:'🔗', desc:'+8 EP'},
+  {id:7,  type:'dev',    name:'Spejlmoment',       icon:'🪞', desc:'Tegn Selvudvikling-kort'},
+  {id:8,  type:'help',   name:'Del din viden',     icon:'📚', desc:'−5 EP, næste spiller +5 UP'},
+  {id:9,  type:'event',  name:'Krisemøde',         icon:'🔔', desc:'Tegn Begivenhed-kort'},
+  {id:10, type:'corner', name:'REFLEKSION',        icon:'🔮', desc:'−12 EP, +5 UP'},
+  {id:11, type:'temp',   name:'Nem genvej',        icon:'🏃', desc:'Tegn Fristelse-kort'},
+  {id:12, type:'dev',    name:'Ny indsigt',        icon:'💡', desc:'Tegn Selvudvikling-kort'},
+  {id:13, type:'help',   name:'Aktiv lytning',     icon:'👂', desc:'−5 EP, næste spiller +5 UP'},
+  {id:14, type:'choice', name:'Livets valg',       icon:'⚖️', desc:'Tegn Livets Valg-kort'},
+  {id:15, type:'chal',   name:'Indre modstand',    icon:'🌀', desc:'+8 EP'},
+  {id:16, type:'help',   name:'Tilgiv nogen',      icon:'🕊️', desc:'−10 EP'},
+  {id:17, type:'dev',    name:'Læringsmoment',     icon:'✨', desc:'Tegn Selvudvikling-kort'},
+  {id:18, type:'event',  name:'Fælles opvågnen',   icon:'🌅', desc:'Tegn Begivenhed-kort'},
+  {id:19, type:'temp',   name:'Hurtig magt',       icon:'👑', desc:'Tegn Fristelse-kort'},
+  {id:20, type:'corner', name:'INDRE RO',          icon:'🧘', desc:'Alle −15 EP'},
+  {id:21, type:'temp',   name:'Kortsigtet valg',   icon:'😈', desc:'Tegn Fristelse-kort'},
+  {id:22, type:'dev',    name:'Bevidsthedsspejl',  icon:'🔭', desc:'Tegn Selvudvikling-kort'},
+  {id:23, type:'help',   name:'Løft alle op',      icon:'🤲', desc:'−5 EP, næste spiller +5 UP'},
+  {id:24, type:'choice', name:'Sand intention',    icon:'⚖️', desc:'Tegn Livets Valg-kort'},
+  {id:25, type:'chal',   name:'Kontroltrang',      icon:'⛓️', desc:'+8 EP'},
+  {id:26, type:'help',   name:'Nærværelse',        icon:'💚', desc:'−6 EP, næste spiller +5 UP'},
+  {id:27, type:'dev',    name:'Nyt perspektiv',    icon:'🌈', desc:'Tegn Selvudvikling-kort'},
+  {id:28, type:'event',  name:'Transformation',    icon:'🦋', desc:'Tegn Begivenhed-kort'},
+  {id:29, type:'temp',   name:'Ego-boost',         icon:'💎', desc:'Tegn Fristelse-kort'},
+  {id:30, type:'corner', name:'GAVE',              icon:'🎁', desc:'Giv næste spiller +15 UP'},
+  {id:31, type:'dev',    name:'Dybere forståelse', icon:'🧠', desc:'Tegn Selvudvikling-kort'},
+  {id:32, type:'help',   name:'Del din styrke',    icon:'💪', desc:'−5 EP, næste spiller +5 UP'},
+  {id:33, type:'choice', name:'Mod eller frygt',   icon:'⚖️', desc:'Tegn Livets Valg-kort'},
+  {id:34, type:'chal',   name:'Gammel frygt',      icon:'👻', desc:'+8 EP'},
+  {id:35, type:'event',  name:'Global impuls',     icon:'🌐', desc:'Tegn Begivenhed-kort'},
+  {id:36, type:'dev',    name:'Integration',       icon:'⚡', desc:'Tegn Selvudvikling-kort'},
+  {id:37, type:'help',   name:'Anerkendelse',      icon:'🌟', desc:'−5 EP, næste spiller +5 UP'},
+  {id:38, type:'temp',   name:'Let løsning',       icon:'🎯', desc:'Tegn Fristelse-kort'},
+  {id:39, type:'dev',    name:'Spejl dig selv',    icon:'🪞', desc:'Tegn Selvudvikling-kort. −8 EP!'},
+];
+
+const DECKS = {
+  choice: [
+    {title:'Kollega i nød', story:'Din kollega beder om hjælp. Du er selv presset på tid.',
+     choices:[
+       {text:'🏃 "Jeg har for travlt"', ep:+12, up:+2, intent:'ego', nextUp:0, fb:'Du prioriterede dig selv. Effektivt – men din entropi steg, fordi du handlede fra frygt for at miste tid.'},
+       {text:'🤝 "Selvfølgelig hjælper jeg"', ep:-10, up:+6, intent:'love', nextUp:8, fb:'Du valgte forbindelsen. Din entropi faldt, fordi du handlede fra kærlighed frem for frygt.'}
+     ]},
+    {title:'Den lette løgn', story:'Du kan opnå en stor fordel ved at overdrive dine resultater lidt.',
+     choices:[
+       {text:'🤥 Overdriv lidt', ep:+18, up:+5, intent:'fear', nextUp:0, fb:'Du valgte uærlighed af frygt for ikke at slå til. Din entropi steg markant.'},
+       {text:'🌟 Fortæl sandheden', ep:-8, up:+5, intent:'trust', nextUp:0, fb:'Ærlighed kræver mod. Din entropi faldt, fordi du valgte tillid frem for frygt for at fejle.'}
+     ]},
+    {title:'Pengene eller projektet', story:'Du har overskud. Hvad gør du med det?',
+     choices:[
+       {text:'💰 Behold alt', ep:+10, up:+4, intent:'ego', groupEp:0, fb:'En sikker, egoistisk beslutning. Din entropi steg.'},
+       {text:'🤲 Halvdelen til fællesskabet', ep:-8, up:+6, intent:'love', groupEp:-5, fb:'Du valgte tillid over kontrol. Alle spillere −5 EP.'},
+       {text:'🎁 Giv det hele væk', ep:-15, up:+10, intent:'love', groupEp:-10, fb:'Fuld tillid! Stor entropireduktion for alle.'}
+     ]},
+    {title:'Fremme dig selv', story:'Du kan sikre en mulighed, men det kræver at du udelader en anden.',
+     choices:[
+       {text:'🚀 Grib chancen alene', ep:+14, up:+4, intent:'ego', nextUp:0, fb:'Du handlede hurtigt fra ego. Din entropi steg.'},
+       {text:'🌿 Invitér alle med', ep:-6, up:+7, intent:'love', nextUp:5, fb:'Du valgte fællesskabet. Næste spiller +5 UP.'}
+     ]},
+    {title:'Ansvaret eller flugten', story:'Noget er gået galt. Du kan tage ansvar – eller gemme dig.',
+     choices:[
+       {text:'🫣 Undgå ansvar', ep:+16, up:+2, intent:'fear', nextUp:0, fb:'Du flygtede fra ansvar. Frygt skaber entropi.'},
+       {text:'💪 Tag ansvar', ep:-12, up:+8, intent:'trust', nextUp:0, fb:'Ansvar kræver mod. Din entropi faldt markant.'}
+     ]},
+    {title:'Komfortzonen', story:'Du inviteres til noget nyt og udfordrende.',
+     choices:[
+       {text:'😴 Bliv i det kendte', ep:+8, up:+1, intent:'fear', nextUp:0, fb:'Du valgte tryghed frem for vækst.'},
+       {text:'🌟 Acceptér udfordringen', ep:-10, up:+8, intent:'trust', nextUp:0, fb:'Udfordringer sænker entropien, fordi de udvider bevidstheden.'}
+     ]},
+    {title:'Tid til at hvile', story:'Du er udmattet. En chance for at slappe af – eller presse videre.',
+     choices:[
+       {text:'⚡ Pres videre med ego', ep:+10, up:+6, intent:'ego', nextUp:0, fb:'Forceret fremgang øger entropien.'},
+       {text:'🌙 Hvil og genopbyg', ep:-10, up:+5, intent:'trust', nextUp:0, fb:'Ægte hvile er ikke dovenskab – det er visdom.'}
+     ]},
+  ],
+  temptation: [
+    {title:'Den søde genvej', story:'Du kan score point ved at kopiere en andens arbejde.',
+     choices:[
+       {text:'📋 Kopiér', ep:+15, up:+8, intent:'ego', nextUp:0, fb:'UP steg, men din entropi voksede markant. Ægte vækst sker ikke ved at stjæle.'},
+       {text:'✍️ Lav dit eget', ep:-5, up:+5, intent:'trust', nextUp:0, fb:'Dit eget arbejde. Langsommere, men ægte.'}
+     ]},
+    {title:'Rygtesmeden', story:'Du hørte noget om en medspiller. At dele det giver dig social kapital.',
+     choices:[
+       {text:'😬 Del rygtet', ep:+18, up:+3, intent:'fear', nextEp:+10, fb:'Du spredte tvivl om en anden. De fik +10 EP. Din entropi steg kraftigt.'},
+       {text:'🤐 Hold det for dig selv', ep:-8, up:+5, intent:'love', nextUp:0, fb:'Du valgte integritet.'}
+     ]},
+    {title:'Magtspillet', story:'Du kan manipulere en situation så du ser bedst ud.',
+     choices:[
+       {text:'🎭 Manipulér', ep:+20, up:+5, intent:'ego', nextEp:+8, fb:'Ego-sejr. Men manipulation skaber stor entropi for dig og andre.'},
+       {text:'🕊️ Vær oprigtig', ep:-10, up:+6, intent:'love', nextUp:0, fb:'Oprigtighed kræver mod.'}
+     ]},
+    {title:'Overstøjfist', story:'Du kan "vinde" en diskussion ved at hæve stemmen.',
+     choices:[
+       {text:'📢 Tryk igennem', ep:+12, up:+4, intent:'ego', nextUp:0, fb:'Du vandt diskussionen men ikke forståelsen.'},
+       {text:'👂 Lyt og diskutér', ep:-8, up:+6, intent:'trust', nextUp:0, fb:'Ægte dialog sænker entropien.'}
+     ]},
+    {title:'Øjeblikkets glæde', story:'En øjeblikkelig nydelse, der vil koste dyrt på sigt.',
+     choices:[
+       {text:'🍬 Tag den hurtige tilfredsstillelse', ep:+14, up:+2, intent:'ego', nextUp:0, fb:'Kortsigtet nydelse øger entropien.'},
+       {text:'🌱 Vælg den langsigtede vej', ep:-8, up:+6, intent:'trust', nextUp:0, fb:'Du valgte vækst over kortsigtet nydelse.'}
+     ]},
+    {title:'Den billige smigreri', story:'Du kan vinde gunst ved at smigre nogen falskt.',
+     choices:[
+       {text:'😊 Smiger falskt', ep:+10, up:+3, intent:'ego', nextUp:0, fb:'Falsk smigreri er frygt-baseret.'},
+       {text:'💛 Giv ægte anerkendelse', ep:-6, up:+5, intent:'love', nextUp:4, fb:'Ægte anerkendelse løfter begge.'}
+     ]},
+    {title:'Den nemme undskyldning', story:'Du kan lave en halvdårlig undskyldning og undgå konsekvenser.',
+     choices:[
+       {text:'🤥 Lav en undskyldning', ep:+10, up:+2, intent:'fear', nextUp:0, fb:'En lille løgn skaber entropi.'},
+       {text:'🌟 Vær ærlig og undskyld', ep:-6, up:+5, intent:'trust', nextUp:0, fb:'Ærlighed sænker entropien.'}
+     ]},
+  ],
+  development: [
+    {title:'Spejlmoment', story:'Du ser et mønster hos en anden, som du kender fra dig selv.',
+     choices:[
+       {text:'🪞 Anerkend det i dig selv', ep:-12, up:+8, intent:'trust', nextUp:0, fb:'Selvbevidsthed er nøglen til lavere entropi.'},
+       {text:'👁️ Ignorer det', ep:+5, up:+1, intent:'fear', nextUp:0, fb:'Ubevidste mønstre øger entropien.'}
+     ]},
+    {title:'Aha-øjeblik', story:'Du forstår pludselig sammenhængen i noget, der har forvirret dig.',
+     choices:[
+       {text:'🌟 Integrer indsigten', ep:-10, up:+8, intent:'trust', nextUp:0, fb:'Ny forståelse sænker entropien markant.'},
+       {text:'📱 Glem det og tjek telefonen', ep:+5, up:+1, intent:'ego', nextUp:0, fb:'Ubrugte indsigter forsvinder.'}
+     ]},
+    {title:'Meditation', story:'Du har tid til en dyb meditation.',
+     choices:[
+       {text:'😌 Kort og overfladisk', ep:-5, up:+3, intent:'trust', nextUp:0, fb:'Enhver pause hjælper.'},
+       {text:'🧘 Dyb og fokuseret', ep:-12, up:+7, intent:'love', nextUp:0, fb:'Dyb meditation sænker entropien kraftigt.'}
+     ]},
+    {title:'Taknemmelighedsøjeblik', story:'Du stopper op og finder ting du er taknemmelig for.',
+     choices:[
+       {text:'💛 Tre inderlige tak', ep:-10, up:+6, intent:'love', nextUp:0, fb:'Taknemmelighed skifter din intention fra frygt til kærlighed.'},
+       {text:'🤔 Overfladisk liste', ep:-4, up:+2, intent:'trust', nextUp:0, fb:'Selv en overfladisk øvelse hjælper lidt.'}
+     ]},
+    {title:'Din skyggeside', story:'Du møder en side af dig selv, du normalt undgår.',
+     choices:[
+       {text:'🌑 Acceptér den', ep:-14, up:+9, intent:'trust', nextUp:0, fb:'Integrering af skyggesiden er dybt udviklende.'},
+       {text:'🚪 Luk den ude', ep:+8, up:+1, intent:'fear', nextUp:0, fb:'Det du undgår, vokser. Entropi steg.'}
+     ]},
+    {title:'Grænsen', story:'Du har brug for at sætte en grænse. Det føles ubehageligt.',
+     choices:[
+       {text:'🛑 Sæt grænsen klart', ep:-10, up:+7, intent:'trust', nextUp:0, fb:'Sunde grænser er kærlige – for dig og andre.'},
+       {text:'😬 Undgå konflikten', ep:+8, up:+2, intent:'fear', nextUp:0, fb:'Undgåede konflikter bygger entropi op over tid.'}
+     ]},
+    {title:'Ny vane', story:'Du kan starte en ny positiv vane – men det kræver konsistent indsats.',
+     choices:[
+       {text:'🌱 Forpligt dig fuldt', ep:-8, up:+7, intent:'trust', nextUp:0, fb:'Bevidst valg om vækst sænker entropien.'},
+       {text:'🤷 Måske en dag', ep:+4, up:+1, intent:'fear', nextUp:0, fb:'Udskydelse øger entropien lidt.'}
+     ]},
+  ],
+  event: [
+    {title:'Global krise', story:'En krise rammer alle. I kan stå stærkere ved at samle jer.',
+     choices:[
+       {text:'🌐 Stå sammen', ep:-8, up:+5, intent:'love', groupEp:-8, fb:'Fælles respons sænker alles entropi. Alle spillere −8 EP.'},
+       {text:'🏠 Beskyt dig selv', ep:+5, up:+2, intent:'fear', groupEp:0, fb:'Isolation øger entropien.'}
+     ]},
+    {title:'Bevidsthedsbølge', story:'En kollektiv opvågnen sker. Alle mærker det.',
+     choices:[
+       {text:'🌊 Ride bølgen', ep:-10, up:+7, intent:'love', groupEp:-5, fb:'Kollektiv transformation er kraftfuld. Alle −5 EP.'},
+       {text:'😕 Ignorer det', ep:+5, up:+1, intent:'ego', groupEp:0, fb:'Ignorering af kollektive muligheder øger entropien.'}
+     ]},
+    {title:'Fælles fejring', story:'Gruppen har opnået noget fantastisk. Tid til at fejre!',
+     choices:[
+       {text:'🎉 Fejr fuldt ud', ep:-8, up:+8, intent:'love', groupEp:-8, fb:'Kollektiv glæde sænker alles entropi. Alle −8 EP.'},
+       {text:'🤷 Det er vel ikke så stort', ep:+4, up:+1, intent:'ego', groupEp:0, fb:'Minimering af glæde øger entropien.'}
+     ]},
+    {title:'Kollektiv udfordring', story:'En udfordring kan kun løses ved samarbejde.',
+     choices:[
+       {text:'🤝 Alle bidrager', ep:-5, up:+6, intent:'love', groupEp:-10, fb:'Fælles indsats. Alle spillere −10 EP.'},
+       {text:'👤 Lad de andre klare det', ep:+8, up:+2, intent:'ego', groupEp:0, fb:'Free-riding øger din entropi.'}
+     ]},
+    {title:'Vigtig beslutning', story:'Gruppen skal tage en vigtig beslutning.',
+     choices:[
+       {text:'🗳️ Faciliter en reel samtale', ep:-8, up:+6, intent:'love', groupEp:-5, fb:'Inkluderende beslutningstagning sænker alles entropi.'},
+       {text:'📣 Pres din løsning igennem', ep:+10, up:+5, intent:'ego', groupEp:0, fb:'Dominans øger entropien.'}
+     ]},
+  ],
+};
+
+/* =========================================================
+   AUDIO
+   ========================================================= */
+let audioCtx = null;
+function ac() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(freq, dur, type='sine', vol=0.12) {
+  try {
+    const ctx = ac(), osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.connect(g); g.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+function playDice() {
+  try {
+    const ctx = ac();
+    for (let i=0;i<5;i++) {
+      const buf = ctx.createBuffer(1, ctx.sampleRate*.04, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*.18;
+      const s = ctx.createBufferSource(); s.buffer=buf; s.connect(ctx.destination);
+      s.start(ctx.currentTime+i*.11);
+    }
+  } catch(e){}
+}
+function playLand()  { tone(440,.12,'sine',.08); }
+function playGood()  { tone(440,.1); setTimeout(()=>tone(550,.1),90); setTimeout(()=>tone(660,.15),180); }
+function playBad()   { tone(440,.1); setTimeout(()=>tone(390,.1),90); setTimeout(()=>tone(330,.18),180); }
+function playWin()   { [523,659,784,1047].forEach((n,i)=>setTimeout(()=>tone(n,.3,'sine',.18),i*140)); }
+
+/* =========================================================
+   BOARD LAYOUT
+   ========================================================= */
+function fieldPos(id) {
+  if (id===0)  return {col:11,row:11};
+  if (id<=9)   return {col:11-id,row:11};
+  if (id===10) return {col:1,row:11};
+  if (id<=19)  return {col:1,row:11-(id-10)};
+  if (id===20) return {col:1,row:1};
+  if (id<=29)  return {col:1+(id-20),row:1};
+  if (id===30) return {col:11,row:1};
+  if (id<=39)  return {col:11,row:1+(id-30)};
+  return {col:1,row:1};
+}
+
+/* =========================================================
+   GAME STATE
+   ========================================================= */
+const P_COLORS  = ['#ff6a00','#007aff','#34c759','#bf5af2'];
+const P_EMOJIS  = ['🔴','🔵','🟢','🟣'];
+
+let G = null;
+const deckIdx = {};
+
+function intentInfo(v) {
+  if (v<=2) return {e:'😨',l:'Frygt'};
+  if (v<=4) return {e:'😟',l:'Kontrol'};
+  if (v<=6) return {e:'😐',l:'Neutral'};
+  if (v<=8) return {e:'🌱',l:'Tillid'};
+  return {e:'💕',l:'Kærlighed'};
+}
+function intentMult(v) {
+  if (v<=2) return .5; if (v<=4) return .75; if (v<=6) return 1; if (v<=8) return 1.25; return 1.5;
+}
+function applyChoice(pi, c) {
+  const p = G.players[pi];
+  const mult = intentMult(p.intent);
+  let ep = c.ep;
+  if (ep < 0) ep = Math.round(ep * mult);
+  p.ep  = Math.min(100, Math.max(-20, p.ep + ep));
+  p.up  = Math.max(0, p.up + (c.up||0));
+  const delta = {love:1,trust:.5,neutral:0,ego:-.5,fear:-1}[c.intent]||0;
+  p.intent = Math.max(1, Math.min(10, parseFloat((p.intent + delta).toFixed(1))));
+  const nxt = G.players[(pi+1) % G.players.length];
+  if (c.nextEp) nxt.ep = Math.min(100, nxt.ep + c.nextEp);
+  if (c.nextUp) nxt.up = Math.max(0, nxt.up + c.nextUp);
+  if (c.groupEp) G.players.forEach(pl => pl.ep = Math.min(100, Math.max(-20, pl.ep + c.groupEp)));
+}
+function drawCard(deck) {
+  if (!deckIdx[deck] || !deckIdx[deck].length) {
+    deckIdx[deck] = [...Array(DECKS[deck].length).keys()];
+    for (let i=deckIdx[deck].length-1;i>0;i--) {
+      const j=Math.floor(Math.random()*(i+1));
+      [deckIdx[deck][i],deckIdx[deck][j]]=[deckIdx[deck][j],deckIdx[deck][i]];
+    }
+  }
+  return DECKS[deck][deckIdx[deck].pop()];
+}
+
+/* =========================================================
+   SETUP UI
+   ========================================================= */
+let setupCount = 3;
+const setupData = [{name:'',emoji:'🔴'},{name:'',emoji:'🔵'},{name:'',emoji:'🟢'},{name:'',emoji:'🟣'}];
+
+function renderSetup() {
+  const rows = document.getElementById('player-rows');
+  rows.innerHTML = '';
+  for (let i=0;i<setupCount;i++) {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <span class="player-row-num" style="color:${P_COLORS[i]}">${i+1}</span>
+      <input class="player-name-input" placeholder="Spiller ${i+1}" value="${setupData[i].name}" data-i="${i}">
+      <div class="emoji-row">
+        ${P_EMOJIS.map(e=>`<button class="emoji-btn${setupData[i].emoji===e?' selected':''}" data-i="${i}" data-e="${e}">${e}</button>`).join('')}
+      </div>`;
+    rows.appendChild(row);
+  }
+  rows.querySelectorAll('.player-name-input').forEach(el =>
+    el.addEventListener('input', e => { setupData[+e.target.dataset.i].name = e.target.value; }));
+  rows.querySelectorAll('.emoji-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      setupData[+btn.dataset.i].emoji = btn.dataset.e;
+      renderSetup();
+    }));
+}
+document.querySelectorAll('[data-count]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setupCount = +btn.dataset.count;
+    document.querySelectorAll('[data-count]').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    renderSetup();
+  });
+});
+document.getElementById('start-btn').addEventListener('click', startGame);
+renderSetup();
+
+/* =========================================================
+   START GAME
+   ========================================================= */
+function startGame() {
+  G = {
+    players: Array.from({length:setupCount}, (_,i) => ({
+      name:  setupData[i].name || `Spiller ${i+1}`,
+      emoji: setupData[i].emoji,
+      color: P_COLORS[i],
+      ep: 80, up: 0, intent: 5, pos: 0,
+    })),
+    cur: 0, turn: 1,
+    phase: 'roll',   // roll | moving | action | feedback
+    roll: null, feedback: null,
+  };
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  buildBoard();
+  renderGame();
+}
+
+/* =========================================================
+   BUILD BOARD
+   ========================================================= */
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  // Center
+  const center = document.createElement('div');
+  center.className = 'board-center';
+  center.innerHTML = `<div class="center-logo">🌌</div><div class="center-title">ENTROPIA</div><div class="center-sub">Sænk entropien<br>med kærlighed</div>`;
+  board.appendChild(center);
+  // Fields
+  FIELDS.forEach(f => {
+    const {col,row} = fieldPos(f.id);
+    const el = document.createElement('div');
+    el.className = `field field-${f.type}`;
+    el.id = `f${f.id}`;
+    el.style.cssText = `grid-column:${col};grid-row:${row}`;
+    el.innerHTML = `<span class="field-icon">${f.icon}</span><span class="field-name">${f.name}</span>`;
+    el.title = `${f.name}: ${f.desc}`;
+    board.appendChild(el);
+  });
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderGame() {
+  const p = G.players[G.cur];
+  document.getElementById('turn-emoji').textContent = p.emoji;
+  document.getElementById('turn-name').textContent  = p.name;
+  document.getElementById('turn-sub').textContent   = `Tur ${G.turn} · Runde ${Math.ceil(G.turn/G.players.length)}`;
+  document.getElementById('ep-val').textContent     = p.ep;
+  document.getElementById('up-val').textContent     = `${p.up} UP`;
+  const pct = Math.max(0, Math.min(100, (80-p.ep)/80*100));
+  document.getElementById('ep-fill').style.width    = pct + '%';
+  const ii = intentInfo(p.intent);
+  document.getElementById('intent-badge').textContent = `${ii.e} ${ii.l} (${Math.round(p.intent)}/10)`;
+  renderStrip();
+  renderPieces();
+  renderAction();
+}
+
+function renderStrip() {
+  const strip = document.getElementById('players-strip');
+  strip.innerHTML = '';
+  G.players.forEach((p,i) => {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip' + (i===G.cur ? ' active-chip' : '');
+    const ii = intentInfo(p.intent);
+    const pct = Math.max(0, Math.min(100, (80-p.ep)/80*100));
+    const epColor = p.ep<=20 ? '#34c759' : p.ep>=70 ? '#ff3b30' : 'var(--text2)';
+    chip.innerHTML = `
+      <div class="chip-top">
+        <span class="chip-emoji">${p.emoji}</span>
+        <span class="chip-name" style="color:${p.color}">${p.name}</span>
+        <span class="chip-ep" style="color:${epColor}">${p.ep}</span>
+      </div>
+      <div class="chip-bar"><div class="chip-fill" style="width:${pct}%"></div></div>
+      <div class="chip-up">${p.up} UP · ${ii.e} ${ii.l}</div>`;
+    strip.appendChild(chip);
+  });
+}
+
+function renderPieces() {
+  document.querySelectorAll('.piece').forEach(el => el.remove());
+  G.players.forEach((p,i) => {
+    const fieldEl = document.getElementById(`f${p.pos}`);
+    if (!fieldEl) return;
+    const piece = document.createElement('div');
+    piece.className = 'piece' + (i===G.cur ? ' active-piece' : '');
+    piece.style.background = p.color;
+    piece.textContent = p.emoji;
+    // Stagger positions to avoid full overlap
+    piece.style.bottom = `${1+(i%2)*13}px`;
+    piece.style.right  = `${1+Math.floor(i/2)*13}px`;
+    fieldEl.appendChild(piece);
+  });
+}
+
+function renderAction() {
+  const area = document.getElementById('action-area');
+  if (G.phase === 'roll') {
+    const r = G.roll;
+    area.innerHTML = `
+      <div class="dice-area">
+        <div class="dice-row">
+          <div class="die" id="die1">${r ? r[0] : '?'}</div>
+          <div class="die" id="die2">${r ? r[1] : '?'}</div>
+        </div>
+        <div class="die-sum">${r ? `${r[0]} + ${r[1]} = ${r[0]+r[1]}` : 'Kast for at flytte'}</div>
+        <button class="btn btn-primary" id="roll-btn">🎲 Kast terning</button>
+      </div>`;
+    document.getElementById('roll-btn').addEventListener('click', doRoll);
+  } else if (G.phase === 'moving') {
+    area.innerHTML = `<div class="dice-area"><div class="die-sum">Bevæger sig…</div></div>`;
+  } else if (G.phase === 'feedback') {
+    const fb = G.feedback;
+    area.innerHTML = `
+      <div class="feedback-card">
+        <div class="feedback-title">${fb.title}</div>
+        <div class="feedback-text">${fb.text}</div>
+        <div class="feedback-effects">${(fb.effects||[]).map(e=>`<span class="effect-pill ${e.cls}">${e.label}</span>`).join('')}</div>
+      </div>
+      <button class="btn btn-primary" id="next-btn" style="width:100%;margin-top:10px">Næste spiller →</button>`;
+    document.getElementById('next-btn').addEventListener('click', nextTurn);
+  }
+}
+
+/* =========================================================
+   ROLL
+   ========================================================= */
+function doRoll() {
+  G.phase = 'moving';
+  renderAction();
+  playDice();
+  const d1 = Math.ceil(Math.random()*6), d2 = Math.ceil(Math.random()*6);
+  G.roll = [d1,d2];
+  const die1 = document.getElementById('die1'), die2 = document.getElementById('die2');
+  if (die1) { die1.classList.add('rolling'); die2.classList.add('rolling'); }
+  const tick = setInterval(() => {
+    if (die1) { die1.textContent = Math.ceil(Math.random()*6); die2.textContent = Math.ceil(Math.random()*6); }
+  }, 100);
+  setTimeout(() => {
+    clearInterval(tick);
+    if (die1) { die1.textContent=d1; die1.classList.remove('rolling'); die2.textContent=d2; die2.classList.remove('rolling'); }
+    setTimeout(() => movePlayer(G.cur, d1+d2), 200);
+  }, 800);
+}
+
+/* =========================================================
+   MOVE
+   ========================================================= */
+function movePlayer(pi, steps) {
+  const p = G.players[pi];
+  let step = 0;
+  const iv = setInterval(() => {
+    const prev = p.pos;
+    p.pos = (p.pos+1) % 40;
+    if (p.pos === 0 && prev === 39) { p.up += 5; showToast(`${p.emoji} ${p.name} passerer START! +5 UP`); }
+    renderPieces();
+    playLand();
+    step++;
+    if (step >= steps) { clearInterval(iv); setTimeout(() => land(pi), 200); }
+  }, 150);
+}
+
+/* =========================================================
+   LAND
+   ========================================================= */
+function land(pi) {
+  const p = G.players[pi];
+  const f = FIELDS[p.pos];
+  // Highlight
+  const el = document.getElementById(`f${p.pos}`);
+  if (el) { el.classList.add('highlight-field'); setTimeout(()=>el.classList.remove('highlight-field'),500); }
+  showFieldInfo(f);
+
+  if (f.type === 'corner') {
+    landCorner(pi, f);
+  } else if (f.type === 'chal') {
+    p.ep = Math.min(100, p.ep+8);
+    playBad();
+    G.feedback = {title:f.name, text:`+8 EP – gamle mønstre er svære at bryde.`, effects:[{label:'+8 EP',cls:'effect-bad'}]};
+    G.phase = 'feedback'; renderGame();
+  } else if (f.type === 'coop') {
+    G.players.forEach(pl => pl.ep = Math.min(100, Math.max(-20, pl.ep-5)));
+    playGood();
+    G.feedback = {title:f.name, text:'Samarbejde sænker alles entropi.', effects:[{label:'Alle −5 EP',cls:'effect-good'}]};
+    G.phase = 'feedback'; renderGame();
+  } else if (f.type === 'help') {
+    landHelp(pi, f);
+  } else if (f.type === 'start') {
+    p.up += 10; playGood();
+    G.feedback = {title:'🌟 START', text:'Du landede på START! Ny begyndelse!', effects:[{label:'+10 UP',cls:'effect-good'}]};
+    G.phase = 'feedback'; renderGame();
+  } else {
+    // Draw card
+    const deckMap = {choice:'choice',temp:'temptation',dev:'development',event:'event'};
+    const dn = deckMap[f.type];
+    if (dn) {
+      const card = drawCard(dn);
+      G.phase = 'action';
+      renderGame();
+      showCard(pi, card, f.type);
+    }
+  }
+}
+
+function landCorner(pi, f) {
+  const p = G.players[pi];
+  if (f.id===10) {
+    p.ep = Math.max(-20,p.ep-12); p.up += 5; playGood();
+    G.feedback={title:'🔮 REFLEKSION',text:'Dyb refleksion sænker entropien markant.',effects:[{label:'−12 EP',cls:'effect-good'},{label:'+5 UP',cls:'effect-good'}]};
+  } else if (f.id===20) {
+    G.players.forEach(pl=>pl.ep=Math.max(-20,pl.ep-15)); playGood();
+    showToast('🧘 INDRE RO – Alle finder fred!');
+    G.feedback={title:'🧘 INDRE RO',text:'En dyb kollektiv ro. Alle finder indre fred.',effects:[{label:'Alle −15 EP',cls:'effect-good'}]};
+  } else if (f.id===30) {
+    const nxt = G.players[(pi+1)%G.players.length]; nxt.up+=15; playGood();
+    G.feedback={title:'🎁 GAVE',text:`Du giver en gave til ${nxt.name}!`,effects:[{label:`${nxt.name} +15 UP`,cls:'effect-good'}]};
+  }
+  G.phase='feedback'; renderGame();
+}
+
+function landHelp(pi, f) {
+  const p = G.players[pi];
+  const nxt = G.players[(pi+1)%G.players.length];
+  let epD = -5, nxtUp = 5;
+  if (f.id===16) { epD=-10; nxtUp=0; }
+  if (f.id===26) { epD=-6; }
+  const actual = Math.round(epD * intentMult(p.intent));
+  p.ep = Math.max(-20, p.ep+actual);
+  if (nxtUp>0) nxt.up+=nxtUp;
+  playGood();
+  const fx = [{label:`${actual} EP`,cls:'effect-good'}];
+  if (nxtUp>0) fx.push({label:`${nxt.name} +${nxtUp} UP`,cls:'effect-good'});
+  G.feedback={title:f.name,text:f.desc,effects:fx};
+  G.phase='feedback'; renderGame();
+}
+
+/* =========================================================
+   CARD MODAL
+   ========================================================= */
+const DECK_LABELS = {choice:'Livets Valg',temptation:'Fristelse',development:'Selvudvikling',event:'Begivenhed'};
+const DECK_COLORS = {choice:'#ffd60a',temptation:'#ff3b30',development:'#007aff',event:'#0a84ff'};
+const FIELD_DECK  = {choice:'choice',temp:'temptation',dev:'development',event:'event'};
+
+function showCard(pi, card, fieldType) {
+  const dn = FIELD_DECK[fieldType] || fieldType;
+  const col = DECK_COLORS[dn]||'#888';
+  document.getElementById('card-type-tag').textContent = DECK_LABELS[dn]||dn;
+  document.getElementById('card-type-tag').style.cssText=`background:${col}22;color:${col};border:1px solid ${col}55`;
+  document.getElementById('card-title').textContent = card.title;
+  document.getElementById('card-story').textContent = card.story;
+  const cc = document.getElementById('card-choices');
+  cc.innerHTML='';
+  card.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className='choice-btn'; btn.textContent=c.text;
+    btn.addEventListener('click',()=>{ hideCard(); choiceChosen(pi,c,dn); });
+    cc.appendChild(btn);
+  });
+  document.getElementById('card-overlay').classList.add('show');
+}
+function hideCard() { document.getElementById('card-overlay').classList.remove('show'); }
+
+function choiceChosen(pi, c, dn) {
+  const p = G.players[pi];
+  const prevEp = p.ep;
+  applyChoice(pi, c);
+  const diff = p.ep - prevEp;
+  diff < 0 ? playGood() : playBad();
+  const fx=[];
+  if (diff!==0) fx.push({label:(diff>0?'+':'')+diff+' EP',cls:diff<0?'effect-good':'effect-bad'});
+  if (c.up)     fx.push({label:'+'+c.up+' UP',cls:'effect-good'});
+  if (c.nextUp) fx.push({label:G.players[(pi+1)%G.players.length].name+' +'+c.nextUp+' UP',cls:'effect-good'});
+  if (c.nextEp) fx.push({label:G.players[(pi+1)%G.players.length].name+' +'+c.nextEp+' EP',cls:'effect-bad'});
+  if (c.groupEp) fx.push({label:'Alle '+(c.groupEp>0?'+':'')+c.groupEp+' EP',cls:c.groupEp<0?'effect-good':'effect-bad'});
+  G.feedback={title:c.fb.split('.')[0]+'.',text:c.fb,effects:fx};
+  G.phase='feedback'; renderGame();
+}
+
+/* =========================================================
+   NEXT TURN / WIN CHECK
+   ========================================================= */
+function nextTurn() {
+  hideFieldInfo();
+  const winner = G.players.find(p=>p.ep<=0);
+  const collective = G.players.every(p=>p.ep<=20);
+  if (winner || collective) { endGame(winner,collective); return; }
+  G.cur = (G.cur+1) % G.players.length;
+  G.turn++;
+  G.phase='roll';
+  G.feedback=null;
+  renderGame();
+}
+
+/* =========================================================
+   FIELD INFO
+   ========================================================= */
+function showFieldInfo(f) {
+  const card = document.getElementById('field-info-card');
+  document.getElementById('field-info-content').innerHTML=`
+    <div style="font-size:22px;margin-bottom:5px">${f.icon}</div>
+    <div style="font-weight:700;margin-bottom:3px">${f.name}</div>
+    <div style="font-size:12px;color:var(--text2)">${f.desc}</div>`;
+  card.style.display='block';
+}
+function hideFieldInfo() { document.getElementById('field-info-card').style.display='none'; }
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* =========================================================
+   END GAME
+   ========================================================= */
+function endGame(winner, collective) {
+  playWin();
+  document.getElementById('game-screen').classList.remove('active');
+  const end = document.getElementById('end-screen');
+  end.classList.add('active');
+  if (winner) {
+    document.getElementById('end-winner').textContent=winner.emoji+' 🏆';
+    document.getElementById('end-title').textContent=`${winner.name} vinder!`;
+    document.getElementById('end-sub').textContent=`Entropien er besejret med ${winner.ep} EP`;
+  } else {
+    document.getElementById('end-winner').textContent='🌍✨';
+    document.getElementById('end-title').textContent='Kollektiv sejr!';
+    document.getElementById('end-sub').textContent='Alle spillere nåede under 20 EP';
+  }
+  if (collective) document.getElementById('collective-win-banner').style.display='block';
+  const sorted = [...G.players].sort((a,b)=>a.ep-b.ep);
+  document.getElementById('results-card').innerHTML =
+    '<div class="panel-title" style="margin-bottom:10px">Slutstilling</div>' +
+    sorted.map((p,ri)=>{
+      const ii=intentInfo(p.intent);
+      return `<div class="result-row">
+        <span style="font-weight:800;color:var(--text3)">${ri+1}.</span>
+        <span class="result-emoji">${p.emoji}</span>
+        <span class="result-name" style="color:${p.color}">${p.name}</span>
+        <span class="result-stats">${p.ep} EP · ${p.up} UP<br>${ii.e} ${ii.l}</span>
+      </div>`;
+    }).join('');
+  confetti();
+}
+
+function confetti() {
+  const con=document.getElementById('confetti-container');
+  con.innerHTML='';
+  const cols=['#ff6a00','#bf5af2','#0a84ff','#34c759','#ffd60a','#ff3b30'];
+  for (let i=0;i<80;i++) {
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}vw;background:${cols[i%cols.length]};
+      animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*1.5}s;
+      width:${6+Math.random()*7}px;height:${6+Math.random()*7}px`;
+    con.appendChild(p);
+  }
+  setTimeout(()=>con.innerHTML='',5500);
+}
+
+/* =========================================================
+   PLAY AGAIN
+   ========================================================= */
+document.getElementById('play-again-btn').addEventListener('click',()=>{
+  document.getElementById('end-screen').classList.remove('active');
+  document.getElementById('setup-screen').classList.add('active');
+  Object.keys(deckIdx).forEach(k=>delete deckIdx[k]);
+  document.getElementById('collective-win-banner').style.display='none';
+  G=null;
+});
+</script>
+</body>
+</html>
