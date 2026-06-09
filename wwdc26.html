@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WWDC 2026 – Feature Explorer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0d;--bg2:#141414;--bg3:#1c1c1c;--bg4:#242424;
+  --border:rgba(255,255,255,0.08);
+  --orange:#ff6a00;--amber:#ff9500;
+  --text:#f0f0f0;--text2:#aaa;--text3:#555;
+  --radius:12px;--panel-w:440px;--hh:56px;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;height:var(--hh);background:rgba(13,13,13,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px}
+.back-link{color:var(--orange);text-decoration:none;font-size:13px;white-space:nowrap;transition:opacity .15s}
+.back-link:hover{opacity:.6}
+.hbrand{font-size:15px;font-weight:700;flex:1}
+.hbrand span{color:var(--orange)}
+.lang-picker{display:flex;gap:2px}
+.lbtn{background:none;border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:600;padding:3px 7px;border-radius:6px;cursor:pointer;transition:all .15s}
+.lbtn:hover{border-color:var(--orange);color:var(--orange)}
+.lbtn.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,#ff6a00 0%,#ff9500 12%,#7a2800 38%,#1f0a00 62%,#0d0d0d 100%);padding:64px 24px 52px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,106,0,.25) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.hero-title{font-size:clamp(40px,8vw,72px);font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:8px}
+.hero-sub{font-size:clamp(14px,2.5vw,18px);font-weight:300;color:rgba(255,255,255,.65);margin-bottom:36px}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.stat-num{font-size:36px;font-weight:800;color:var(--orange);line-height:1}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* FILTER BAR */
+.filter-bar{position:sticky;top:var(--hh);z-index:90;background:rgba(13,13,13,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 20px 10px}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:15px;height:15px}
+#searchInput{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:8px 12px 8px 34px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+#searchInput:focus{border-color:var(--orange)}
+#searchInput::placeholder{color:var(--text3)}
+.tabs-row{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.tabs-row::-webkit-scrollbar{display:none}
+.tbtn{white-space:nowrap;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.tbtn:hover{border-color:var(--orange);color:var(--orange)}
+.tbtn.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.rinfo{font-size:11px;color:var(--text3);margin-left:auto;flex-shrink:0;padding-left:8px}
+
+/* GRID */
+.grid-wrap{padding:24px 20px;max-width:1400px;margin:0 auto}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+
+/* CARDS */
+.fcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;display:flex;flex-direction:column;gap:10px;animation:cin .3s ease both}
+.fcard:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+@keyframes cin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cbadge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:4px;flex-shrink:0}
+.dots{display:flex;gap:3px;align-items:center;padding-top:2px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--bg4)}
+.dot.on{background:var(--orange)}
+.dot.lg{width:10px;height:10px}
+.card-title{font-size:15px;font-weight:700;line-height:1.3}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:3px}
+.chip{font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;background:var(--bg4);color:var(--text3);text-transform:uppercase;letter-spacing:.3px}
+.pbtn{font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid var(--orange);background:none;color:var(--orange);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.pbtn:hover{background:var(--orange);color:#fff}
+.pbtn.ok{background:#34d399;border-color:#34d399;color:#fff}
+mark{background:rgba(255,149,0,.3);color:inherit;border-radius:2px}
+.no-res{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text3);font-size:16px}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.on{opacity:1;pointer-events:all}
+
+/* SIDE PANEL */
+.panel{position:fixed;top:0;right:0;bottom:0;width:var(--panel-w);max-width:100vw;background:var(--bg2);border-left:1px solid var(--border);z-index:210;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;overflow-x:hidden}
+.panel.open{transform:translateX(0)}
+.panel-close-row{position:sticky;top:0;display:flex;justify-content:flex-end;padding:14px 16px 0;z-index:10;background:var(--bg2)}
+.xbtn{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.xbtn:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+.pbody{padding:16px 24px 48px}
+.panel-title{font-size:26px;font-weight:800;line-height:1.2;margin:10px 0 14px}
+.pmeta{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ilbl{font-size:11px;color:var(--text3);letter-spacing:1.5px}
+.pdesc{font-size:14px;line-height:1.75;color:var(--text2);margin:16px 0 20px}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+.plinks{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.plink{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border);text-decoration:none;color:var(--text);font-size:13px;font-weight:500;transition:all .15s;background:var(--bg3)}
+.plink:hover{border-color:var(--orange);color:var(--orange)}
+.plink.prime{border-color:var(--orange);color:var(--orange)}
+.plink.prime:hover{background:var(--orange);color:#fff}
+.prompt-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.prompt-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.ptitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+.pnote{font-size:10px;color:var(--text3);flex:1}
+.cpbtn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid var(--orange);background:none;color:var(--orange);cursor:pointer;transition:all .15s}
+.cpbtn:hover{background:var(--orange);color:#fff}
+.cpbtn.ok{background:#34d399;border-color:#34d399;color:#fff}
+.prompt-text{padding:12px 14px;font-size:12px;line-height:1.65;color:var(--text2);white-space:pre-wrap;word-break:break-word;font-family:inherit}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-track{background:transparent}
+.panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+@media(max-width:600px){
+  :root{--panel-w:100vw}
+  .hero{padding:40px 16px 36px}
+  .hero-stats{gap:28px}
+  .filter-bar{padding:10px 14px 8px}
+  .grid-wrap{padding:14px 12px}
+  .card-grid{grid-template-columns:1fr}
+  header{padding:0 14px}
+  .pbody{padding:12px 16px 40px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="back-link" data-i18n="back">← Labs</a>
+  <div class="hbrand">WWDC <span>2026</span></div>
+  <div class="lang-picker">
+    <button class="lbtn" onclick="setLang('en')">EN</button>
+    <button class="lbtn" onclick="setLang('da')">DA</button>
+    <button class="lbtn" onclick="setLang('es')">ES</button>
+    <button class="lbtn" onclick="setLang('zh')">中文</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">WWDC 2026</div>
+  <h1 class="hero-title">Feature Explorer</h1>
+  <p class="hero-sub" data-i18n="hero_sub">Discover everything new from Apple's 2026 developer conference</p>
+  <div class="hero-stats">
+    <div><div class="stat-num">37</div><div class="stat-lbl" data-i18n="s_feat">Features</div></div>
+    <div><div class="stat-num">8</div><div class="stat-lbl" data-i18n="s_cat">Categories</div></div>
+    <div><div class="stat-num">7</div><div class="stat-lbl" data-i18n="s_plat">Platforms</div></div>
+  </div>
+</section>
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="search" id="searchInput" data-i18n-ph="search_ph">
+  </div>
+  <div class="tabs-row" id="tabs">
+    <button class="tbtn active" data-tab="all" data-i18n="t_all">All</button>
+    <button class="tbtn" data-tab="ios">iOS</button>
+    <button class="tbtn" data-tab="ipados">iPadOS</button>
+    <button class="tbtn" data-tab="macos">macOS</button>
+    <button class="tbtn" data-tab="watchos">watchOS</button>
+    <button class="tbtn" data-tab="visionos">visionOS</button>
+    <button class="tbtn" data-tab="carplay">CarPlay</button>
+    <button class="tbtn" data-tab="ai" data-i18n="t_ai">AI</button>
+    <span class="rinfo" id="rinfo"></span>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="card-grid" id="cardGrid"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<aside class="panel" id="panel">
+  <div class="panel-close-row"><button class="xbtn" id="xbtn">✕</button></div>
+  <div class="pbody" id="pbody"></div>
+</aside>
+
+<script>
+const CC = {
+  ai:'#b06dff', performance:'#ff6a00', productivity:'#4b8bf4',
+  media:'#f06292', health:'#34d399', security:'#f87171',
+  platform:'#2dd4bf', language:'#fbbf24'
+};
+const PN = { ios:'iOS', ipados:'iPadOS', macos:'macOS', watchos:'watchOS', visionos:'visionOS', carplay:'CarPlay' };
+
+const TR = {
+  en:{
+    back:'← Labs', hero_sub:"Discover everything new from Apple's 2026 developer conference",
+    search_ph:'Search features…', t_all:'All', t_ai:'AI',
+    s_feat:'Features', s_cat:'Categories', s_plat:'Platforms',
+    pbtn:'Prompt', no_res:'No features found', res_lbl:'features',
+    apple_pg:'Apple Developer Page', watch_s:'Watch WWDC Session',
+    llm_lbl:'LLM Prompt', p_note:'(English for best results)',
+    copy:'Copy', copied:'Copied!', impact:'Impact',
+    cat_ai:'Apple Intelligence', cat_performance:'Performance',
+    cat_productivity:'Productivity', cat_media:'Media', cat_health:'Health',
+    cat_security:'Security', cat_platform:'Platform', cat_language:'Language'
+  },
+  da:{
+    back:'← Labs', hero_sub:'Oplev alle nyheder fra Apples 2026 udviklerkonference',
+    search_ph:'Søg efter features…', t_all:'Alle', t_ai:'AI',
+    s_feat:'Features', s_cat:'Kategorier', s_plat:'Platforme',
+    pbtn:'Prompt', no_res:'Ingen features fundet', res_lbl:'features',
+    apple_pg:'Apple-udviklerside', watch_s:'Se WWDC-session',
+    llm_lbl:'LLM-prompt', p_note:'(Engelsk for bedste resultater)',
+    copy:'Kopiér', copied:'Kopieret!', impact:'Indvirkning',
+    cat_ai:'Apple Intelligence', cat_performance:'Ydeevne',
+    cat_productivity:'Produktivitet', cat_media:'Medier', cat_health:'Sundhed',
+    cat_security:'Sikkerhed', cat_platform:'Platform', cat_language:'Sprog'
+  },
+  es:{
+    back:'← Labs', hero_sub:'Descubre todo lo nuevo de la conferencia de desarrolladores de Apple 2026',
+    search_ph:'Buscar funciones…', t_all:'Todo', t_ai:'IA',
+    s_feat:'Funciones', s_cat:'Categorías', s_plat:'Plataformas',
+    pbtn:'Prompt', no_res:'No se encontraron funciones', res_lbl:'funciones',
+    apple_pg:'Página Apple Developer', watch_s:'Ver sesión WWDC',
+    llm_lbl:'Prompt para LLM', p_note:'(Inglés para mejores resultados)',
+    copy:'Copiar', copied:'¡Copiado!', impact:'Impacto',
+    cat_ai:'Apple Intelligence', cat_performance:'Rendimiento',
+    cat_productivity:'Productividad', cat_media:'Medios', cat_health:'Salud',
+    cat_security:'Seguridad', cat_platform:'Plataforma', cat_language:'Idioma'
+  },
+  zh:{
+    back:'← 实验室', hero_sub:'探索苹果2026年开发者大会的所有新功能',
+    search_ph:'搜索功能…', t_all:'全部', t_ai:'AI',
+    s_feat:'功能', s_cat:'分类', s_plat:'平台',
+    pbtn:'提示词', no_res:'未找到功能', res_lbl:'个功能',
+    apple_pg:'Apple 开发者页面', watch_s:'观看 WWDC 视频',
+    llm_lbl:'LLM 提示词', p_note:'（英文效果最佳）',
+    copy:'复制', copied:'已复制！', impact:'影响力',
+    cat_ai:'Apple 智能', cat_performance:'性能',
+    cat_productivity:'生产力', cat_media:'媒体', cat_health:'健康',
+    cat_security:'安全', cat_platform:'平台', cat_language:'语言'
+  }
+};
+
+const FEATURES = [
+  { id:'faster-app-launch', cat:'performance', plat:['ios','ipados','macos'], impact:3,
+    en:{ title:'Faster App Launches',
+         desc:'Apps launch up to 30% faster including third-party apps, powered by intelligent data preloading and optimized startup sequences. iPhone and iPad feel noticeably more responsive.' },
+    da:{ title:'Hurtigere app-åbning',
+         desc:'Apps starter op til 30% hurtigere, inklusive tredjepartsapps, takket være intelligent forudindlæsning af data og optimerede startsekvenser.' },
+    url:'https://www.apple.com/ios/', vid:'https://developer.apple.com/videos/play/wwdc2026/101/',
+    prompt:'Explain the app launch performance improvements in iOS 27 and macOS 27 announced at WWDC 2026. How does intelligent data preloading work? What changes were made to the app lifecycle APIs, and what should developers do to optimize their apps for faster startup times?' },
+
+  { id:'faster-mail', cat:'performance', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Faster Mail Loading',
+         desc:'Email messages and threads load significantly faster with improved background syncing and an optimized rendering pipeline across all Apple platforms.' },
+    da:{ title:'Hurtigere mail-indlæsning',
+         desc:'E-mails og tråde indlæses markant hurtigere med forbedret baggrundssynkronisering og optimeret rendering i Mail-appen på alle Apple-platforme.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What performance improvements were made to the Mail app in iOS 27 and macOS 27 at WWDC 2026? How was the rendering pipeline optimized and what changed in background syncing? Are there new APIs for third-party email clients?' },
+
+  { id:'battery', cat:'performance', plat:['ios','ipados','watchos'], impact:2,
+    en:{ title:'Battery Life & Insights',
+         desc:'New battery analytics provide detailed insights into usage patterns, while system-level optimizations deliver extended battery life especially on Apple Watch. Low Power Mode gains adaptive capabilities.' },
+    da:{ title:'Batteri og indsigt',
+         desc:'Ny batterianalyse giver detaljeret indblik i brugsmønstre, mens systemoptimeringer forlænger batterilevetiden, særligt på Apple Watch. Lav strømtilstand får adaptive funktioner.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What battery life improvements and new battery analytics features were announced for iOS 27, watchOS 12, and iPadOS 27 at WWDC 2026? What APIs are available for developers to help optimize battery consumption in their apps?' },
+
+  { id:'smoother-scrolling', cat:'performance', plat:['ios','ipados'], impact:1,
+    en:{ title:'Smoother Scrolling',
+         desc:'Scrolling in App Library, Safari, and system apps is visibly smoother with improved frame timing and reduced jitter, especially on ProMotion displays.' },
+    da:{ title:'Jævnere scrolling',
+         desc:'Scrolling i App Library, Safari og system-apps er mærkbart jævnere med forbedret frametiming og reduceret jitter, særligt på ProMotion-skærme.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'How did Apple improve scrolling performance in iOS 27 and iPadOS 27 at WWDC 2026? What changes were made to the rendering pipeline and frame timing? How does this benefit ProMotion 120Hz display users?' },
+
+  { id:'faster-airdrop', cat:'performance', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'80% Faster AirDrop',
+         desc:'AirDrop file transfers are up to 80% faster thanks to improved peer-to-peer protocols and smarter use of available radio bands. Large photos and videos transfer in a fraction of the time.' },
+    da:{ title:'80% hurtigere AirDrop',
+         desc:'AirDrop-filoverførsler er op til 80% hurtigere takket være forbedrede peer-to-peer-protokoller og smartere brug af tilgængelige radiobånd. Store filer overflyttes på kortere tid.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'Explain the AirDrop performance improvements announced at WWDC 2026. How was the peer-to-peer protocol improved? What changes were made to radio band selection, and how does this interact with AirDrop security and privacy features?' },
+
+  { id:'faster-pdf', cat:'performance', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Faster PDF Handling',
+         desc:'PDF rendering, editing, and saving with VoiceOver is dramatically faster in Preview, Mail, and Files. The new PDF engine reduces memory usage and improves compatibility with complex documents.' },
+    da:{ title:'Hurtigere PDF-håndtering',
+         desc:'PDF-rendering, redigering og gemning med VoiceOver er dramatisk hurtigere i Preview, Mail og Filer. Den nye PDF-motor reducerer hukommelsesforbruget og forbedrer kompatibilitet.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What improvements were made to PDF handling in iOS 27 and macOS 27 at WWDC 2026? How was the PDF rendering engine changed? What accessibility improvements were made specifically for VoiceOver users working with PDFs?' },
+
+  { id:'auto-punctuation', cat:'performance', plat:['ios','ipados','macos'], impact:1,
+    en:{ title:'Auto Punctuation',
+         desc:'The system keyboard automatically inserts correct punctuation across multilingual keyboards, understanding context to place commas, periods, and question marks intelligently.' },
+    da:{ title:'Automatisk tegnsætning',
+         desc:'Systemtastaturet indsætter nu automatisk korrekt tegnsætning ved flersprogede tastaturer, og forstår kontekst for intelligent placering af kommaer og punktummer.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'Explain the automatic punctuation feature in iOS 27 and macOS 27 announced at WWDC 2026. How does it work across multilingual keyboard inputs? What models power the punctuation prediction, and how can developers integrate with or customize this behavior?' },
+
+  { id:'liquid-glass', cat:'performance', plat:['ios','ipados','macos','visionos'], impact:3,
+    en:{ title:'Liquid Glass Design',
+         desc:'The refined Liquid Glass UI system brings an opacity slider for customizable transparency, more consistent corner radii, and cohesive icons across iOS, iPadOS, macOS, and visionOS.' },
+    da:{ title:'Liquid Glass Design',
+         desc:'Det raffinerede Liquid Glass UI-system bringer en opacitetsskyder til justerbar gennemsigtighed, mere konsistente hjørneradier og sammenhængende ikoner på tværs af platforme.' },
+    url:'https://developer.apple.com/design/', vid:'https://developer.apple.com/videos/play/wwdc2026/101/',
+    prompt:'Describe the Liquid Glass design language refinements at WWDC 2026. What specific changes were made to readability, opacity controls, and corner radius consistency? How do developers adopt these changes using SwiftUI and UIKit APIs?' },
+
+  { id:'siri-ai', cat:'ai', plat:['ios','ipados','macos','watchos'], impact:3,
+    en:{ title:'New Siri AI',
+         desc:'Siri receives a transformative upgrade with conversational context, on-screen awareness, and deep app integration. Powered by Apple\'s on-device models and optional integration with Gemini and other AI partners.' },
+    da:{ title:'Ny Siri AI',
+         desc:'Siri får en transformativ opgradering med konversationskontekst, on-screen awareness og dyb app-integration. Drevet af Apples on-device-modeller og valgfri Gemini-integration.' },
+    url:'https://www.apple.com/apple-intelligence/', vid:'https://developer.apple.com/videos/play/wwdc2026/121/',
+    prompt:'Explain the complete overhaul of Siri announced at WWDC 2026. What are the specific capabilities of the new conversational context system and on-screen awareness? How does Siri integrate with third-party apps via App Intents? How does Gemini integration work, and what are the privacy implications of the hybrid on-device/cloud model?' },
+
+  { id:'apple-intelligence', cat:'ai', plat:['ios','ipados','macos'], impact:3,
+    en:{ title:'Apple Intelligence 2.0',
+         desc:'Major updates bring enhanced photo editing (Cleanup, Extend, Spatial Reframe), smarter cross-app suggestions, updated Genmoji and Image Playground, and broader on-device model capabilities.' },
+    da:{ title:'Apple Intelligence 2.0',
+         desc:'Store opdateringer bringer forbedret fotoredigering (Cleanup, Extend, Spatial Reframe), smartere tværs-app-forslag og opdateret Genmoji og Image Playground.' },
+    url:'https://www.apple.com/apple-intelligence/', vid:'https://developer.apple.com/videos/play/wwdc2026/324/',
+    prompt:'What new capabilities does Apple Intelligence 2.0 bring at WWDC 2026? Explain the new photo editing features (Cleanup, Extend, Spatial Reframe), how cross-app context awareness works, updates to Genmoji and Image Playground, and what new Foundation Models APIs are available to developers.' },
+
+  { id:'ai-dictation', cat:'ai', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'AI Dictation System-Wide',
+         desc:'Intelligent dictation now auto-corrects spelling, adds proper punctuation, and removes filler words (um, uh) in real time. Works in any text field with improved accuracy in 40+ languages.' },
+    da:{ title:'AI-diktat systemvidt',
+         desc:'Intelligent diktat retter nu stavefejl, tilføjer korrekt tegnsætning og fjerner automatisk fyldord i realtid. Fungerer i ethvert tekstfelt med forbedret nøjagtighed.' },
+    url:'https://www.apple.com/apple-intelligence/', vid:'',
+    prompt:'Explain the AI dictation improvements announced at WWDC 2026. How does real-time filler word removal work? What models power spelling correction and punctuation insertion? Are there new Speech framework APIs that third-party apps can leverage for improved dictation?' },
+
+  { id:'smart-shortcuts', cat:'ai', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Smart Shortcuts',
+         desc:'Describe automations in natural language and Siri builds the Shortcut for you. The Shortcuts app gains AI-powered action suggestions and understands complex multi-step requests.' },
+    da:{ title:'Smarte genveje',
+         desc:'Beskriv automatiseringer med naturligt sprog, og Siri bygger genvejen for dig. Genveje-appen får AI-drevne handlingsforslag og forstår komplekse flertrins-anmodninger.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'Describe the natural language Shortcuts creation announced at WWDC 2026. How does the AI understand complex automation requests? What are the current limits of natural language Shortcut creation? What App Intents API changes allow third-party apps to be used in AI-generated Shortcuts?' },
+
+  { id:'text-recognition', cat:'ai', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Text & Visual Intelligence',
+         desc:'Live Text and Visual Intelligence get major upgrades: search within Podcast and TV Show transcripts, improved document OCR, and real-time text translation in photos and video.' },
+    da:{ title:'Tekst- og visuel intelligens',
+         desc:'Live Text og Visual Intelligence forbedres: søgning i Podcasts- og TV-transskripter, bedre dokument-OCR og realtidsoversættelse af tekst i fotos og videoer.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What improvements were made to Live Text and Visual Intelligence at WWDC 2026? How does searching within Podcast and Apple TV transcripts work? What improvements were made to document OCR accuracy? What new Vision framework APIs support these capabilities?' },
+
+  { id:'mail-search', cat:'productivity', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Smarter Mail Search',
+         desc:'Mail search is overhauled with improved Top Hits ranking, semantic understanding of search intent, and faster indexing that works reliably on large mailboxes.' },
+    da:{ title:'Smartere mail-søgning',
+         desc:'Mail-søgning overhaleres med forbedret Top Hits-rangering, semantisk forståelse og hurtigere indeksering der fungerer pålideligt på store postkasser.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'Explain the Mail search improvements announced at WWDC 2026. How does the new semantic search engine understand intent? What changed in the Top Hits algorithm? How was indexing performance improved for mailboxes with hundreds of thousands of messages?' },
+
+  { id:'safari', cat:'productivity', plat:['ios','ipados','macos'], impact:3,
+    en:{ title:'Safari Overhaul',
+         desc:'Safari gains faster page loading, improved power efficiency, AI-powered tab grouping by topic, a Web Eraser tool to remove unwanted page elements, and enhanced reading mode.' },
+    da:{ title:'Safari-overhaling',
+         desc:'Safari får hurtigere sideindlæsning, forbedret strømeffektivitet, AI-drevet tab-gruppering efter emne, et Web Eraser-værktøj og forbedret læsertilstand.' },
+    url:'https://www.apple.com/safari/', vid:'https://developer.apple.com/videos/play/wwdc2026/204/',
+    prompt:'Describe all the Safari improvements announced at WWDC 2026. How does AI-powered tab grouping by topic work? What is the Web Eraser tool and how does it work technically? What changed in the WebKit engine for performance and power efficiency? What new Web APIs are available?' },
+
+  { id:'notes-freeform', cat:'productivity', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Notes & Freeform Updates',
+         desc:'Notes gains enhanced collaboration tools, new canvas drawing features with Liquid Glass styling. Freeform gets improved real-time collaboration and new creative tools for brainstorming.' },
+    da:{ title:'Notes og Freeform-opdateringer',
+         desc:'Notes får forbedrede samarbejdsværktøjer og nye canvas-tegnefunktioner med Liquid Glass-styling. Freeform forbedrer realtidssamarbejde og kreative værktøjer.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What new features were added to Notes and Freeform at WWDC 2026? How do the new collaboration tools work in Notes? What new canvas and drawing capabilities were added to Freeform? How do these apps leverage Apple Intelligence for content suggestions?' },
+
+  { id:'facetime', cat:'productivity', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'FaceTime Quality',
+         desc:'FaceTime calls connect faster and maintain higher quality video and audio on poor connections, thanks to improved adaptive bitrate algorithms and better network condition handling.' },
+    da:{ title:'FaceTime-kvalitet',
+         desc:'FaceTime-opkald forbindes hurtigere og opretholder højere video- og lydkvalitet på dårlige forbindelser takket være forbedrede adaptive bitrate-algoritmer.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What improvements were made to FaceTime call quality and connection speed at WWDC 2026? How do the new adaptive bitrate algorithms handle poor network conditions? Are there new CallKit or video conferencing framework APIs for third-party apps?' },
+
+  { id:'accessibility', cat:'productivity', plat:['ios','ipados'], impact:2,
+    en:{ title:'Accessibility Improvements',
+         desc:'Expanded Apple Pencil support for Hindi and Marathi handwriting, more visually distinct active windows, enhanced Scribble, and improved VoiceOver navigation in complex apps.' },
+    da:{ title:'Forbedret tilgængelighed',
+         desc:'Udvidet Apple Pencil-støtte til hindi og marathi håndskrift, mere visuelt distinkte aktive vinduer, forbedret Scribble og forbedret VoiceOver-navigation i komplekse apps.' },
+    url:'https://www.apple.com/accessibility/', vid:'',
+    prompt:'What accessibility improvements were announced at WWDC 2026? Explain the new Hindi and Marathi Apple Pencil handwriting support, VoiceOver navigation improvements, enhanced Scribble capabilities, and any new Accessibility framework APIs available to developers.' },
+
+  { id:'photos-ai', cat:'media', plat:['ios','ipados'], impact:3,
+    en:{ title:'Photos AI Editing',
+         desc:'Three new AI editing tools: Cleanup removes unwanted objects, Extend expands photo borders to fill any ratio, and Spatial Reframe repositions subjects in spatial photos. Search and discovery also improved.' },
+    da:{ title:'Photos AI-redigering',
+         desc:'Tre nye AI-redigeringsværktøjer: Cleanup fjerner uønskede objekter, Extend udvider fotokanter til ethvert format, og Spatial Reframe ompositionerer motiver i spatiale fotos.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'Explain the three new AI photo editing features in iOS 27: Cleanup, Extend, and Spatial Reframe. How does each work technically on-device? What ML models power them? What PhotoKit APIs expose these capabilities to third-party developers?' },
+
+  { id:'camera', cat:'media', plat:['ios','ipados'], impact:2,
+    en:{ title:'Camera Performance',
+         desc:'Camera app gets reduced power consumption, new Low Power Mode features that maintain image quality, support for additional RAW formats, and a faster photo/video capture pipeline.' },
+    da:{ title:'Kamera-ydeevne',
+         desc:'Kamera-appen får reduceret strømforbrug, nye Low Power Mode-funktioner der opretholder kvaliteten, støtte til yderligere RAW-formater og hurtigere optagelsespipeline.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What camera performance improvements were announced in iOS 27 at WWDC 2026? How was power consumption reduced while maintaining image quality? What new RAW formats are supported? What changes were made to AVFoundation and the capture pipeline?' },
+
+  { id:'airdrop-media', cat:'media', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Faster Media Sharing',
+         desc:'Photo and video sharing between devices gets smarter with automatic quality optimization based on destination device capabilities and connection type, alongside the 80% faster AirDrop speeds.' },
+    da:{ title:'Hurtigere mediedeling',
+         desc:'Foto- og videodeling mellem enheder bliver smartere med automatisk kvalitetsoptimering baseret på destinationsenhedens kapaciteter og forbindelsestype.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What improvements were made to photo and video sharing between Apple devices at WWDC 2026? How does automatic quality optimization work based on the receiving device? How does this interact with iCloud Photo Library and SharePlay?' },
+
+  { id:'apple-music', cat:'media', plat:['ios','ipados','macos','watchos'], impact:2,
+    en:{ title:'Apple Music AutoMix',
+         desc:'Apple Music introduces AutoMix for seamless DJ-style transitions between songs, enriched album pages with artist content, redesigned artist pages, and enhanced spatial audio support.' },
+    da:{ title:'Apple Music AutoMix',
+         desc:'Apple Music introducerer AutoMix for sømløse DJ-stilovergange mellem sange, berigede albumsider med kunstnerindhold og redesignede kunstnersider med spatial audio-støtte.' },
+    url:'https://www.apple.com/apple-music/', vid:'',
+    prompt:'Explain the AutoMix feature in Apple Music announced at WWDC 2026. How do the DJ-style transitions work technically? What changed in the MusicKit framework? How are the new rich album and artist pages structured and what content types can artists publish?' },
+
+  { id:'perimenopause', cat:'health', plat:['ios','watchos'], impact:3,
+    en:{ title:'Perimenopause & Menopause Support',
+         desc:'The Health app introduces dedicated perimenopause and menopause tracking, with symptom logging, hormonal pattern recognition, and tailored Fitness+ workouts designed for this life stage.' },
+    da:{ title:'Perimenopause og menopausestøtte',
+         desc:'Health-appen introducerer dedikeret perimenopause- og menopause-tracking med symptomregistrering, hormonel mønstergenkendelse og skræddersyede Fitness+ workouts.' },
+    url:'https://www.apple.com/health/', vid:'',
+    prompt:'Explain the perimenopause and menopause tracking features in iOS 27 and watchOS 12 announced at WWDC 2026. How does the Health app track symptoms and recognize hormonal patterns? What HealthKit APIs were added? How do the new Fitness+ workouts differ from standard workouts?' },
+
+  { id:'fitness', cat:'health', plat:['ios','watchos'], impact:2,
+    en:{ title:'Fitness Tracking Improvements',
+         desc:'More precise step counting with improved pedometer algorithms, smarter automatic workout detection and start, and an improved Training Load metric with AI-powered recovery recommendations.' },
+    da:{ title:'Fitness-tracking forbedringer',
+         desc:'Mere præcis skridttælling med forbedrede pedometer-algoritmer, smartere automatisk træningsdetektering og forbedret Training Load-metrik med AI-drevne restitutionsanbefalinger.' },
+    url:'https://www.apple.com/apple-watch/', vid:'',
+    prompt:'What fitness tracking improvements were made in iOS 27 and watchOS 12 at WWDC 2026? How was step counting accuracy improved algorithmically? How does the Training Load metric work and how are recovery recommendations calculated using on-device ML?' },
+
+  { id:'water-detection', cat:'health', plat:['watchos'], impact:1,
+    en:{ title:'Water Detection',
+         desc:'Apple Watch improves water detection sensitivity for swim workouts with more accurate pool vs. open water identification and improved stroke detection across all major swimming styles.' },
+    da:{ title:'Vanddetektion',
+         desc:'Apple Watch forbedrer vanddetektionsfølsomhed til svømmetræning med mere præcis skelnen mellem pool og åbent vand og forbedret slaggenkendelse.' },
+    url:'https://www.apple.com/apple-watch/', vid:'',
+    prompt:'How was water detection and swim tracking improved in watchOS 12 at WWDC 2026? What changes were made to pool vs. open water identification? How are swimming stroke types now detected and tracked? What Workout framework APIs changed?' },
+
+  { id:'sleep-tracking', cat:'health', plat:['ios','watchos'], impact:2,
+    en:{ title:'Sleep & Medication Tracking',
+         desc:'Enhanced sleep tracking with more detailed sleep stage analysis, smarter alarm intelligence, and medication reminders improved with dosage tracking and drug interaction awareness.' },
+    da:{ title:'Søvn og medicin-tracking',
+         desc:'Forbedret søvn-tracking med mere detaljeret søvnfaseanalyse, smartere alarmer og medicin-påmindelser med dosis-tracking og bevidsthed om lægemiddelinteraktioner.' },
+    url:'https://www.apple.com/health/', vid:'',
+    prompt:'What improvements were made to sleep tracking and medication reminders in iOS 27 and watchOS 12 at WWDC 2026? How does the new sleep stage analysis work? How does drug interaction awareness work and what data sources does it use?' },
+
+  { id:'parental-controls', cat:'security', plat:['ios','ipados'], impact:2,
+    en:{ title:'Enhanced Parental Controls',
+         desc:'Screen Time gets more granular controls for app categories and time limits. Parents can share phone numbers across family devices and content filtering now works across all apps including third-party browsers.' },
+    da:{ title:'Forbedrede forældrekontroller',
+         desc:'Screen Time får mere granulerede kontroller for app-kategorier og tidsbegrænsninger. Forældre kan dele telefonnumre på familieenheder og indholdsfiltrering fungerer i alle apps.' },
+    url:'https://www.apple.com/families/', vid:'',
+    prompt:'What improvements were made to parental controls and Screen Time in iOS 27 and iPadOS 27 at WWDC 2026? How does shared phone numbers across family devices work? How does universal content filtering across third-party browsers work? What Family Sharing APIs changed?' },
+
+  { id:'emergency-alerts', cat:'security', plat:['ios'], impact:3,
+    en:{ title:'Faster Emergency Alerts',
+         desc:'Emergency SOS and crash detection trigger significantly faster with improved sensor fusion. New quick-share-location feature lets you instantly share your location with family for safety.' },
+    da:{ title:'Hurtigere nødalarmer',
+         desc:'Emergency SOS og crashdetektion udløser markant hurtigere med forbedret sensorfusion. Ny hurtig lokationsdeling lader dig øjeblikkeligt dele din placering med familie.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What emergency safety improvements were made to iOS 27 at WWDC 2026? How was Emergency SOS response time improved through sensor fusion? What changes were made to crash detection? How does the new quick location share for family safety work technically?' },
+
+  { id:'privacy-sharing', cat:'security', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Privacy in Sharing',
+         desc:'New granular privacy controls let you choose exactly what metadata to strip from photos before sharing, enable selective contact sharing, and view transparency reports on sensitive data access.' },
+    da:{ title:'Privatliv i deling',
+         desc:'Nye granulerede privatlivskontroller lader dig vælge præcis hvilke metadata der fjernes fra fotos ved deling, muliggør selektiv kontaktdeling og viser transparensrapporter.' },
+    url:'https://www.apple.com/privacy/', vid:'',
+    prompt:'Explain the new privacy controls for sharing announced in iOS 27 at WWDC 2026. How does granular photo metadata stripping work? What is selective contact sharing and how is it implemented at the OS level? How do the transparency reports for sensitive data access work?' },
+
+  { id:'ipados-multitasking', cat:'platform', plat:['ipados'], impact:2,
+    en:{ title:'iPadOS Stage Manager',
+         desc:'Stage Manager gets significant improvements with better window management, new floating panel support, improved external display handling, and more intuitive app switching with visual context.' },
+    da:{ title:'iPadOS Stage Manager',
+         desc:'Stage Manager forbedres markant med bedre vinduesstyring, ny support til flydende paneler, forbedret ekstern skærmhåndtering og mere intuitiv app-skift med visuel kontekst.' },
+    url:'https://www.apple.com/ipados/', vid:'',
+    prompt:'What improvements were made to Stage Manager and multitasking in iPadOS 27 at WWDC 2026? How do the new floating panels work? What changed in external display support? What UIKit and SwiftUI APIs enable developers to support the improved window management model?' },
+
+  { id:'macos-golden-gate', cat:'platform', plat:['macos'], impact:3,
+    en:{ title:'macOS Golden Gate',
+         desc:'macOS 27 Golden Gate features faster Finder browsing, improved Spotlight with Siri AI integration, new customizable Control Center, and enhanced ProMotion external display support.' },
+    da:{ title:'macOS Golden Gate',
+         desc:'macOS 27 Golden Gate har hurtigere Finder-browsing, forbedret Spotlight med Siri AI-integration, nyt tilpasseligt Control Center og forbedret ProMotion-støtte til eksterne skærme.' },
+    url:'https://www.apple.com/macos/', vid:'https://developer.apple.com/videos/play/wwdc2026/101/',
+    prompt:'What are the key features of macOS 27 Golden Gate announced at WWDC 2026? How was Finder performance improved? How does Spotlight integrate with Siri AI for natural language queries? What new Control Center customization options are available, and what framework changes should macOS developers know about?' },
+
+  { id:'watchos', cat:'platform', plat:['watchos'], impact:2,
+    en:{ title:'watchOS 12 Updates',
+         desc:'watchOS 12 brings HomeKit device pairing directly from watch, smarter workout suggestions based on training history, and intelligent sleep-based charging reminders for better battery habits.' },
+    da:{ title:'watchOS 12 opdateringer',
+         desc:'watchOS 12 bringer HomeKit-enhedsparring direkte fra uret, smartere træningsforslag baseret på træningshistorik og intelligente opladningspåmindelser baseret på søvn.' },
+    url:'https://www.apple.com/watchos/', vid:'',
+    prompt:'What are the key new features in watchOS 12 announced at WWDC 2026? How does the new HomeKit device pairing from Apple Watch work? How do AI-powered workout suggestions use training history? What new WatchKit and ClockKit APIs are available to developers?' },
+
+  { id:'visionos', cat:'platform', plat:['visionos'], impact:2,
+    en:{ title:'visionOS 3',
+         desc:'visionOS 3 features a redesigned 3D Siri visualization, a rebuilt Control Center with curved windows, improved hand tracking precision, and new spatial computing capabilities for enterprise.' },
+    da:{ title:'visionOS 3',
+         desc:'visionOS 3 bringer en redesignet 3D Siri-visualisering, genopbygget Control Center med buede vinduer, forbedret hånd-tracking-præcision og nye rumlige computerkapaciteter til enterprise.' },
+    url:'https://www.apple.com/visionos/', vid:'',
+    prompt:'What are the new features in visionOS 3 announced at WWDC 2026? How does the 3D Siri visualization work in spatial computing? What changed in the curved Control Center design? How was hand tracking precision improved? What new RealityKit and SwiftUI APIs are available for visionOS developers?' },
+
+  { id:'carplay', cat:'platform', plat:['carplay'], impact:2,
+    en:{ title:'CarPlay HDR & NFC',
+         desc:'CarPlay gains HDR display support for compatible vehicles, expanded NFC for contactless car key management, and tighter integration with vehicle systems including climate and seat controls.' },
+    da:{ title:'CarPlay HDR og NFC',
+         desc:'CarPlay får HDR-skærmstøtte til kompatible køretøjer, udvidede NFC-funktioner til kontaktfri biltast-styring og tættere integration med køretøjssystemer inkl. klima.' },
+    url:'https://www.apple.com/ios/carplay/', vid:'',
+    prompt:'What new CarPlay features were announced at WWDC 2026? How does HDR display support work in CarPlay? How do the expanded NFC capabilities for car key management work? What new vehicle system integrations (climate, seats) are available, and what CarPlay framework APIs changed?' },
+
+  { id:'spotlight', cat:'platform', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Spotlight with Siri AI',
+         desc:'Spotlight transforms into an AI command center: natural language queries return intelligent results, developer documentation is indexed, and cross-device search works seamlessly via iCloud.' },
+    da:{ title:'Spotlight med Siri AI',
+         desc:'Spotlight forvandles til et AI-drevet kommandocenter: naturlige sprogforespørgsler returnerer intelligente resultater, og søgning på tværs af enheder fungerer problemfrit.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'How was Spotlight Search transformed with Siri AI in iOS 27 and macOS 27 at WWDC 2026? How do natural language queries work in Spotlight? What new content types and data sources are indexed? What Core Spotlight APIs enable developers to surface app content through the AI-powered Spotlight?' },
+
+  { id:'multilanguage', cat:'language', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Multi-Language Support',
+         desc:'New support added for African languages, Indigenous languages, Vietnamese, and expanded Chinese dialect coverage. Translation app gains offline support for 30 new language pairs with improved accuracy.' },
+    da:{ title:'Flersprogs-støtte',
+         desc:'Ny støtte til afrikanske sprog, oprindelige sprog, vietnamesisk og udvidet kinesisk dialektstøtte. Oversæt-appen får offline-støtte til 30 nye sprogpar med forbedret nøjagtighed.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What new language support was added in iOS 27 and macOS 27 at WWDC 2026? Which specific African and Indigenous languages were added? How was Chinese dialect support expanded? What changes were made to the Translation framework for developers to access these new language models?' },
+
+  { id:'keyboard-voice', cat:'language', plat:['ios','ipados','macos'], impact:2,
+    en:{ title:'Keyboard & Voice Input',
+         desc:'System keyboard gains multilingual smart language detection that switches automatically, better autocorrect that learns preferences, and enhanced voice input with real-time transcription in 40+ languages.' },
+    da:{ title:'Tastatur og stemmeinput',
+         desc:'Systemtastaturet får smart sprogdetektering der skifter automatisk, bedre autokorrektur der lærer præferencer og forbedret stemmeinput med realtidstranskription på 40+ sprog.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'What keyboard and voice input improvements were announced for iOS 27 and macOS 27 at WWDC 2026? How does multilingual smart language detection work? What improvements were made to autocorrect personalization? How was voice input transcription accuracy improved across languages, and what Speech framework APIs changed?' },
+
+  { id:'grammar-check', cat:'language', plat:['ios','ipados','macos'], impact:1,
+    en:{ title:'Grammar & Punctuation AI',
+         desc:'System-wide grammar checking expands to more languages with improved suggestions, and punctuation AI now works in third-party apps via text input APIs for consistent writing quality everywhere.' },
+    da:{ title:'Grammatik og tegnsætnings-AI',
+         desc:'Systemdækkende grammatikkontrol udvides til flere sprog med forbedrede forslag, og tegnsætnings-AI fungerer nu i tredjepartsapps via tekstinput-API\'er.' },
+    url:'https://www.apple.com/ios/', vid:'',
+    prompt:'Explain the grammar checking and punctuation AI improvements in iOS 27 and macOS 27 at WWDC 2026. How does system-wide grammar checking work across more languages? How can third-party apps integrate with the punctuation AI via text input APIs? What NaturalLanguage framework changes support this?' }
+];
+
+let lang = localStorage.getItem('wwdc26_lang') || 'en';
+let tab = 'all';
+let q = '';
+
+function T(k) { return (TR[lang]||TR.en)[k] || TR.en[k] || k; }
+function FL(f) { return (lang==='da' && f.da) ? 'da' : 'en'; }
+
+function hexRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function hl(txt, sq) {
+  if (!sq) return txt;
+  const re = new RegExp(`(${sq.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return txt.replace(re, '<mark>$1</mark>');
+}
+
+function dots(n, sz) {
+  return [1,2,3].map(i=>`<span class="dot${sz?' lg':''}${i<=n?' on':''}"></span>`).join('');
+}
+
+function chips(plats) {
+  return plats.map(p=>`<span class="chip">${PN[p]||p}</span>`).join('');
+}
+
+function getFiltered() {
+  return FEATURES.filter(f => {
+    const matchTab = tab === 'all' ? true : tab === 'ai' ? f.cat === 'ai' : f.plat.includes(tab);
+    if (!matchTab) return false;
+    if (!q) return true;
+    const lq = q.toLowerCase();
+    const l = FL(f);
+    return f[l].title.toLowerCase().includes(lq) ||
+           f[l].desc.toLowerCase().includes(lq) ||
+           f.en.title.toLowerCase().includes(lq) ||
+           f.cat.toLowerCase().includes(lq);
+  });
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const sq = q.toLowerCase();
+  const filtered = getFiltered();
+  document.getElementById('rinfo').textContent = filtered.length + ' ' + T('res_lbl');
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="no-res">${T('no_res')}</div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  filtered.forEach((f, i) => {
+    const l = FL(f);
+    const c = CC[f.cat];
+    const card = document.createElement('div');
+    card.className = 'fcard';
+    card.dataset.fid = f.id;
+    card.style.borderTop = `3px solid ${c}`;
+    card.style.animationDelay = (i * 25) + 'ms';
+    card.innerHTML = `
+      <div class="card-head">
+        <span class="cbadge" style="color:${c};background:${hexRgba(c,.15)}">${T('cat_'+f.cat)}</span>
+        <div class="dots">${dots(f.impact,false)}</div>
+      </div>
+      <div class="card-title">${hl(f[l].title, sq)}</div>
+      <div class="card-desc">${hl(f[l].desc, sq)}</div>
+      <div class="card-foot">
+        <div class="chips">${chips(f.plat)}</div>
+        <button class="pbtn" data-fid="${f.id}">${T('pbtn')}</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function openPanel(id) {
+  const f = FEATURES.find(x => x.id === id);
+  if (!f) return;
+  const l = FL(f);
+  const c = CC[f.cat];
+  document.getElementById('panel').dataset.fid = id;
+  document.getElementById('pbody').innerHTML = `
+    <span class="cbadge" style="color:${c};background:${hexRgba(c,.15)}">${T('cat_'+f.cat)}</span>
+    <h2 class="panel-title">${f[l].title}</h2>
+    <div class="pmeta">
+      <div class="dots">${dots(f.impact,true)}</div>
+      <span class="ilbl">${T('impact')}: ${'●'.repeat(f.impact)}${'○'.repeat(3-f.impact)}</span>
+    </div>
+    <div class="chips" style="margin-bottom:4px">${chips(f.plat)}</div>
+    <p class="pdesc">${f[l].desc}</p>
+    <hr class="divider">
+    <div class="plinks">
+      <a class="plink prime" href="${f.url}" target="_blank" rel="noopener">🍎 ${T('apple_pg')}</a>
+      ${f.vid ? `<a class="plink" href="${f.vid}" target="_blank" rel="noopener">▶ ${T('watch_s')}</a>` : ''}
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-head">
+        <span class="ptitle">${T('llm_lbl')}</span>
+        <span class="pnote">${T('p_note')}</span>
+        <button class="cpbtn" id="cpbtn" onclick="copyPanelPrompt(this)">${T('copy')}</button>
+      </div>
+      <pre class="prompt-text">${f.prompt}</pre>
+    </div>`;
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('overlay').classList.add('on');
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('ok');
+    const orig = btn.textContent;
+    btn.textContent = T('copied');
+    setTimeout(() => { btn.classList.remove('ok'); btn.textContent = orig; }, 1800);
+  });
+}
+
+function copyPanelPrompt(btn) {
+  const id = document.getElementById('panel').dataset.fid;
+  const f = FEATURES.find(x => x.id === id);
+  if (f) copyText(f.prompt, btn);
+}
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('wwdc26_lang', l);
+  applyLang();
+  renderCards();
+  // re-open panel if open
+  const pid = document.getElementById('panel').dataset.fid;
+  if (document.getElementById('panel').classList.contains('open') && pid) openPanel(pid);
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lbtn').forEach(b => b.classList.toggle('active', b.textContent === lang.toUpperCase() || (lang==='zh' && b.textContent==='中文')));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (T(k)) el.textContent = T(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = T(el.dataset.i18nPh);
+  });
+  document.querySelectorAll('[data-tab]').forEach(btn => {
+    const k = btn.dataset.i18n;
+    if (k) btn.textContent = T(k);
+  });
+  // Fix zh lang button active detection
+  document.querySelectorAll('.lbtn').forEach(b => {
+    b.classList.toggle('active',
+      (lang !== 'zh' && b.textContent === lang.toUpperCase()) ||
+      (lang === 'zh' && b.textContent === '中文')
+    );
+  });
+}
+
+// Events
+document.getElementById('searchInput').addEventListener('input', e => {
+  q = e.target.value;
+  renderCards();
+});
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tbtn');
+  if (!btn) return;
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  tab = btn.dataset.tab;
+  renderCards();
+});
+
+document.getElementById('cardGrid').addEventListener('click', e => {
+  const pbtn = e.target.closest('.pbtn');
+  if (pbtn) {
+    e.stopPropagation();
+    const f = FEATURES.find(x => x.id === pbtn.dataset.fid);
+    if (f) copyText(f.prompt, pbtn);
+    return;
+  }
+  const card = e.target.closest('.fcard');
+  if (card) openPanel(card.dataset.fid);
+});
+
+document.getElementById('xbtn').addEventListener('click', closePanel);
+document.getElementById('overlay').addEventListener('click', closePanel);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+applyLang();
+renderCards();
+</script>
+</body>
+</html>
