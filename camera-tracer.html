@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera Tracer – Live SVG Tracing</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root,[data-theme="light"]{
+  --bg:#f5f5f7;--bg2:#ffffff;--bg3:#f0f0f3;--bg4:#e5e5ea;
+  --border:rgba(0,0,0,0.09);
+  --text:#1d1d1f;--text2:#515154;--text3:#909095;
+  --orange:#ff6a00;--orange-soft:rgba(255,106,0,.12);
+  --ok:#34c759;--err:#ff3b30;
+  --shadow:0 2px 12px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.05);
+  --radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#0d0d0f;--bg2:#17171a;--bg3:#202024;--bg4:#2a2a30;
+  --border:rgba(255,255,255,0.09);
+  --text:#f0f0f2;--text2:#a8a8ad;--text3:#67676d;
+  --orange:#ff7a1a;--orange-soft:rgba(255,122,26,.16);
+  --shadow:0 2px 12px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.3);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh;transition:background .25s,color .25s;
+}
+
+header{
+  position:sticky;top:0;z-index:50;height:56px;
+  display:flex;align-items:center;gap:12px;padding:0 20px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.back-link{color:var(--orange);text-decoration:none;font-size:13px;white-space:nowrap;transition:opacity .15s}
+.back-link:hover{opacity:.6}
+.brand{font-size:15px;font-weight:700;flex:1}
+.brand span{color:var(--orange)}
+
+/* Shared button styles (light DOM) */
+button{font-family:inherit}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13px;font-weight:600;padding:9px 18px;border-radius:12px;
+  border:1px solid var(--border);background:var(--bg3);color:var(--text);
+  cursor:pointer;transition:all .18s ease;
+}
+.btn:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.btn-primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn-primary:hover{background:#e85f00;color:#fff;box-shadow:0 4px 16px rgba(255,106,0,.35)}
+.btn:disabled{opacity:.45;pointer-events:none}
+
+/* Layout with container queries */
+main{max-width:1280px;margin:0 auto;padding:24px 20px 64px}
+.layout{container-type:inline-size;container-name:layout}
+.grid{display:grid;grid-template-columns:1fr;gap:18px}
+@container layout (min-width: 880px){
+  .grid{grid-template-columns:1fr 1fr}
+  .span-controls{grid-column:1}
+  .span-stats{grid-column:1 / -1}
+}
+
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px;transition:background .25s;
+}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3)}
+
+footer{text-align:center;padding:18px;font-size:12px;color:var(--text3)}
+footer a{color:var(--orange);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="back-link" data-i18n="back">← Labs</a>
+  <div class="brand"><span data-i18n="title_a">Camera</span> <span>Tracer</span></div>
+  <theme-toggle></theme-toggle>
+  <language-switcher></language-switcher>
+</header>
+
+<main>
+  <camera-tracer-app class="layout"></camera-tracer-app>
+</main>
+
+<footer>
+  <span data-i18n="footer">All processing happens locally in your browser — no images leave your device.</span>
+</footer>
+
+<script>
+'use strict';
+
+/* ========================= i18n ========================= */
+const STR = {
+  en:{
+    back:'← Labs', title_a:'Camera',
+    cam_panel:'Camera', svg_panel:'SVG Output', ctrl_panel:'Tracing Settings', stats_panel:'Status',
+    start:'Start camera', stop:'Stop camera',
+    copy:'Copy SVG', download:'Download .svg', copied:'Copied!', copy_err:'Copy failed — try download',
+    threshold:'Threshold', detail:'Detail level', smoothing:'Smoothing', stroke:'Stroke width',
+    invert:'Invert', colormode:'Color mode',
+    s_cam:'Camera', s_active:'Active', s_inactive:'Inactive',
+    s_paths:'Paths', s_size:'SVG size', s_fps:'Trace FPS',
+    err_nosupport:'Your browser does not support camera access (getUserMedia).',
+    err_denied:'Camera permission denied. Allow camera access in your browser settings and try again.',
+    err_generic:'Could not start the camera. Is another app using it?',
+    err_https:'Camera requires HTTPS or localhost.',
+    placeholder:'Press “Start camera” to begin live tracing',
+    footer:'All processing happens locally in your browser — no images leave your device.'
+  },
+  da:{
+    back:'← Labs', title_a:'Kamera',
+    cam_panel:'Kamera', svg_panel:'SVG-output', ctrl_panel:'Tracing-indstillinger', stats_panel:'Status',
+    start:'Start kamera', stop:'Stop kamera',
+    copy:'Kopiér SVG', download:'Download .svg', copied:'Kopieret!', copy_err:'Kopiering fejlede — prøv download',
+    threshold:'Tærskel', detail:'Detaljeniveau', smoothing:'Udjævning', stroke:'Stregbredde',
+    invert:'Invertér', colormode:'Farvetilstand',
+    s_cam:'Kamera', s_active:'Aktivt', s_inactive:'Inaktivt',
+    s_paths:'Paths', s_size:'SVG-størrelse', s_fps:'Trace-FPS',
+    err_nosupport:'Din browser understøtter ikke kameraadgang (getUserMedia).',
+    err_denied:'Kameratilladelse afvist. Tillad kameraadgang i browserens indstillinger og prøv igen.',
+    err_generic:'Kunne ikke starte kameraet. Bruger en anden app det?',
+    err_https:'Kamera kræver HTTPS eller localhost.',
+    placeholder:'Tryk “Start kamera” for at begynde live-tracing',
+    footer:'Al behandling sker lokalt i din browser — ingen billeder forlader din enhed.'
+  },
+  es:{
+    back:'← Labs', title_a:'Cámara',
+    cam_panel:'Cámara', svg_panel:'Salida SVG', ctrl_panel:'Ajustes de trazado', stats_panel:'Estado',
+    start:'Iniciar cámara', stop:'Detener cámara',
+    copy:'Copiar SVG', download:'Descargar .svg', copied:'¡Copiado!', copy_err:'Error al copiar — usa descargar',
+    threshold:'Umbral', detail:'Nivel de detalle', smoothing:'Suavizado', stroke:'Grosor de trazo',
+    invert:'Invertir', colormode:'Modo color',
+    s_cam:'Cámara', s_active:'Activa', s_inactive:'Inactiva',
+    s_paths:'Trazados', s_size:'Tamaño SVG', s_fps:'FPS de trazado',
+    err_nosupport:'Tu navegador no admite acceso a la cámara (getUserMedia).',
+    err_denied:'Permiso de cámara denegado. Permite el acceso en los ajustes del navegador e inténtalo de nuevo.',
+    err_generic:'No se pudo iniciar la cámara. ¿La está usando otra aplicación?',
+    err_https:'La cámara requiere HTTPS o localhost.',
+    placeholder:'Pulsa “Iniciar cámara” para comenzar el trazado en vivo',
+    footer:'Todo el procesamiento ocurre localmente en tu navegador — ninguna imagen sale de tu dispositivo.'
+  },
+  zh:{
+    back:'← 实验室', title_a:'相机',
+    cam_panel:'相机', svg_panel:'SVG 输出', ctrl_panel:'描摹设置', stats_panel:'状态',
+    start:'启动相机', stop:'停止相机',
+    copy:'复制 SVG', download:'下载 .svg', copied:'已复制！', copy_err:'复制失败 — 请尝试下载',
+    threshold:'阈值', detail:'细节级别', smoothing:'平滑度', stroke:'描边宽度',
+    invert:'反转', colormode:'彩色模式',
+    s_cam:'相机', s_active:'已启动', s_inactive:'未启动',
+    s_paths:'路径数', s_size:'SVG 大小', s_fps:'描摹帧率',
+    err_nosupport:'您的浏览器不支持相机访问（getUserMedia）。',
+    err_denied:'相机权限被拒绝。请在浏览器设置中允许相机访问后重试。',
+    err_generic:'无法启动相机。是否有其他应用正在使用？',
+    err_https:'相机需要 HTTPS 或 localhost。',
+    placeholder:'点击"启动相机"开始实时描摹',
+    footer:'所有处理均在您的浏览器本地完成 — 图像不会离开您的设备。'
+  }
+};
+
+const I18N = {
+  lang: localStorage.getItem('ct_lang') || 'en',
+  t(k){ return (STR[this.lang] && STR[this.lang][k]) || STR.en[k] || k; },
+  set(l){
+    this.lang = l;
+    localStorage.setItem('ct_lang', l);
+    document.documentElement.lang = l;
+    window.dispatchEvent(new CustomEvent('i18n-change'));
+  }
+};
+document.documentElement.lang = I18N.lang;
+
+// Translate light-DOM elements marked with data-i18n
+function applyLightDomI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = I18N.t(el.dataset.i18n); });
+}
+window.addEventListener('i18n-change', applyLightDomI18n);
+
+/* ========================= Theme ========================= */
+const savedTheme = localStorage.getItem('ct_theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+/* ========================= Tracing engine ========================= */
+// 8 directions, clockwise from East — used by Moore-neighbor contour tracing
+const DX = [1,1,0,-1,-1,-1,0,1];
+const DY = [0,1,1,1,0,-1,-1,-1];
+
+// Follow the boundary of a blob starting at (x0,y0) using radial sweep
+function traceBoundary(x0, y0, bin, w, h, visited){
+  const contour = [];
+  let x = x0, y = y0, dir = 7;
+  const maxSteps = w * h;
+  do {
+    contour.push(x, y);
+    visited[y * w + x] = 1;
+    let found = false;
+    for (let k = 0; k < 8; k++){
+      const d = (dir + k) % 8;
+      const nx = x + DX[d], ny = y + DY[d];
+      if (nx >= 0 && ny >= 0 && nx < w && ny < h && bin[ny * w + nx]){
+        x = nx; y = ny;
+        dir = (d + 6) % 8; // backtrack: resume sweep just before the direction we came from
+        found = true;
+        break;
+      }
+    }
+    if (!found) break; // isolated pixel
+  } while (!(x === x0 && y === y0) && contour.length / 2 < maxSteps);
+  return contour;
+}
+
+// Scan binary grid and extract all outer/inner boundaries
+function extractContours(bin, w, h){
+  const visited = new Uint8Array(w * h);
+  const contours = [];
+  for (let y = 0; y < h; y++){
+    for (let x = 0; x < w; x++){
+      const i = y * w + x;
+      // boundary start: foreground pixel with background (or edge) to its left
+      if (bin[i] && !visited[i] && (x === 0 || !bin[i - 1])){
+        const c = traceBoundary(x, y, bin, w, h, visited);
+        if (c.length >= 12) contours.push(c); // skip noise (< 6 points)
+      }
+    }
+  }
+  return contours;
+}
+
+// Ramer–Douglas–Peucker simplification on a flat [x,y,...] array
+function rdp(pts, eps){
+  const n = pts.length / 2;
+  if (n < 3) return pts;
+  const keep = new Uint8Array(n);
+  keep[0] = keep[n - 1] = 1;
+  const stack = [[0, n - 1]];
+  while (stack.length){
+    const [a, b] = stack.pop();
+    const ax = pts[a*2], ay = pts[a*2+1], bx = pts[b*2], by = pts[b*2+1];
+    const dx = bx - ax, dy = by - ay;
+    const len = Math.hypot(dx, dy) || 1e-9;
+    let maxD = 0, idx = -1;
+    for (let i = a + 1; i < b; i++){
+      const dist = Math.abs((pts[i*2] - ax) * dy - (pts[i*2+1] - ay) * dx) / len;
+      if (dist > maxD){ maxD = dist; idx = i; }
+    }
+    if (maxD > eps){ keep[idx] = 1; stack.push([a, idx], [idx, b]); }
+  }
+  const out = [];
+  for (let i = 0; i < n; i++) if (keep[i]){ out.push(pts[i*2], pts[i*2+1]); }
+  return out;
+}
+
+const f1 = v => Math.round(v * 10) / 10;
+
+// Closed polyline path
+function polyPath(p){
+  let d = `M${f1(p[0])} ${f1(p[1])}`;
+  for (let i = 2; i < p.length; i += 2) d += `L${f1(p[i])} ${f1(p[i+1])}`;
+  return d + 'Z';
+}
+
+// Smooth closed path: quadratic Béziers through segment midpoints
+function smoothPath(p){
+  const n = p.length / 2;
+  const mx0 = (p[0] + p[2]) / 2, my0 = (p[1] + p[3]) / 2;
+  let d = `M${f1(mx0)} ${f1(my0)}`;
+  for (let i = 1; i <= n; i++){
+    const cx = p[(i % n) * 2], cy = p[(i % n) * 2 + 1];
+    const nx = p[((i + 1) % n) * 2], ny = p[((i + 1) % n) * 2 + 1];
+    d += `Q${f1(cx)} ${f1(cy)} ${f1((cx + nx) / 2)} ${f1((cy + ny) / 2)}`;
+  }
+  return d + 'Z';
+}
+
+// Average color sampled along a contour (for color mode)
+function sampleColor(c, data, w){
+  let r = 0, g = 0, b = 0, cnt = 0;
+  const pts = c.length / 2;
+  const step = Math.max(1, Math.floor(pts / 12));
+  for (let i = 0; i < pts; i += step){
+    const o = (c[i*2+1] * w + c[i*2]) * 4;
+    r += data[o]; g += data[o+1]; b += data[o+2]; cnt++;
+  }
+  return `rgb(${r/cnt|0},${g/cnt|0},${b/cnt|0})`;
+}
+
+// One full trace pass: video frame -> binary grid -> contours -> SVG path list
+function traceFrame(video, opts, work){
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return null;
+  const gw = 40 + opts.detail * 20;               // detail 1..10 -> 60..240 px grid
+  const gh = Math.max(12, Math.round(gw * vh / vw));
+  if (work.canvas.width !== gw || work.canvas.height !== gh){
+    work.canvas.width = gw; work.canvas.height = gh;
+  }
+  const ctx = work.ctx;
+  ctx.setTransform(-1, 0, 0, 1, gw, 0);            // mirror to match preview
+  ctx.drawImage(video, 0, 0, gw, gh);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const data = ctx.getImageData(0, 0, gw, gh).data;
+
+  const n = gw * gh;
+  const bin = new Uint8Array(n);
+  const t = opts.threshold * 255;
+  for (let i = 0; i < n; i++){
+    const o = i * 4;
+    const lum = 0.2126 * data[o] + 0.7152 * data[o+1] + 0.0722 * data[o+2];
+    bin[i] = ((lum < t) !== opts.invert) ? 1 : 0;
+  }
+
+  const contours = extractContours(bin, gw, gh);
+  const eps = 0.4 + opts.smoothing * 2.2;
+  const paths = [];
+  for (const c of contours){
+    const simp = rdp(c, eps);
+    if (simp.length < 6) continue;
+    paths.push({
+      d: opts.smoothing > 0.08 ? smoothPath(simp) : polyPath(simp),
+      color: opts.colorMode ? sampleColor(c, data, gw) : null
+    });
+  }
+  return { paths, w: gw, h: gh };
+}
+
+function buildSVG(res, opts){
+  const sw = opts.strokeWidth;
+  const body = res.paths.map(p =>
+    `<path d="${p.d}" fill="none" stroke="${p.color || '#111111'}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>`
+  ).join('\n  ');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${res.w} ${res.h}">\n  ${body}\n</svg>`;
+}
+
+/* ========================= <theme-toggle> ========================= */
+class ThemeToggle extends HTMLElement {
+  connectedCallback(){
+    this.attachShadow({mode:'open'}).innerHTML = `
+      <style>
+        button{
+          width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;
+          border:1px solid var(--border);background:transparent;color:var(--text2);
+          display:flex;align-items:center;justify-content:center;transition:all .18s;
+        }
+        button:hover{border-color:var(--orange);color:var(--orange)}
+        button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+      </style>
+      <button aria-label="Toggle theme"></button>`;
+    this._btn = this.shadowRoot.querySelector('button');
+    this._onClick = () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('ct_theme', next);
+      this._sync();
+    };
+    this._btn.addEventListener('click', this._onClick);
+    this._sync();
+  }
+  disconnectedCallback(){ this._btn?.removeEventListener('click', this._onClick); }
+  _sync(){
+    this._btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+  }
+}
+customElements.define('theme-toggle', ThemeToggle);
+
+/* ========================= <language-switcher> ========================= */
+class LanguageSwitcher extends HTMLElement {
+  connectedCallback(){
+    this.attachShadow({mode:'open'}).innerHTML = `
+      <style>
+        :host{display:flex;gap:3px}
+        button{
+          font-size:11px;font-weight:600;padding:4px 8px;border-radius:7px;cursor:pointer;
+          border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;
+        }
+        button:hover{border-color:var(--orange);color:var(--orange)}
+        button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+        button.active{background:var(--orange);border-color:var(--orange);color:#fff}
+      </style>
+      <button data-l="en">EN</button><button data-l="da">DA</button>
+      <button data-l="es">ES</button><button data-l="zh">中文</button>`;
+    this._onClick = e => { const b = e.target.closest('button'); if (b) I18N.set(b.dataset.l); };
+    this._onLang = () => this._sync();
+    this.shadowRoot.addEventListener('click', this._onClick);
+    window.addEventListener('i18n-change', this._onLang);
+    this._sync();
+  }
+  disconnectedCallback(){
+    this.shadowRoot?.removeEventListener('click', this._onClick);
+    window.removeEventListener('i18n-change', this._onLang);
+  }
+  _sync(){
+    this.shadowRoot.querySelectorAll('button').forEach(b =>
+      b.classList.toggle('active', b.dataset.l === I18N.lang));
+  }
+}
+customElements.define('language-switcher', LanguageSwitcher);
+
+/* ========================= <camera-preview> ========================= */
+class CameraPreview extends HTMLElement {
+  connectedCallback(){
+    this.attachShadow({mode:'open'}).innerHTML = `
+      <style>
+        :host{display:block}
+        .frame{
+          position:relative;width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;
+          background:var(--bg3);display:flex;align-items:center;justify-content:center;
+        }
+        video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:none}
+        video.on{display:block}
+        .msg{
+          padding:24px;text-align:center;font-size:13px;color:var(--text3);line-height:1.6;max-width:340px;
+        }
+        .msg.error{color:var(--err)}
+        .cam-ico{display:block;margin:0 auto 12px;opacity:.4}
+      </style>
+      <div class="frame">
+        <video playsinline muted></video>
+        <div class="msg">
+          <svg class="cam-ico" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          <span class="msg-text"></span>
+        </div>
+      </div>`;
+    this.video = this.shadowRoot.querySelector('video');
+    this._msg = this.shadowRoot.querySelector('.msg');
+    this._msgText = this.shadowRoot.querySelector('.msg-text');
+    this._stream = null;
+    this._onLang = () => { if (this._msgKey) this._showMsg(this._msgKey, this._msgErr); };
+    window.addEventListener('i18n-change', this._onLang);
+    this._showMsg('placeholder', false);
+  }
+  disconnectedCallback(){
+    this.stop();
+    window.removeEventListener('i18n-change', this._onLang);
+  }
+  _showMsg(key, isError){
+    this._msgKey = key; this._msgErr = isError;
+    this._msgText.textContent = I18N.t(key);
+    this._msg.classList.toggle('error', !!isError);
+    this._msg.style.display = '';
+    this.video.classList.remove('on');
+  }
+  get active(){ return !!this._stream; }
+  async start(){
+    if (this._stream) return true;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      this._showMsg(location.protocol === 'http:' && location.hostname !== 'localhost' ? 'err_https' : 'err_nosupport', true);
+      return false;
+    }
+    try {
+      this._stream = await navigator.mediaDevices.getUserMedia({
+        video:{ width:{ideal:1280}, height:{ideal:960}, facingMode:'user' }, audio:false
+      });
+      this.video.srcObject = this._stream;
+      await this.video.play();
+      this._msg.style.display = 'none';
+      this.video.classList.add('on');
+      this.dispatchEvent(new CustomEvent('camera-state', {detail:{active:true}, bubbles:true, composed:true}));
+      return true;
+    } catch (err){
+      this._stream = null;
+      const key = (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) ? 'err_denied' : 'err_generic';
+      this._showMsg(key, true);
+      this.dispatchEvent(new CustomEvent('camera-state', {detail:{active:false}, bubbles:true, composed:true}));
+      return false;
+    }
+  }
+  stop(){
+    if (this._stream){
+      this._stream.getTracks().forEach(t => t.stop()); // release hardware
+      this._stream = null;
+    }
+    this.video.srcObject = null;
+    this._showMsg('placeholder', false);
+    this.dispatchEvent(new CustomEvent('camera-state', {detail:{active:false}, bubbles:true, composed:true}));
+  }
+}
+customElements.define('camera-preview', CameraPreview);
+
+/* ========================= <tracing-controls> ========================= */
+class TracingControls extends HTMLElement {
+  static get defaults(){
+    return { threshold:0.5, detail:6, smoothing:0.5, strokeWidth:1.2, invert:false, colorMode:false };
+  }
+  connectedCallback(){
+    this.settings = {...TracingControls.defaults};
+    this.attachShadow({mode:'open'}).innerHTML = `
+      <style>
+        :host{display:block}
+        .row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;margin-bottom:14px}
+        label{font-size:12.5px;font-weight:600;color:var(--text2)}
+        .val{font-size:11px;color:var(--orange);font-weight:700;font-variant-numeric:tabular-nums}
+        input[type=range]{
+          grid-column:1 / -1;width:100%;appearance:none;-webkit-appearance:none;height:5px;border-radius:3px;
+          background:var(--bg4);outline:none;cursor:pointer;
+        }
+        input[type=range]::-webkit-slider-thumb{
+          -webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+          background:var(--orange);border:2.5px solid var(--bg2);
+          box-shadow:0 1px 5px rgba(0,0,0,.25);transition:transform .12s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+        input[type=range]::-moz-range-thumb{
+          width:14px;height:14px;border-radius:50%;background:var(--orange);
+          border:2.5px solid var(--bg2);box-shadow:0 1px 5px rgba(0,0,0,.25);
+        }
+        input[type=range]:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+        .toggles{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+        .tg{
+          display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--text2);
+          padding:8px 14px;border-radius:11px;border:1px solid var(--border);cursor:pointer;
+          transition:all .15s;user-select:none;
+        }
+        .tg:hover{border-color:var(--orange)}
+        .tg:has(input:checked){background:var(--orange-soft);border-color:var(--orange);color:var(--orange)}
+        .tg:has(input:focus-visible){outline:2px solid var(--orange);outline-offset:2px}
+        .tg input{appearance:none;width:0;height:0;position:absolute}
+        .dot{width:8px;height:8px;border-radius:50%;background:var(--bg4);transition:background .15s}
+        .tg:has(input:checked) .dot{background:var(--orange)}
+      </style>
+      <div class="row"><label data-k="threshold"></label><span class="val" id="v-threshold"></span>
+        <input type="range" id="threshold" min="0.05" max="0.95" step="0.01"></div>
+      <div class="row"><label data-k="detail"></label><span class="val" id="v-detail"></span>
+        <input type="range" id="detail" min="1" max="10" step="1"></div>
+      <div class="row"><label data-k="smoothing"></label><span class="val" id="v-smoothing"></span>
+        <input type="range" id="smoothing" min="0" max="1" step="0.05"></div>
+      <div class="row"><label data-k="stroke"></label><span class="val" id="v-strokeWidth"></span>
+        <input type="range" id="strokeWidth" min="0.3" max="5" step="0.1"></div>
+      <div class="toggles">
+        <label class="tg"><input type="checkbox" id="invert"><span class="dot"></span><span data-k="invert"></span></label>
+        <label class="tg"><input type="checkbox" id="colorMode"><span class="dot"></span><span data-k="colormode"></span></label>
+      </div>`;
+    const sr = this.shadowRoot;
+    ['threshold','detail','smoothing','strokeWidth'].forEach(k => { sr.getElementById(k).value = this.settings[k]; });
+    this._onInput = e => {
+      const el = e.target;
+      if (!el.id) return;
+      this.settings[el.id] = el.type === 'checkbox' ? el.checked : parseFloat(el.value);
+      this._syncVals();
+      this.dispatchEvent(new CustomEvent('settings-change', {detail:{...this.settings}, bubbles:true, composed:true}));
+    };
+    this._onLang = () => this._syncLabels();
+    sr.addEventListener('input', this._onInput);
+    window.addEventListener('i18n-change', this._onLang);
+    this._syncLabels();
+    this._syncVals();
+  }
+  disconnectedCallback(){
+    this.shadowRoot?.removeEventListener('input', this._onInput);
+    window.removeEventListener('i18n-change', this._onLang);
+  }
+  _syncLabels(){
+    this.shadowRoot.querySelectorAll('[data-k]').forEach(el => { el.textContent = I18N.t(el.dataset.k); });
+  }
+  _syncVals(){
+    const s = this.settings, sr = this.shadowRoot;
+    sr.getElementById('v-threshold').textContent = Math.round(s.threshold * 100) + '%';
+    sr.getElementById('v-detail').textContent = s.detail;
+    sr.getElementById('v-smoothing').textContent = Math.round(s.smoothing * 100) + '%';
+    sr.getElementById('v-strokeWidth').textContent = s.strokeWidth.toFixed(1);
+  }
+}
+customElements.define('tracing-controls', TracingControls);
+
+/* ========================= <svg-preview> ========================= */
+class SvgPreview extends HTMLElement {
+  connectedCallback(){
+    this.attachShadow({mode:'open'}).innerHTML = `
+      <style>
+        :host{display:block}
+        .frame{
+          width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:#fff;
+          border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+        }
+        .frame svg{width:100%;height:100%}
+        .empty{font-size:12px;color:#aaa}
+        .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+        button{
+          display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+          padding:9px 16px;border-radius:11px;cursor:pointer;transition:all .18s;
+          border:1px solid var(--orange);background:transparent;color:var(--orange);
+        }
+        button:hover{background:var(--orange);color:#fff;transform:translateY(-1px)}
+        button:active{transform:translateY(0) scale(.97)}
+        button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+        button:disabled{opacity:.4;pointer-events:none}
+        button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+        button.err{background:var(--err);border-color:var(--err);color:#fff}
+        svg.ico{width:14px;height:14px}
+      </style>
+      <div class="frame"><span class="empty">SVG</span></div>
+      <div class="actions">
+        <button id="copy" disabled>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span data-k="copy"></span>
+        </button>
+        <button id="download" disabled>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-k="download"></span>
+        </button>
+      </div>`;
+    this._frame = this.shadowRoot.querySelector('.frame');
+    this._copyBtn = this.shadowRoot.getElementById('copy');
+    this._dlBtn = this.shadowRoot.getElementById('download');
+    this._svgMarkup = '';
+    this._onCopy = () => this._copy();
+    this._onDl = () => this._download();
+    this._onLang = () => this._syncLabels();
+    this._copyBtn.addEventListener('click', this._onCopy);
+    this._dlBtn.addEventListener('click', this._onDl);
+    window.addEventListener('i18n-change', this._onLang);
+    this._syncLabels();
+  }
+  disconnectedCallback(){
+    this._copyBtn?.removeEventListener('click', this._onCopy);
+    this._dlBtn?.removeEventListener('click', this._onDl);
+    window.removeEventListener('i18n-change', this._onLang);
+  }
+  _syncLabels(){
+    this.shadowRoot.querySelectorAll('[data-k]').forEach(el => { el.textContent = I18N.t(el.dataset.k); });
+  }
+  setSVG(markup){
+    this._svgMarkup = markup || '';
+    this._frame.innerHTML = this._svgMarkup || '<span class="empty">SVG</span>';
+    this._copyBtn.disabled = this._dlBtn.disabled = !this._svgMarkup;
+  }
+  get bytes(){ return new Blob([this._svgMarkup]).size; }
+  _flash(btn, cls, key){
+    const span = btn.querySelector('[data-k]');
+    const orig = span.textContent;
+    btn.classList.add(cls);
+    span.textContent = I18N.t(key);
+    setTimeout(() => { btn.classList.remove(cls); span.textContent = orig; }, 1600);
+  }
+  async _copy(){
+    try {
+      await navigator.clipboard.writeText(this._svgMarkup);
+      this._flash(this._copyBtn, 'ok', 'copied');
+    } catch {
+      // Clipboard API blocked — fall back to a hidden textarea
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = this._svgMarkup;
+        ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove();
+        this._flash(this._copyBtn, ok ? 'ok' : 'err', ok ? 'copied' : 'copy_err');
+      } catch {
+        this._flash(this._copyBtn, 'err', 'copy_err');
+      }
+    }
+  }
+  _download(){
+    const blob = new Blob([this._svgMarkup], {type:'image/svg+xml'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `camera-trace-${Date.now()}.svg`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+}
+customElements.define('svg-preview', SvgPreview);
+
+/* ========================= <camera-tracer-app> ========================= */
+class CameraTracerApp extends HTMLElement {
+  connectedCallback(){
+    // Light DOM so document CSS (cards, container queries, buttons) applies
+    this.innerHTML = `
+      <div class="grid">
+        <div>
+          <div class="card">
+            <div class="card-head">
+              <span class="card-title" data-i18n="cam_panel">${I18N.t('cam_panel')}</span>
+              <button class="btn btn-primary" id="camBtn">${I18N.t('start')}</button>
+            </div>
+            <camera-preview></camera-preview>
+          </div>
+          <div class="card span-controls" style="margin-top:18px">
+            <div class="card-head"><span class="card-title" data-i18n="ctrl_panel">${I18N.t('ctrl_panel')}</span></div>
+            <tracing-controls></tracing-controls>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title" data-i18n="svg_panel">${I18N.t('svg_panel')}</span></div>
+            <svg-preview></svg-preview>
+          </div>
+          <div class="card" style="margin-top:18px">
+            <div class="card-head"><span class="card-title" data-i18n="stats_panel">${I18N.t('stats_panel')}</span></div>
+            <div class="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px">
+              <div class="stat"><div class="sl" data-i18n="s_cam">${I18N.t('s_cam')}</div><div class="sv" id="stCam">—</div></div>
+              <div class="stat"><div class="sl" data-i18n="s_paths">${I18N.t('s_paths')}</div><div class="sv" id="stPaths">0</div></div>
+              <div class="stat"><div class="sl" data-i18n="s_size">${I18N.t('s_size')}</div><div class="sv" id="stSize">0 KB</div></div>
+              <div class="stat"><div class="sl" data-i18n="s_fps">${I18N.t('s_fps')}</div><div class="sv" id="stFps">0</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        .stat .sl{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+        .stat .sv{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+        .stat .sv.on{color:var(--ok)}
+        .stat .sv.off{color:var(--text3)}
+      </style>`;
+
+    this.cam = this.querySelector('camera-preview');
+    this.svgOut = this.querySelector('svg-preview');
+    this.controls = this.querySelector('tracing-controls');
+    this.camBtn = this.querySelector('#camBtn');
+    this.settings = {...TracingControls.defaults};
+
+    // Reusable offscreen canvas — avoids per-frame allocations
+    const canvas = document.createElement('canvas');
+    this.work = { canvas, ctx: canvas.getContext('2d', {willReadFrequently:true}) };
+
+    this._raf = 0;
+    this._lastTrace = 0;
+    this._traceInterval = 90; // ms between traces (~11 traces/sec max)
+    this._fpsCount = 0;
+    this._fpsStamp = performance.now();
+
+    this._onCamBtn = () => this._toggleCamera();
+    this._onSettings = e => { this.settings = e.detail; };
+    this._onCamState = e => this._syncCamUI(e.detail.active);
+    this._onLang = () => this._syncLang();
+    this._onPageHide = () => this.cam.stop();
+
+    this.camBtn.addEventListener('click', this._onCamBtn);
+    this.addEventListener('settings-change', this._onSettings);
+    this.addEventListener('camera-state', this._onCamState);
+    window.addEventListener('i18n-change', this._onLang);
+    window.addEventListener('pagehide', this._onPageHide);
+
+    this._syncCamUI(false);
+    this._loop = this._loop.bind(this);
+    this._raf = requestAnimationFrame(this._loop);
+  }
+
+  disconnectedCallback(){
+    cancelAnimationFrame(this._raf);
+    this.camBtn?.removeEventListener('click', this._onCamBtn);
+    this.removeEventListener('settings-change', this._onSettings);
+    this.removeEventListener('camera-state', this._onCamState);
+    window.removeEventListener('i18n-change', this._onLang);
+    window.removeEventListener('pagehide', this._onPageHide);
+    this.cam?.stop();
+  }
+
+  async _toggleCamera(){
+    if (this.cam.active) this.cam.stop();
+    else { this.camBtn.disabled = true; await this.cam.start(); this.camBtn.disabled = false; }
+  }
+
+  _syncCamUI(active){
+    this.camBtn.textContent = I18N.t(active ? 'stop' : 'start');
+    this.camBtn.classList.toggle('btn-primary', !active);
+    const st = this.querySelector('#stCam');
+    st.textContent = I18N.t(active ? 's_active' : 's_inactive');
+    st.className = 'sv ' + (active ? 'on' : 'off');
+  }
+
+  _syncLang(){
+    this.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = I18N.t(el.dataset.i18n); });
+    this._syncCamUI(this.cam.active);
+  }
+
+  _loop(now){
+    this._raf = requestAnimationFrame(this._loop);
+    if (!this.cam.active || this.cam.video.readyState < 2) return;
+    if (now - this._lastTrace < this._traceInterval) return; // throttle
+    this._lastTrace = now;
+
+    const res = traceFrame(this.cam.video, this.settings, this.work);
+    if (!res) return;
+    this.svgOut.setSVG(buildSVG(res, this.settings));
+
+    // stats
+    this.querySelector('#stPaths').textContent = res.paths.length;
+    this.querySelector('#stSize').textContent = (this.svgOut.bytes / 1024).toFixed(1) + ' KB';
+    this._fpsCount++;
+    if (now - this._fpsStamp >= 1000){
+      this.querySelector('#stFps').textContent = this._fpsCount;
+      this._fpsCount = 0;
+      this._fpsStamp = now;
+    }
+  }
+}
+customElements.define('camera-tracer-app', CameraTracerApp);
+
+applyLightDomI18n();
+</script>
+</body>
+</html>
