@@ -43,7 +43,6 @@ header{
 .brand{font-size:15px;font-weight:700;flex:1}
 .brand span{color:var(--orange)}
 
-/* Shared button styles (light DOM) */
 button{font-family:inherit}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
@@ -57,15 +56,14 @@ button{font-family:inherit}
 .btn-primary{background:var(--orange);border-color:var(--orange);color:#fff}
 .btn-primary:hover{background:#e85f00;color:#fff;box-shadow:0 4px 16px rgba(255,106,0,.35)}
 .btn:disabled{opacity:.45;pointer-events:none}
+.btn-snap{background:var(--bg3);border-color:var(--border);font-size:18px;padding:7px 14px;border-radius:12px}
+.btn-snap:hover{border-color:var(--orange);background:var(--orange-soft)}
 
-/* Layout with container queries */
 main{max-width:1280px;margin:0 auto;padding:24px 20px 64px}
 .layout{container-type:inline-size;container-name:layout}
 .grid{display:grid;grid-template-columns:1fr;gap:18px}
 @container layout (min-width: 880px){
   .grid{grid-template-columns:1fr 1fr}
-  .span-controls{grid-column:1}
-  .span-stats{grid-column:1 / -1}
 }
 
 .card{
@@ -74,6 +72,72 @@ main{max-width:1280px;margin:0 auto;padding:24px 20px 64px}
 }
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
 .card-title{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3)}
+
+/* Countdown overlay */
+.cam-wrapper{position:relative}
+.countdown-overlay{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.45);border-radius:12px;z-index:20;pointer-events:none;
+}
+.countdown-overlay[hidden]{display:none}
+.countdown-num{
+  font-size:clamp(72px,15vw,120px);font-weight:900;color:#fff;
+  text-shadow:0 4px 32px rgba(0,0,0,.6);
+  animation:cd-pop .85s ease-out forwards;
+}
+@keyframes cd-pop{
+  0%{transform:scale(1.6);opacity:0}
+  25%{transform:scale(1.0);opacity:1}
+  85%{transform:scale(.88);opacity:.9}
+  100%{transform:scale(.82);opacity:0}
+}
+@keyframes flash{0%{opacity:.85}100%{opacity:0}}
+.cam-flash{
+  position:absolute;inset:0;background:#fff;border-radius:12px;
+  z-index:21;pointer-events:none;animation:flash .35s ease forwards;
+}
+
+/* Gallery */
+.gallery-strip{
+  display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;
+  scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
+}
+.gallery-strip::-webkit-scrollbar{height:4px}
+.gallery-strip::-webkit-scrollbar-track{background:transparent}
+.gallery-strip::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.g-item{
+  flex:0 0 auto;position:relative;width:100px;cursor:pointer;
+  border-radius:10px;overflow:hidden;border:2px solid transparent;
+  transition:border-color .15s,transform .15s;background:var(--bg3);
+}
+.g-item:hover{transform:translateY(-2px);border-color:var(--orange)}
+.g-item.selected{border-color:var(--orange);box-shadow:0 0 0 2px var(--orange-soft)}
+.g-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.g-del{
+  position:absolute;top:4px;right:4px;width:20px;height:20px;
+  border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;
+  font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;line-height:1;
+}
+.g-item:hover .g-del{opacity:1}
+.g-del:hover{background:var(--err)}
+.g-time{
+  position:absolute;bottom:0;left:0;right:0;padding:2px 5px;
+  font-size:9px;font-weight:600;color:#fff;background:rgba(0,0,0,.45);
+  text-align:center;
+}
+.gallery-empty{font-size:12px;color:var(--text3);padding:20px 0;text-align:center}
+
+/* Frozen badge on svg panel */
+.frozen-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;color:var(--orange);
+  background:var(--orange-soft);padding:4px 10px;border-radius:8px;cursor:pointer;
+  border:1px solid rgba(255,106,0,.3);transition:background .15s;
+}
+.frozen-badge:hover{background:rgba(255,106,0,.2)}
+.frozen-badge[hidden]{display:none}
 
 footer{text-align:center;padding:18px;font-size:12px;color:var(--text3)}
 footer a{color:var(--orange);text-decoration:none}
@@ -105,57 +169,69 @@ const STR = {
     back:'← Labs', title_a:'Camera',
     cam_panel:'Camera', svg_panel:'SVG Output', ctrl_panel:'Tracing Settings', stats_panel:'Status',
     start:'Start camera', stop:'Stop camera',
+    snapshot:'Snapshot', flip_cam:'Flip',
+    gallery_title:'Snapshots', gallery_empty:'No snapshots yet — press Snapshot to capture',
     copy:'Copy SVG', download:'Download .svg', copied:'Copied!', copy_err:'Copy failed — try download',
     threshold:'Threshold', detail:'Detail level', smoothing:'Smoothing', stroke:'Stroke width',
-    invert:'Invert', colormode:'Color mode',
+    invert:'Invert', colormode:'Color mode', edge_detect:'Edge detect',
+    resume_live:'× Resume live', snapshot_frozen:'📷 Snapshot',
     s_cam:'Camera', s_active:'Active', s_inactive:'Inactive',
     s_paths:'Paths', s_size:'SVG size', s_fps:'Trace FPS',
     err_nosupport:'Your browser does not support camera access (getUserMedia).',
     err_denied:'Camera permission denied. Allow camera access in your browser settings and try again.',
     err_generic:'Could not start the camera. Is another app using it?',
     err_https:'Camera requires HTTPS or localhost.',
-    placeholder:'Press “Start camera” to begin live tracing',
+    placeholder:'Press "Start camera" to begin live tracing',
     footer:'All processing happens locally in your browser — no images leave your device.'
   },
   da:{
     back:'← Labs', title_a:'Kamera',
     cam_panel:'Kamera', svg_panel:'SVG-output', ctrl_panel:'Tracing-indstillinger', stats_panel:'Status',
     start:'Start kamera', stop:'Stop kamera',
+    snapshot:'Snapshot', flip_cam:'Vend',
+    gallery_title:'Snapshots', gallery_empty:'Ingen snapshots endnu — tryk Snapshot for at tage et',
     copy:'Kopiér SVG', download:'Download .svg', copied:'Kopieret!', copy_err:'Kopiering fejlede — prøv download',
     threshold:'Tærskel', detail:'Detaljeniveau', smoothing:'Udjævning', stroke:'Stregbredde',
-    invert:'Invertér', colormode:'Farvetilstand',
+    invert:'Invertér', colormode:'Farvetilstand', edge_detect:'Kantdetektion',
+    resume_live:'× Genoptag live', snapshot_frozen:'📷 Snapshot',
     s_cam:'Kamera', s_active:'Aktivt', s_inactive:'Inaktivt',
     s_paths:'Paths', s_size:'SVG-størrelse', s_fps:'Trace-FPS',
     err_nosupport:'Din browser understøtter ikke kameraadgang (getUserMedia).',
     err_denied:'Kameratilladelse afvist. Tillad kameraadgang i browserens indstillinger og prøv igen.',
     err_generic:'Kunne ikke starte kameraet. Bruger en anden app det?',
     err_https:'Kamera kræver HTTPS eller localhost.',
-    placeholder:'Tryk “Start kamera” for at begynde live-tracing',
+    placeholder:'Tryk "Start kamera" for at begynde live-tracing',
     footer:'Al behandling sker lokalt i din browser — ingen billeder forlader din enhed.'
   },
   es:{
     back:'← Labs', title_a:'Cámara',
     cam_panel:'Cámara', svg_panel:'Salida SVG', ctrl_panel:'Ajustes de trazado', stats_panel:'Estado',
     start:'Iniciar cámara', stop:'Detener cámara',
+    snapshot:'Captura', flip_cam:'Voltear',
+    gallery_title:'Capturas', gallery_empty:'Sin capturas aún — pulsa Captura',
     copy:'Copiar SVG', download:'Descargar .svg', copied:'¡Copiado!', copy_err:'Error al copiar — usa descargar',
     threshold:'Umbral', detail:'Nivel de detalle', smoothing:'Suavizado', stroke:'Grosor de trazo',
-    invert:'Invertir', colormode:'Modo color',
+    invert:'Invertir', colormode:'Modo color', edge_detect:'Detección de bordes',
+    resume_live:'× Reanudar en vivo', snapshot_frozen:'📷 Captura',
     s_cam:'Cámara', s_active:'Activa', s_inactive:'Inactiva',
     s_paths:'Trazados', s_size:'Tamaño SVG', s_fps:'FPS de trazado',
     err_nosupport:'Tu navegador no admite acceso a la cámara (getUserMedia).',
     err_denied:'Permiso de cámara denegado. Permite el acceso en los ajustes del navegador e inténtalo de nuevo.',
     err_generic:'No se pudo iniciar la cámara. ¿La está usando otra aplicación?',
     err_https:'La cámara requiere HTTPS o localhost.',
-    placeholder:'Pulsa “Iniciar cámara” para comenzar el trazado en vivo',
+    placeholder:'Pulsa "Iniciar cámara" para comenzar el trazado en vivo',
     footer:'Todo el procesamiento ocurre localmente en tu navegador — ninguna imagen sale de tu dispositivo.'
   },
   zh:{
     back:'← 实验室', title_a:'相机',
     cam_panel:'相机', svg_panel:'SVG 输出', ctrl_panel:'描摹设置', stats_panel:'状态',
     start:'启动相机', stop:'停止相机',
+    snapshot:'快照', flip_cam:'翻转',
+    gallery_title:'快照', gallery_empty:'还没有快照 — 按快照按钮拍摄',
     copy:'复制 SVG', download:'下载 .svg', copied:'已复制！', copy_err:'复制失败 — 请尝试下载',
     threshold:'阈值', detail:'细节级别', smoothing:'平滑度', stroke:'描边宽度',
-    invert:'反转', colormode:'彩色模式',
+    invert:'反转', colormode:'彩色模式', edge_detect:'边缘检测',
+    resume_live:'× 恢复实时', snapshot_frozen:'📷 快照',
     s_cam:'相机', s_active:'已启动', s_inactive:'未启动',
     s_paths:'路径数', s_size:'SVG 大小', s_fps:'描摹帧率',
     err_nosupport:'您的浏览器不支持相机访问（getUserMedia）。',
@@ -179,7 +255,6 @@ const I18N = {
 };
 document.documentElement.lang = I18N.lang;
 
-// Translate light-DOM elements marked with data-i18n
 function applyLightDomI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = I18N.t(el.dataset.i18n); });
 }
@@ -189,12 +264,55 @@ window.addEventListener('i18n-change', applyLightDomI18n);
 const savedTheme = localStorage.getItem('ct_theme') || 'light';
 document.documentElement.setAttribute('data-theme', savedTheme);
 
+/* ========================= Audio ========================= */
+let _audioCtx = null;
+function getAudioCtx(){
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+async function ensureAudio(){
+  const ac = getAudioCtx();
+  if (ac.state === 'suspended') await ac.resume();
+  return ac;
+}
+async function playBeep(freq = 880, dur = 0.09, vol = 0.35){
+  try {
+    const ac = await ensureAudio();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(ac.destination);
+    osc.start();
+    osc.stop(ac.currentTime + dur + 0.01);
+  } catch(e){}
+}
+async function playClick(){
+  try {
+    const ac = await ensureAudio();
+    const sr = ac.sampleRate;
+    const len = Math.floor(sr * 0.05);
+    const buf = ac.createBuffer(1, len, sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 3);
+    const src = ac.createBufferSource();
+    const gain = ac.createGain();
+    const hp = ac.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 2500;
+    src.buffer = buf;
+    gain.gain.value = 0.6;
+    src.connect(hp); hp.connect(gain); gain.connect(ac.destination);
+    src.start();
+  } catch(e){}
+}
+
 /* ========================= Tracing engine ========================= */
-// 8 directions, clockwise from East — used by Moore-neighbor contour tracing
 const DX = [1,1,0,-1,-1,-1,0,1];
 const DY = [0,1,1,1,0,-1,-1,-1];
 
-// Follow the boundary of a blob starting at (x0,y0) using radial sweep
 function traceBoundary(x0, y0, bin, w, h, visited){
   const contour = [];
   let x = x0, y = y0, dir = 7;
@@ -208,34 +326,31 @@ function traceBoundary(x0, y0, bin, w, h, visited){
       const nx = x + DX[d], ny = y + DY[d];
       if (nx >= 0 && ny >= 0 && nx < w && ny < h && bin[ny * w + nx]){
         x = nx; y = ny;
-        dir = (d + 6) % 8; // backtrack: resume sweep just before the direction we came from
+        dir = (d + 6) % 8;
         found = true;
         break;
       }
     }
-    if (!found) break; // isolated pixel
+    if (!found) break;
   } while (!(x === x0 && y === y0) && contour.length / 2 < maxSteps);
   return contour;
 }
 
-// Scan binary grid and extract all outer/inner boundaries
 function extractContours(bin, w, h){
   const visited = new Uint8Array(w * h);
   const contours = [];
   for (let y = 0; y < h; y++){
     for (let x = 0; x < w; x++){
       const i = y * w + x;
-      // boundary start: foreground pixel with background (or edge) to its left
       if (bin[i] && !visited[i] && (x === 0 || !bin[i - 1])){
         const c = traceBoundary(x, y, bin, w, h, visited);
-        if (c.length >= 12) contours.push(c); // skip noise (< 6 points)
+        if (c.length >= 10) contours.push(c);
       }
     }
   }
   return contours;
 }
 
-// Ramer–Douglas–Peucker simplification on a flat [x,y,...] array
 function rdp(pts, eps){
   const n = pts.length / 2;
   if (n < 3) return pts;
@@ -261,14 +376,12 @@ function rdp(pts, eps){
 
 const f1 = v => Math.round(v * 10) / 10;
 
-// Closed polyline path
 function polyPath(p){
   let d = `M${f1(p[0])} ${f1(p[1])}`;
   for (let i = 2; i < p.length; i += 2) d += `L${f1(p[i])} ${f1(p[i+1])}`;
   return d + 'Z';
 }
 
-// Smooth closed path: quadratic Béziers through segment midpoints
 function smoothPath(p){
   const n = p.length / 2;
   const mx0 = (p[0] + p[2]) / 2, my0 = (p[1] + p[3]) / 2;
@@ -281,7 +394,6 @@ function smoothPath(p){
   return d + 'Z';
 }
 
-// Average color sampled along a contour (for color mode)
 function sampleColor(c, data, w){
   let r = 0, g = 0, b = 0, cnt = 0;
   const pts = c.length / 2;
@@ -293,32 +405,97 @@ function sampleColor(c, data, w){
   return `rgb(${r/cnt|0},${g/cnt|0},${b/cnt|0})`;
 }
 
-// One full trace pass: video frame -> binary grid -> contours -> SVG path list
+// 3×3 box blur on Float32Array (in-place output buffer)
+function boxBlur3(src, w, h, out){
+  for (let y = 0; y < h; y++){
+    for (let x = 0; x < w; x++){
+      let s = 0;
+      for (let dy = -1; dy <= 1; dy++){
+        const ny = Math.min(h-1, Math.max(0, y+dy));
+        for (let dx = -1; dx <= 1; dx++){
+          s += src[ny*w + Math.min(w-1, Math.max(0, x+dx))];
+        }
+      }
+      out[y*w+x] = s / 9;
+    }
+  }
+}
+
+// Sobel gradient magnitude into mag buffer
+function sobelMag(blurred, w, h, mag){
+  let maxV = 0;
+  for (let y = 1; y < h-1; y++){
+    for (let x = 1; x < w-1; x++){
+      const tl=blurred[(y-1)*w+(x-1)], tm=blurred[(y-1)*w+x], tr=blurred[(y-1)*w+(x+1)];
+      const ml=blurred[y*w+(x-1)],                              mr=blurred[y*w+(x+1)];
+      const bl=blurred[(y+1)*w+(x-1)], bm=blurred[(y+1)*w+x], br=blurred[(y+1)*w+(x+1)];
+      const gx = tr + 2*mr + br - tl - 2*ml - bl;
+      const gy = bl + 2*bm + br - tl - 2*tm - tr;
+      const v = Math.sqrt(gx*gx + gy*gy);
+      mag[y*w+x] = v;
+      if (v > maxV) maxV = v;
+    }
+  }
+  return maxV;
+}
+
 function traceFrame(video, opts, work){
   const vw = video.videoWidth, vh = video.videoHeight;
   if (!vw || !vh) return null;
-  const gw = 40 + opts.detail * 20;               // detail 1..10 -> 60..240 px grid
-  const gh = Math.max(12, Math.round(gw * vh / vw));
+
+  // Higher base resolution for better accuracy
+  const gw = 80 + opts.detail * 24;           // detail 1-10 → 104-320 px
+  const gh = Math.max(30, Math.round(gw * vh / vw));
+
   if (work.canvas.width !== gw || work.canvas.height !== gh){
     work.canvas.width = gw; work.canvas.height = gh;
   }
+
+  // Reuse typed array buffers; reallocate only when size changes
+  const n = gw * gh;
+  if (!work.grayBuf || work.grayBuf.length < n){
+    work.grayBuf = new Float32Array(n);
+    work.blurBuf = new Float32Array(n);
+    work.magBuf  = new Float32Array(n);
+  }
+
   const ctx = work.ctx;
-  ctx.setTransform(-1, 0, 0, 1, gw, 0);            // mirror to match preview
+  ctx.setTransform(-1, 0, 0, 1, gw, 0);
   ctx.drawImage(video, 0, 0, gw, gh);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   const data = ctx.getImageData(0, 0, gw, gh).data;
 
-  const n = gw * gh;
-  const bin = new Uint8Array(n);
-  const t = opts.threshold * 255;
+  // Grayscale
+  const gray = work.grayBuf;
   for (let i = 0; i < n; i++){
     const o = i * 4;
-    const lum = 0.2126 * data[o] + 0.7152 * data[o+1] + 0.0722 * data[o+2];
-    bin[i] = ((lum < t) !== opts.invert) ? 1 : 0;
+    gray[i] = 0.2126*data[o] + 0.7152*data[o+1] + 0.0722*data[o+2];
+  }
+
+  // Blur to reduce noise
+  boxBlur3(gray, gw, gh, work.blurBuf);
+
+  const bin = new Uint8Array(n);
+
+  if (opts.edgeDetect){
+    // Sobel-based edge detection
+    const maxV = sobelMag(work.blurBuf, gw, gh, work.magBuf);
+    const safeMax = maxV < 1 ? 1 : maxV;
+    // High threshold slider → lower cutoff (more edges visible)
+    const t = (1 - opts.threshold) * safeMax * 0.55;
+    for (let i = 0; i < n; i++){
+      bin[i] = (work.magBuf[i] > t) !== opts.invert ? 1 : 0;
+    }
+  } else {
+    // Luminance threshold
+    const t = opts.threshold * 255;
+    for (let i = 0; i < n; i++){
+      bin[i] = ((work.blurBuf[i] < t) !== opts.invert) ? 1 : 0;
+    }
   }
 
   const contours = extractContours(bin, gw, gh);
-  const eps = 0.4 + opts.smoothing * 2.2;
+  const eps = Math.max(0.25, opts.smoothing * 1.6);
   const paths = [];
   for (const c of contours){
     const simp = rdp(c, eps);
@@ -406,6 +583,8 @@ customElements.define('language-switcher', LanguageSwitcher);
 /* ========================= <camera-preview> ========================= */
 class CameraPreview extends HTMLElement {
   connectedCallback(){
+    this._facing = 'user';
+    this._flipping = false;
     this.attachShadow({mode:'open'}).innerHTML = `
       <style>
         :host{display:block}
@@ -420,6 +599,19 @@ class CameraPreview extends HTMLElement {
         }
         .msg.error{color:var(--err)}
         .cam-ico{display:block;margin:0 auto 12px;opacity:.4}
+        .flip-btn{
+          position:absolute;bottom:10px;right:10px;
+          width:34px;height:34px;border-radius:50%;
+          background:rgba(0,0,0,.45);backdrop-filter:blur(6px);
+          border:1.5px solid rgba(255,255,255,.3);color:#fff;
+          display:none;align-items:center;justify-content:center;
+          cursor:pointer;font-size:16px;transition:background .15s;
+          z-index:5;
+        }
+        .flip-btn.visible{display:flex}
+        .flip-btn:hover{background:rgba(0,0,0,.7)}
+        .flip-btn:active{transform:scale(.92)}
+        .flip-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
       </style>
       <div class="frame">
         <video playsinline muted></video>
@@ -427,18 +619,37 @@ class CameraPreview extends HTMLElement {
           <svg class="cam-ico" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
           <span class="msg-text"></span>
         </div>
+        <button class="flip-btn" id="flipBtn" aria-label="Flip camera">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
       </div>`;
+
     this.video = this.shadowRoot.querySelector('video');
     this._msg = this.shadowRoot.querySelector('.msg');
     this._msgText = this.shadowRoot.querySelector('.msg-text');
+    this._flipBtn = this.shadowRoot.getElementById('flipBtn');
     this._stream = null;
     this._onLang = () => { if (this._msgKey) this._showMsg(this._msgKey, this._msgErr); };
+    this._onFlip = () => this.flip();
+    this._flipBtn.addEventListener('click', this._onFlip);
     window.addEventListener('i18n-change', this._onLang);
     this._showMsg('placeholder', false);
+    this._checkMultiCam();
   }
   disconnectedCallback(){
     this.stop();
+    this._flipBtn?.removeEventListener('click', this._onFlip);
     window.removeEventListener('i18n-change', this._onLang);
+  }
+  async _checkMultiCam(){
+    try {
+      const devs = await navigator.mediaDevices.enumerateDevices();
+      const cams = devs.filter(d => d.kind === 'videoinput');
+      // Show flip button if multiple cameras or if mobile (where environment mode is likely)
+      if (cams.length > 1 || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+        this._flipBtn.classList.add('visible');
+      }
+    } catch(e){}
   }
   _showMsg(key, isError){
     this._msgKey = key; this._msgErr = isError;
@@ -448,7 +659,8 @@ class CameraPreview extends HTMLElement {
     this.video.classList.remove('on');
   }
   get active(){ return !!this._stream; }
-  async start(){
+  async start(facing){
+    if (facing) this._facing = facing;
     if (this._stream) return true;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
       this._showMsg(location.protocol === 'http:' && location.hostname !== 'localhost' ? 'err_https' : 'err_nosupport', true);
@@ -456,7 +668,7 @@ class CameraPreview extends HTMLElement {
     }
     try {
       this._stream = await navigator.mediaDevices.getUserMedia({
-        video:{ width:{ideal:1280}, height:{ideal:960}, facingMode:'user' }, audio:false
+        video:{ width:{ideal:1280}, height:{ideal:960}, facingMode: this._facing }, audio:false
       });
       this.video.srcObject = this._stream;
       await this.video.play();
@@ -464,7 +676,7 @@ class CameraPreview extends HTMLElement {
       this.video.classList.add('on');
       this.dispatchEvent(new CustomEvent('camera-state', {detail:{active:true}, bubbles:true, composed:true}));
       return true;
-    } catch (err){
+    } catch(err){
       this._stream = null;
       const key = (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) ? 'err_denied' : 'err_generic';
       this._showMsg(key, true);
@@ -474,12 +686,29 @@ class CameraPreview extends HTMLElement {
   }
   stop(){
     if (this._stream){
-      this._stream.getTracks().forEach(t => t.stop()); // release hardware
+      this._stream.getTracks().forEach(t => t.stop());
       this._stream = null;
     }
     this.video.srcObject = null;
     this._showMsg('placeholder', false);
     this.dispatchEvent(new CustomEvent('camera-state', {detail:{active:false}, bubbles:true, composed:true}));
+  }
+  async flip(){
+    if (this._flipping) return;
+    this._flipping = true;
+    this._flipBtn.style.opacity = '0.4';
+    const wasActive = this.active;
+    if (wasActive) this.stop();
+    this._facing = this._facing === 'user' ? 'environment' : 'user';
+    if (wasActive){
+      const ok = await this.start();
+      if (!ok && this._facing !== 'user'){
+        this._facing = 'user';
+        await this.start();
+      }
+    }
+    this._flipBtn.style.opacity = '';
+    this._flipping = false;
   }
 }
 customElements.define('camera-preview', CameraPreview);
@@ -487,7 +716,7 @@ customElements.define('camera-preview', CameraPreview);
 /* ========================= <tracing-controls> ========================= */
 class TracingControls extends HTMLElement {
   static get defaults(){
-    return { threshold:0.5, detail:6, smoothing:0.5, strokeWidth:1.2, invert:false, colorMode:false };
+    return { threshold:0.5, detail:7, smoothing:0.4, strokeWidth:1.0, invert:false, colorMode:false, edgeDetect:true };
   }
   connectedCallback(){
     this.settings = {...TracingControls.defaults};
@@ -534,11 +763,13 @@ class TracingControls extends HTMLElement {
       <div class="row"><label data-k="stroke"></label><span class="val" id="v-strokeWidth"></span>
         <input type="range" id="strokeWidth" min="0.3" max="5" step="0.1"></div>
       <div class="toggles">
+        <label class="tg"><input type="checkbox" id="edgeDetect" checked><span class="dot"></span><span data-k="edge_detect"></span></label>
         <label class="tg"><input type="checkbox" id="invert"><span class="dot"></span><span data-k="invert"></span></label>
         <label class="tg"><input type="checkbox" id="colorMode"><span class="dot"></span><span data-k="colormode"></span></label>
       </div>`;
     const sr = this.shadowRoot;
     ['threshold','detail','smoothing','strokeWidth'].forEach(k => { sr.getElementById(k).value = this.settings[k]; });
+    ['edgeDetect','invert','colorMode'].forEach(k => { sr.getElementById(k).checked = this.settings[k]; });
     this._onInput = e => {
       const el = e.target;
       if (!el.id) return;
@@ -644,7 +875,6 @@ class SvgPreview extends HTMLElement {
       await navigator.clipboard.writeText(this._svgMarkup);
       this._flash(this._copyBtn, 'ok', 'copied');
     } catch {
-      // Clipboard API blocked — fall back to a hidden textarea
       try {
         const ta = document.createElement('textarea');
         ta.value = this._svgMarkup;
@@ -663,41 +893,149 @@ class SvgPreview extends HTMLElement {
     const blob = new Blob([this._svgMarkup], {type:'image/svg+xml'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `camera-trace-${Date.now()}.svg`;
-    a.click();
+    a.href = url; a.download = `camera-trace-${Date.now()}.svg`; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 }
 customElements.define('svg-preview', SvgPreview);
 
+/* ========================= <snapshot-gallery> ========================= */
+class SnapshotGallery extends HTMLElement {
+  connectedCallback(){
+    this._items = [];
+    this.attachShadow({mode:'open'}).innerHTML = `
+      <style>
+        :host{display:block}
+        .strip{
+          display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;
+          scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
+        }
+        .strip::-webkit-scrollbar{height:4px}
+        .strip::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+        .empty{font-size:12px;color:var(--text3);padding:20px 0;text-align:center}
+        .item{
+          flex:0 0 auto;position:relative;width:100px;cursor:pointer;
+          border-radius:10px;overflow:hidden;border:2.5px solid transparent;
+          transition:border-color .15s,transform .15s,box-shadow .15s;
+          background:var(--bg3);
+        }
+        .item:hover{transform:translateY(-2px);border-color:var(--orange)}
+        .item.sel{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+        img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+        .del{
+          position:absolute;top:4px;right:4px;width:20px;height:20px;
+          border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;
+          font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+          opacity:0;transition:opacity .15s;line-height:1;z-index:2;
+        }
+        .item:hover .del{opacity:1}
+        .del:hover{background:var(--err)}
+        .ts{
+          position:absolute;bottom:0;left:0;right:0;padding:2px 5px;
+          font-size:9px;font-weight:700;color:#fff;background:rgba(0,0,0,.5);
+          text-align:center;letter-spacing:.2px;
+        }
+      </style>
+      <div class="strip" id="strip"><span class="empty" id="empty"></span></div>`;
+    this._strip = this.shadowRoot.getElementById('strip');
+    this._emptyMsg = this.shadowRoot.getElementById('empty');
+    this._onLang = () => { this._emptyMsg.textContent = I18N.t('gallery_empty'); };
+    window.addEventListener('i18n-change', this._onLang);
+    this._emptyMsg.textContent = I18N.t('gallery_empty');
+  }
+  disconnectedCallback(){
+    window.removeEventListener('i18n-change', this._onLang);
+  }
+  addSnapshot({id, svg, thumb}){
+    if (this._items.length >= 20) this._items.shift();
+    const ts = new Date();
+    const timeStr = ts.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    this._items.push({id, svg, thumb, timeStr});
+    this._render();
+    // Auto-select the new snapshot
+    this._select(id);
+  }
+  _select(id){
+    this._selectedId = id;
+    this._strip.querySelectorAll('.item').forEach(el => {
+      el.classList.toggle('sel', el.dataset.id === String(id));
+    });
+    const item = this._items.find(it => it.id === id);
+    if (item){
+      this.dispatchEvent(new CustomEvent('snapshot-select', {
+        detail:{svg: item.svg, id},
+        bubbles:true, composed:true
+      }));
+    }
+  }
+  _render(){
+    // Remove old item elements (keep empty message)
+    this._strip.querySelectorAll('.item').forEach(el => el.remove());
+    this._emptyMsg.hidden = this._items.length > 0;
+
+    for (const it of this._items){
+      const div = document.createElement('div');
+      div.className = 'item' + (it.id === this._selectedId ? ' sel' : '');
+      div.dataset.id = it.id;
+      div.innerHTML = `
+        <img src="${it.thumb}" alt="snapshot">
+        <button class="del" aria-label="Delete">×</button>
+        <div class="ts">${it.timeStr}</div>`;
+      div.querySelector('.del').addEventListener('click', e => {
+        e.stopPropagation();
+        this._items = this._items.filter(x => x.id !== it.id);
+        if (this._selectedId === it.id){
+          this._selectedId = null;
+          this.dispatchEvent(new CustomEvent('snapshot-select', {
+            detail:{svg:null, id:null}, bubbles:true, composed:true
+          }));
+        }
+        this._render();
+      });
+      div.addEventListener('click', () => this._select(it.id));
+      this._strip.appendChild(div);
+    }
+    // Scroll to end (latest snapshot)
+    this._strip.scrollLeft = this._strip.scrollWidth;
+  }
+}
+customElements.define('snapshot-gallery', SnapshotGallery);
+
 /* ========================= <camera-tracer-app> ========================= */
 class CameraTracerApp extends HTMLElement {
   connectedCallback(){
-    // Light DOM so document CSS (cards, container queries, buttons) applies
     this.innerHTML = `
       <div class="grid">
         <div>
           <div class="card">
             <div class="card-head">
               <span class="card-title" data-i18n="cam_panel">${I18N.t('cam_panel')}</span>
-              <button class="btn btn-primary" id="camBtn">${I18N.t('start')}</button>
+              <div style="display:flex;gap:8px;align-items:center">
+                <button class="btn btn-snap" id="snapBtn" disabled title="${I18N.t('snapshot')}">📷</button>
+                <button class="btn btn-primary" id="camBtn">${I18N.t('start')}</button>
+              </div>
             </div>
-            <camera-preview></camera-preview>
+            <div class="cam-wrapper">
+              <camera-preview></camera-preview>
+              <div class="countdown-overlay" id="countdownOverlay" hidden></div>
+            </div>
           </div>
-          <div class="card span-controls" style="margin-top:18px">
+          <div class="card" style="margin-top:18px">
             <div class="card-head"><span class="card-title" data-i18n="ctrl_panel">${I18N.t('ctrl_panel')}</span></div>
             <tracing-controls></tracing-controls>
           </div>
         </div>
         <div>
           <div class="card">
-            <div class="card-head"><span class="card-title" data-i18n="svg_panel">${I18N.t('svg_panel')}</span></div>
+            <div class="card-head">
+              <span class="card-title" data-i18n="svg_panel">${I18N.t('svg_panel')}</span>
+              <button class="frozen-badge" id="frozenBadge" hidden>${I18N.t('snapshot_frozen')} &nbsp;<span style="opacity:.6">${I18N.t('resume_live')}</span></button>
+            </div>
             <svg-preview></svg-preview>
           </div>
           <div class="card" style="margin-top:18px">
             <div class="card-head"><span class="card-title" data-i18n="stats_panel">${I18N.t('stats_panel')}</span></div>
-            <div class="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px">
               <div class="stat"><div class="sl" data-i18n="s_cam">${I18N.t('s_cam')}</div><div class="sv" id="stCam">—</div></div>
               <div class="stat"><div class="sl" data-i18n="s_paths">${I18N.t('s_paths')}</div><div class="sv" id="stPaths">0</div></div>
               <div class="stat"><div class="sl" data-i18n="s_size">${I18N.t('s_size')}</div><div class="sv" id="stSize">0 KB</div></div>
@@ -705,6 +1043,10 @@ class CameraTracerApp extends HTMLElement {
             </div>
           </div>
         </div>
+      </div>
+      <div class="card" id="galleryCard" style="margin-top:18px;display:none">
+        <div class="card-head"><span class="card-title" data-i18n="gallery_title">${I18N.t('gallery_title')}</span></div>
+        <snapshot-gallery></snapshot-gallery>
       </div>
       <style>
         .stat .sl{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
@@ -717,27 +1059,41 @@ class CameraTracerApp extends HTMLElement {
     this.svgOut = this.querySelector('svg-preview');
     this.controls = this.querySelector('tracing-controls');
     this.camBtn = this.querySelector('#camBtn');
+    this.snapBtn = this.querySelector('#snapBtn');
+    this.frozenBadge = this.querySelector('#frozenBadge');
+    this.galleryCard = this.querySelector('#galleryCard');
+    this.gallery = this.querySelector('snapshot-gallery');
     this.settings = {...TracingControls.defaults};
+    this._frozenSvg = null;
+    this._counting = false;
 
-    // Reusable offscreen canvas — avoids per-frame allocations
     const canvas = document.createElement('canvas');
     this.work = { canvas, ctx: canvas.getContext('2d', {willReadFrequently:true}) };
 
     this._raf = 0;
     this._lastTrace = 0;
-    this._traceInterval = 90; // ms between traces (~11 traces/sec max)
+    this._traceInterval = 90;
     this._fpsCount = 0;
     this._fpsStamp = performance.now();
 
     this._onCamBtn = () => this._toggleCamera();
+    this._onSnapBtn = () => this._snapshot();
+    this._onFrozenBadge = () => this._unfreeze();
     this._onSettings = e => { this.settings = e.detail; };
     this._onCamState = e => this._syncCamUI(e.detail.active);
+    this._onSnapshotSelect = e => {
+      if (e.detail.svg) this._freeze(e.detail.svg);
+      else this._unfreeze();
+    };
     this._onLang = () => this._syncLang();
     this._onPageHide = () => this.cam.stop();
 
     this.camBtn.addEventListener('click', this._onCamBtn);
+    this.snapBtn.addEventListener('click', this._onSnapBtn);
+    this.frozenBadge.addEventListener('click', this._onFrozenBadge);
     this.addEventListener('settings-change', this._onSettings);
     this.addEventListener('camera-state', this._onCamState);
+    this.addEventListener('snapshot-select', this._onSnapshotSelect);
     window.addEventListener('i18n-change', this._onLang);
     window.addEventListener('pagehide', this._onPageHide);
 
@@ -749,8 +1105,11 @@ class CameraTracerApp extends HTMLElement {
   disconnectedCallback(){
     cancelAnimationFrame(this._raf);
     this.camBtn?.removeEventListener('click', this._onCamBtn);
+    this.snapBtn?.removeEventListener('click', this._onSnapBtn);
+    this.frozenBadge?.removeEventListener('click', this._onFrozenBadge);
     this.removeEventListener('settings-change', this._onSettings);
     this.removeEventListener('camera-state', this._onCamState);
+    this.removeEventListener('snapshot-select', this._onSnapshotSelect);
     window.removeEventListener('i18n-change', this._onLang);
     window.removeEventListener('pagehide', this._onPageHide);
     this.cam?.stop();
@@ -758,12 +1117,17 @@ class CameraTracerApp extends HTMLElement {
 
   async _toggleCamera(){
     if (this.cam.active) this.cam.stop();
-    else { this.camBtn.disabled = true; await this.cam.start(); this.camBtn.disabled = false; }
+    else {
+      this.camBtn.disabled = true;
+      await this.cam.start();
+      this.camBtn.disabled = false;
+    }
   }
 
   _syncCamUI(active){
     this.camBtn.textContent = I18N.t(active ? 'stop' : 'start');
     this.camBtn.classList.toggle('btn-primary', !active);
+    this.snapBtn.disabled = !active || this._counting;
     const st = this.querySelector('#stCam');
     st.textContent = I18N.t(active ? 's_active' : 's_inactive');
     st.className = 'sv ' + (active ? 'on' : 'off');
@@ -772,19 +1136,86 @@ class CameraTracerApp extends HTMLElement {
   _syncLang(){
     this.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = I18N.t(el.dataset.i18n); });
     this._syncCamUI(this.cam.active);
+    const badge = this.frozenBadge;
+    badge.innerHTML = I18N.t('snapshot_frozen') + ' &nbsp;<span style="opacity:.6">' + I18N.t('resume_live') + '</span>';
+  }
+
+  _freeze(svg){
+    this._frozenSvg = svg;
+    this.svgOut.setSVG(svg);
+    this.frozenBadge.hidden = false;
+  }
+
+  _unfreeze(){
+    this._frozenSvg = null;
+    this.frozenBadge.hidden = true;
+    // De-select gallery items
+    this.gallery.shadowRoot.querySelectorAll('.item.sel').forEach(el => el.classList.remove('sel'));
+    this.gallery._selectedId = null;
+  }
+
+  async _snapshot(){
+    if (!this.cam.active || this._counting) return;
+    this._counting = true;
+    this.snapBtn.disabled = true;
+
+    const overlay = this.querySelector('#countdownOverlay');
+    const freqs = [880, 660, 440];
+
+    for (let n = 3; n >= 1; n--){
+      // Replace innerHTML to restart CSS animation cleanly each count
+      overlay.innerHTML = `<span class="countdown-num">${n}</span>`;
+      overlay.hidden = false;
+      playBeep(freqs[n-1], 0.09, 0.4);
+      await new Promise(r => setTimeout(r, 900));
+    }
+    overlay.hidden = true;
+
+    // Shutter flash
+    const wrapper = this.querySelector('.cam-wrapper');
+    const flash = document.createElement('div');
+    flash.className = 'cam-flash';
+    wrapper.appendChild(flash);
+    setTimeout(() => flash.remove(), 350);
+
+    playClick();
+
+    // Capture
+    const res = traceFrame(this.cam.video, this.settings, this.work);
+    if (res){
+      const svg = buildSVG(res, this.settings);
+      const thumb = this._captureThumb();
+      this.gallery.addSnapshot({id: Date.now(), svg, thumb});
+      this.galleryCard.style.display = '';
+    }
+
+    this._counting = false;
+    this.snapBtn.disabled = false;
+  }
+
+  _captureThumb(){
+    try {
+      const tc = document.createElement('canvas');
+      tc.width = 120; tc.height = 90;
+      const tctx = tc.getContext('2d');
+      tctx.setTransform(-1, 0, 0, 1, 120, 0);
+      tctx.drawImage(this.cam.video, 0, 0, 120, 90);
+      return tc.toDataURL('image/jpeg', 0.75);
+    } catch(e){ return ''; }
   }
 
   _loop(now){
     this._raf = requestAnimationFrame(this._loop);
     if (!this.cam.active || this.cam.video.readyState < 2) return;
-    if (now - this._lastTrace < this._traceInterval) return; // throttle
+    if (this._frozenSvg) return; // don't overwrite a selected snapshot
+    if (now - this._lastTrace < this._traceInterval) return;
     this._lastTrace = now;
 
     const res = traceFrame(this.cam.video, this.settings, this.work);
     if (!res) return;
-    this.svgOut.setSVG(buildSVG(res, this.settings));
+    const svg = buildSVG(res, this.settings);
+    this.svgOut.setSVG(svg);
 
-    // stats
     this.querySelector('#stPaths').textContent = res.paths.length;
     this.querySelector('#stSize').textContent = (this.svgOut.bytes / 1024).toFixed(1) + ' KB';
     this._fpsCount++;
