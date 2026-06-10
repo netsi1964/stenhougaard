@@ -11,152 +11,301 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Themes ── */
     :root, [data-theme="dark"] {
-      --bg: #0a0a0f; --bg2: #0f0f18; --card: #13131e; --border: rgba(255,255,255,0.07);
-      --accent: #6c63ff; --accent2: #ff6b6b; --accent3: #43e97b; --gold: #f7b731;
-      --text: #f0f0f8; --muted: rgba(240,240,248,0.42); --shadow: rgba(0,0,0,0.4);
-      --toggle-bg: rgba(255,255,255,0.08); --toggle-hover: rgba(255,255,255,0.14);
+      --bg: #0a0a0f;
+      --bg2: #0f0f18;
+      --card: #13131e;
+      --border: rgba(255,255,255,0.07);
+      --accent: #6c63ff;
+      --accent2: #ff6b6b;
+      --accent3: #43e97b;
+      --gold: #f7b731;
+      --text: #f0f0f8;
+      --muted: rgba(240,240,248,0.42);
+      --shadow: rgba(0,0,0,0.4);
+      --toggle-bg: rgba(255,255,255,0.08);
+      --toggle-hover: rgba(255,255,255,0.14);
     }
     [data-theme="light"] {
-      --bg: #f4f4fb; --bg2: #eeeef8; --card: #ffffff; --border: rgba(0,0,0,0.08);
-      --accent: #5a52e0; --accent2: #e8504f; --accent3: #27ae60; --gold: #d4930a;
-      --text: #111118; --muted: rgba(17,17,24,0.48); --shadow: rgba(0,0,0,0.10);
-      --toggle-bg: rgba(0,0,0,0.06); --toggle-hover: rgba(0,0,0,0.11);
+      --bg: #f4f4fb;
+      --bg2: #eeeef8;
+      --card: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --accent: #5a52e0;
+      --accent2: #e8504f;
+      --accent3: #27ae60;
+      --gold: #d4930a;
+      --text: #111118;
+      --muted: rgba(17,17,24,0.48);
+      --shadow: rgba(0,0,0,0.10);
+      --toggle-bg: rgba(0,0,0,0.06);
+      --toggle-hover: rgba(0,0,0,0.11);
     }
 
     html { scroll-behavior: smooth; }
-    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; transition:background .3s ease,color .3s ease; }
 
-    .theme-btn { position:fixed; top:20px; right:20px; z-index:100; width:42px; height:42px; border-radius:50%; border:1px solid var(--border); background:var(--toggle-bg); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:all .2s ease; backdrop-filter:blur(8px); }
-    .theme-btn:hover { background:var(--toggle-hover); transform:scale(1.08); }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background .3s ease, color .3s ease;
+    }
 
-    .stars { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-    .stars span { position:absolute; border-radius:50%; background:#fff; animation:twinkle var(--d,4s) var(--delay,0s) infinite alternate ease-in-out; opacity:0; }
-    @keyframes twinkle { to { opacity:var(--op,.6); } }
-    [data-theme="light"] .stars { display:none; }
+    /* ── Theme toggle ── */
+    .theme-btn {
+      position: fixed;
+      top: 20px; right: 20px;
+      z-index: 100;
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--toggle-bg);
+      color: var(--text);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      transition: all .2s ease;
+      backdrop-filter: blur(8px);
+    }
+    .theme-btn:hover { background: var(--toggle-hover); transform: scale(1.08); }
 
-    .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; }
-    .orb1 { width:600px; height:600px; background:rgba(108,99,255,0.14); top:-150px; left:-150px; animation:drift 22s ease-in-out infinite alternate; }
-    .orb2 { width:500px; height:500px; background:rgba(255,107,107,0.10); bottom:-150px; right:-150px; animation:drift 18s ease-in-out infinite alternate-reverse; }
-    .orb3 { width:350px; height:350px; background:rgba(67,233,123,0.08); top:40%; left:50%; transform:translate(-50%,-50%); animation:drift 25s ease-in-out infinite alternate; }
-    @keyframes drift { to { transform:translate(50px,40px); } }
-    [data-theme="light"] .orb { opacity:0.3; }
+    /* ── Background (dark only) ── */
+    .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .stars span {
+      position: absolute; border-radius: 50%; background: #fff;
+      animation: twinkle var(--d,4s) var(--delay,0s) infinite alternate ease-in-out; opacity: 0;
+    }
+    @keyframes twinkle { to { opacity: var(--op,.6); } }
+    [data-theme="light"] .stars { display: none; }
 
-    main { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:24px; padding:56px 20px 80px; max-width:780px; margin:0 auto; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; }
+    .orb1 { width: 600px; height: 600px; background: rgba(108,99,255,0.14); top: -150px; left: -150px; animation: drift 22s ease-in-out infinite alternate; }
+    .orb2 { width: 500px; height: 500px; background: rgba(255,107,107,0.10); bottom: -150px; right: -150px; animation: drift 18s ease-in-out infinite alternate-reverse; }
+    .orb3 { width: 350px; height: 350px; background: rgba(67,233,123,0.08); top: 40%; left: 50%; transform: translate(-50%,-50%); animation: drift 25s ease-in-out infinite alternate; }
+    @keyframes drift { to { transform: translate(50px,40px); } }
+    [data-theme="light"] .orb { opacity: 0.3; }
 
-    .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.6s ease,transform 0.6s ease; }
-    .reveal.visible { opacity:1; transform:translateY(0); }
+    /* ── Layout ── */
+    main {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 24px; padding: 56px 20px 80px;
+      max-width: 780px; margin: 0 auto;
+    }
 
-    .hero::before { background-size:200% 100%; animation:shimmer 4s linear infinite; }
-    @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+    /* scroll-reveal: hidden until JS adds .visible */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* first card still fades in immediately */
+    .hero.reveal { transition-delay: 0s; }
 
-    .card { transform-style:preserve-3d; width:100%; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:36px 40px; box-shadow:0 4px 24px var(--shadow); transition:background .3s ease,border-color .3s ease,box-shadow .3s ease,transform .15s ease; }
-    .card-title { font-family:'Space Grotesk',sans-serif; font-size:.7rem; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); margin-bottom:22px; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-    .hero { padding:52px 48px 44px; position:relative; overflow:hidden; }
-    .hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--gold),var(--accent)); }
+    /* gradient shimmer on hero top bar */
+    .hero::before {
+      background-size: 200% 100%;
+      animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
 
-    .avatar-wrap { position:relative; width:108px; height:108px; margin-bottom:26px; }
-    .avatar { width:108px; height:108px; border-radius:50%; border:3px solid var(--accent); object-fit:cover; object-position:center top; display:block; box-shadow:0 0 0 6px rgba(108,99,255,0.12),0 10px 36px rgba(108,99,255,0.22); }
-    .online-dot { position:absolute; bottom:5px; right:5px; width:17px; height:17px; border-radius:50%; background:var(--accent3); border:2.5px solid var(--card); animation:pulse 2.2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{box-shadow:0 0 8px var(--accent3)} 50%{box-shadow:0 0 18px var(--accent3),0 0 36px rgba(67,233,123,0.35)} }
+    /* card tilt */
+    .card { transform-style: preserve-3d; }
 
-    .hero-name { font-family:'Space Grotesk',sans-serif; font-size:clamp(2.1rem,5vw,3.1rem); font-weight:700; letter-spacing:-1.5px; line-height:1.05; margin-bottom:12px; }
-    [data-theme="dark"] .hero-name { background:linear-gradient(135deg,#fff 25%,rgba(255,255,255,0.55)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 36px 40px;
+      box-shadow: 0 4px 24px var(--shadow);
+      transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 22px;
+    }
 
-    .badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
-    .badge { display:inline-flex; align-items:center; gap:7px; padding:5px 14px; border-radius:99px; font-size:.82rem; font-weight:500; }
-    .badge-primary { background:rgba(108,99,255,0.12); border:1px solid rgba(108,99,255,0.3); color:var(--accent); }
-    .badge-secondary { background:rgba(247,183,49,0.08); border:1px solid rgba(247,183,49,0.28); color:var(--gold); }
-    .badge-dot { width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 5px currentColor; }
+    /* ── Hero ── */
+    .hero { padding: 52px 48px 44px; position: relative; overflow: hidden; }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3), var(--gold));
+    }
 
-    .hero-quote { font-size:1.05rem; line-height:1.68; color:var(--muted); max-width:540px; margin-bottom:26px; border-left:2px solid rgba(108,99,255,0.3); padding-left:16px; font-style:italic; }
-    .hero-quote strong { color:var(--text); font-style:normal; font-weight:500; }
+    .avatar-wrap { position: relative; width: 108px; height: 108px; margin-bottom: 26px; }
+    .avatar {
+      width: 108px; height: 108px; border-radius: 50%;
+      border: 3px solid var(--accent);
+      object-fit: cover; object-position: center top; display: block;
+      box-shadow: 0 0 0 6px rgba(108,99,255,0.12), 0 10px 36px rgba(108,99,255,0.22);
+    }
+    .online-dot {
+      position: absolute; bottom: 5px; right: 5px;
+      width: 17px; height: 17px; border-radius: 50%;
+      background: var(--accent3); border: 2.5px solid var(--card);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 8px var(--accent3); }
+      50% { box-shadow: 0 0 18px var(--accent3), 0 0 36px rgba(67,233,123,0.35); }
+    }
 
-    .meta { display:flex; flex-wrap:wrap; gap:16px; }
-    .meta-item { display:flex; align-items:center; gap:6px; font-size:.83rem; color:var(--muted); }
-    .meta-item svg { flex-shrink:0; opacity:.65; }
+    .hero-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.1rem, 5vw, 3.1rem);
+      font-weight: 700; letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 12px;
+    }
+    [data-theme="dark"] .hero-name {
+      background: linear-gradient(135deg, #fff 25%, rgba(255,255,255,0.55));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
 
-    .links { display:flex; flex-wrap:wrap; gap:12px; }
-    .link-btn { flex:1 1 150px; display:inline-flex; align-items:center; gap:10px; padding:13px 20px; border-radius:14px; font-size:.88rem; font-weight:500; text-decoration:none; color:var(--text); background:var(--card); border:1px solid var(--border); box-shadow:0 2px 12px var(--shadow); transition:all .2s ease; }
-    .link-btn:hover { transform:translateY(-3px); border-color:rgba(108,99,255,0.4); box-shadow:0 8px 24px var(--shadow); }
-    .link-btn.linkedin:hover { border-color:#0077b5; }
-    .link-btn.github:hover { border-color:#8b6fca; }
-    .link-btn.web:hover { border-color:var(--accent3); }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 14px; border-radius: 99px;
+      font-size: 0.82rem; font-weight: 500;
+    }
+    .badge-primary { background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3); color: var(--accent); }
+    .badge-secondary { background: rgba(247,183,49,0.08); border: 1px solid rgba(247,183,49,0.28); color: var(--gold); }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 5px currentColor; }
 
-    .labs-grid { display:flex; flex-direction:column; gap:10px; }
-    .lab-card { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:14px; border:1px solid var(--border); background:var(--bg2); text-decoration:none; color:var(--text); transition:all .2s ease; }
-    .lab-card:hover { border-color:rgba(108,99,255,0.4); transform:translateX(3px); box-shadow:0 4px 16px var(--shadow); }
-    .lab-icon { font-size:1.4rem; width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:rgba(108,99,255,0.1); border-radius:10px; flex-shrink:0; }
-    .lab-body { flex:1; min-width:0; }
-    .lab-title { font-size:.9rem; font-weight:600; color:var(--text); margin-bottom:3px; }
-    .lab-desc { font-size:.78rem; color:var(--muted); line-height:1.5; }
-    .lab-arrow { color:var(--accent); font-size:1rem; opacity:.55; transition:transform .2s,opacity .2s; flex-shrink:0; }
-    .lab-card:hover .lab-arrow { transform:translateX(4px); opacity:1; }
+    .hero-quote {
+      font-size: 1.05rem; line-height: 1.68; color: var(--muted);
+      max-width: 540px; margin-bottom: 26px;
+      border-left: 2px solid rgba(108,99,255,0.3); padding-left: 16px; font-style: italic;
+    }
+    .hero-quote strong { color: var(--text); font-style: normal; font-weight: 500; }
 
-    .services-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    @media(max-width:560px){ .services-grid{grid-template-columns:1fr} }
-    .service-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:20px 22px; transition:all .2s ease; }
-    .service-card:hover { border-color:rgba(108,99,255,0.35); transform:translateY(-2px); }
-    .service-icon { font-size:1.4rem; margin-bottom:10px; }
-    .service-title { font-size:.9rem; font-weight:600; color:var(--text); margin-bottom:5px; }
-    .service-desc { font-size:.8rem; color:var(--muted); line-height:1.5; }
+    .meta { display: flex; flex-wrap: wrap; gap: 16px; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.83rem; color: var(--muted); }
+    .meta-item svg { flex-shrink: 0; opacity: 0.65; }
 
-    .timeline { display:flex; flex-direction:column; }
-    .tl-item { display:flex; gap:18px; padding-bottom:28px; }
-    .tl-item:last-child { padding-bottom:0; }
-    .tl-left { display:flex; flex-direction:column; align-items:center; width:36px; flex-shrink:0; }
-    .tl-dot { width:10px; height:10px; margin-top:5px; flex-shrink:0; border-radius:50%; border:2px solid var(--accent); background:var(--accent); box-shadow:0 0 8px rgba(108,99,255,.4); }
-    .tl-dot.gold { border-color:var(--gold); background:var(--gold); box-shadow:0 0 8px rgba(247,183,49,.4); }
-    .tl-line { flex:1; width:1px; background:var(--border); margin-top:4px; }
-    .tl-item:last-child .tl-line { display:none; }
-    .tl-company { font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:600; color:var(--text); margin-bottom:2px; }
-    .tl-role { font-size:.87rem; color:var(--accent); font-weight:500; margin-bottom:3px; }
-    .tl-period { font-size:.78rem; color:var(--muted); margin-bottom:6px; }
-    .tl-desc { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    /* ── Links ── */
+    .links { display: flex; flex-wrap: wrap; gap: 12px; }
+    .link-btn {
+      flex: 1 1 150px;
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 20px; border-radius: 14px;
+      font-size: 0.88rem; font-weight: 500;
+      text-decoration: none; color: var(--text);
+      background: var(--card); border: 1px solid var(--border);
+      box-shadow: 0 2px 12px var(--shadow);
+      transition: all .2s ease;
+    }
+    .link-btn:hover { transform: translateY(-3px); border-color: rgba(108,99,255,0.4); box-shadow: 0 8px 24px var(--shadow); }
+    .link-btn.linkedin:hover { border-color: #0077b5; }
+    .link-btn.github:hover   { border-color: #8b6fca; }
+    .link-btn.web:hover      { border-color: var(--accent3); }
 
-    .tags { display:flex; flex-wrap:wrap; gap:9px; }
-    .tag { padding:6px 15px; border-radius:99px; font-size:.82rem; font-weight:500; border:1px solid var(--border); background:transparent; color:var(--muted); transition:all .18s ease; cursor:default; }
-    .tag:hover { background:rgba(108,99,255,0.1); border-color:rgba(108,99,255,0.35); color:var(--accent); transform:translateY(-2px); }
-    .tag.ai { background:rgba(108,99,255,0.08); border-color:rgba(108,99,255,0.25); color:var(--accent); }
+    /* ── netsi.dk services ── */
+    .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 560px) { .services-grid { grid-template-columns: 1fr; } }
+    .service-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      transition: all .2s ease;
+    }
+    .service-card:hover { border-color: rgba(108,99,255,0.35); transform: translateY(-2px); }
+    .service-icon { font-size: 1.4rem; margin-bottom: 10px; }
+    .service-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+    .service-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
 
-    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    @media(max-width:520px){ .stats{grid-template-columns:1fr 1fr} }
-    .stat { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:24px 20px; display:flex; flex-direction:column; gap:4px; box-shadow:0 2px 12px var(--shadow); }
-    .stat-num { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-    .stat-label { font-size:.78rem; color:var(--muted); line-height:1.4; }
+    /* ── Experience ── */
+    .timeline { display: flex; flex-direction: column; }
+    .tl-item { display: flex; gap: 18px; padding-bottom: 28px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+    .tl-dot { width: 10px; height: 10px; margin-top: 5px; flex-shrink: 0; border-radius: 50%; border: 2px solid var(--accent); background: var(--accent); box-shadow: 0 0 8px rgba(108,99,255,.4); }
+    .tl-dot.gold { border-color: var(--gold); background: var(--gold); box-shadow: 0 0 8px rgba(247,183,49,.4); }
+    .tl-line { flex: 1; width: 1px; background: var(--border); margin-top: 4px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-company { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .tl-role { font-size: 0.87rem; color: var(--accent); font-weight: 500; margin-bottom: 3px; }
+    .tl-period { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+    .tl-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
 
-    .quote-card { position:relative; }
-    .qmark { font-family:Georgia,serif; font-size:6rem; line-height:.5; color:var(--accent); opacity:.2; position:absolute; top:24px; left:32px; pointer-events:none; }
-    .quote-text { font-size:1.05rem; line-height:1.72; font-style:italic; color:var(--muted); padding-left:14px; border-left:2px solid rgba(108,99,255,0.3); margin-bottom:14px; }
-    .quote-by { font-size:.8rem; color:var(--muted); }
-    .quote-by strong { color:var(--text); opacity:.7; font-weight:500; }
+    /* ── Skills ── */
+    .tags { display: flex; flex-wrap: wrap; gap: 9px; }
+    .tag {
+      padding: 6px 15px; border-radius: 99px; font-size: 0.82rem; font-weight: 500;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--muted); transition: all .18s ease; cursor: default;
+    }
+    .tag:hover { background: rgba(108,99,255,0.1); border-color: rgba(108,99,255,0.35); color: var(--accent); transform: translateY(-2px); }
+    .tag.ai { background: rgba(108,99,255,0.08); border-color: rgba(108,99,255,0.25); color: var(--accent); }
 
-    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    @media(max-width:560px){ .two-col{grid-template-columns:1fr} }
-    .edu-item { margin-bottom:14px; }
-    .edu-item:last-child { margin-bottom:0; }
-    .edu-school { font-size:.9rem; font-weight:600; color:var(--text); }
-    .edu-detail { font-size:.8rem; color:var(--muted); margin-top:2px; }
-    .lang-list { display:flex; flex-direction:column; gap:10px; }
-    .lang-item { display:flex; align-items:center; gap:10px; }
-    .lang-flag { font-size:1.2rem; }
-    .lang-name { font-size:.88rem; color:var(--text); font-weight:500; }
+    /* ── Stats ── */
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    @media (max-width: 520px) { .stats { grid-template-columns: 1fr 1fr; } }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px 20px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 12px var(--shadow); }
+    .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-label { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
 
-    footer { position:relative; z-index:1; text-align:center; padding:20px; font-size:.78rem; color:var(--muted); }
-    footer a { color:var(--accent); opacity:.7; text-decoration:none; }
-    footer a:hover { opacity:1; }
+    /* ── Quote ── */
+    .quote-card { position: relative; }
+    .qmark { font-family: Georgia, serif; font-size: 6rem; line-height: .5; color: var(--accent); opacity: .2; position: absolute; top: 24px; left: 32px; pointer-events: none; }
+    .quote-text { font-size: 1.05rem; line-height: 1.72; font-style: italic; color: var(--muted); padding-left: 14px; border-left: 2px solid rgba(108,99,255,0.3); margin-bottom: 14px; }
+    .quote-by { font-size: 0.8rem; color: var(--muted); }
+    .quote-by strong { color: var(--text); opacity: 0.7; font-weight: 500; }
 
-    @media(max-width:540px){ .hero{padding:40px 26px 36px} .card{padding:28px 24px} }
+    /* ── Two-col ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+    .edu-item { margin-bottom: 14px; }
+    .edu-item:last-child { margin-bottom: 0; }
+    .edu-school { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .edu-detail { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .lang-list { display: flex; flex-direction: column; gap: 10px; }
+    .lang-item { display: flex; align-items: center; gap: 10px; }
+    .lang-flag { font-size: 1.2rem; }
+    .lang-name { font-size: 0.88rem; color: var(--text); font-weight: 500; }
+
+    /* ── Footer ── */
+    footer { position: relative; z-index: 1; text-align: center; padding: 20px; font-size: 0.78rem; color: var(--muted); }
+    footer a { color: var(--accent); opacity: 0.7; text-decoration: none; }
+    footer a:hover { opacity: 1; }
+
+    @media (max-width: 540px) {
+      .hero { padding: 40px 26px 36px; }
+      .card { padding: 28px 24px; }
+    }
   </style>
 </head>
 <body>
 
 <button class="theme-btn" id="themeBtn" title="Skift tema" aria-label="Skift mellem lys og mørk tilstand">🌙</button>
+
 <div class="stars" id="stars"></div>
-<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
 
 <main>
+
+  <!-- Hero -->
   <div class="card hero reveal">
     <div class="avatar-wrap">
       <img class="avatar" src="https://github.com/netsi1964.png" alt="Sten Hougaard" />
@@ -167,102 +316,159 @@
       <span class="badge badge-primary"><span class="badge-dot"></span>Software Pilot · Trifork</span>
       <span class="badge badge-secondary"><span class="badge-dot"></span>AI Consulting · netsi.dk</span>
     </div>
-    <p class="hero-quote"><strong>AI er fremtiden, hvordan vi bruger den er nutiden</strong> — det er hvad jeg brænder for: At få AI inddraget i dagligdagen og i vores arbejdsliv.</p>
+    <p class="hero-quote">
+      <strong>AI er fremtiden, hvordan vi bruger den er nutiden</strong> — det er hvad jeg brænder for:
+      At få AI inddraget i dagligdagen og i vores arbejdsliv.
+    </p>
     <div class="meta">
-      <span class="meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Skødstrup, Aarhus, Danmark</span>
-      <span class="meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Siden 1995 · 30+ år i branchen</span>
-      <span class="meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Trifork siden nov. 2017</span>
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Skødstrup, Aarhus, Danmark
+      </span>
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Siden 1995 · 30+ år i branchen
+      </span>
+      <span class="meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Trifork siden nov. 2017
+      </span>
     </div>
   </div>
 
+  <!-- Links -->
   <div class="links reveal" style="width:100%">
-    <a href="https://www.linkedin.com/in/stenhougaard" target="_blank" rel="noopener" class="link-btn linkedin"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
-    <a href="https://github.com/netsi1964" target="_blank" rel="noopener" class="link-btn github"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
-    <a href="https://www.netsi.dk" target="_blank" rel="noopener" class="link-btn web"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>netsi.dk</a>
+    <a href="https://www.linkedin.com/in/stenhougaard" target="_blank" rel="noopener" class="link-btn linkedin">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+    <a href="https://github.com/netsi1964" target="_blank" rel="noopener" class="link-btn github">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+    <a href="https://www.netsi.dk" target="_blank" rel="noopener" class="link-btn web">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      netsi.dk
+    </a>
   </div>
 
-  <div class="card reveal">
-    <div class="card-title">Labs &amp; Eksperimenter</div>
-    <div class="labs-grid">
-      <a class="lab-card" href="three-body.html">
-        <div class="lab-icon">⚛</div>
-        <div class="lab-body">
-          <div class="lab-title">Tre-Legeme Problem</div>
-          <div class="lab-desc">Interaktiv gravitationssimulation med RK4-integration, banespor, masse- og hastighedskontrol og URL-deling.</div>
-        </div>
-        <span class="lab-arrow">→</span>
-      </a>
-      <a class="lab-card" href="wwdc26.html">
-        <div class="lab-icon" style="background:rgba(255,106,0,0.12)">🍎</div>
-        <div class="lab-body">
-          <div class="lab-title">WWDC 2026 Feature Explorer</div>
-          <div class="lab-desc">Interaktiv oversigt over alle nyheder fra Apples 2026 developer-konference — søgbar, filterbar, med LLM-prompts og i18n.</div>
-        </div>
-        <span class="lab-arrow">→</span>
-      </a>
-      <a class="lab-card" href="camera-tracer.html">
-        <div class="lab-icon" style="background:rgba(67,233,123,0.1)">📷</div>
-        <div class="lab-body">
-          <div class="lab-title">Camera Tracer</div>
-          <div class="lab-desc">Live SVG-tracing af dit webcam-feed i realtid — edge detection, konturer, justérbar detaljegrad og eksport som SVG. Ren vanilla JS og Web Components.</div>
-        </div>
-        <span class="lab-arrow">→</span>
-      </a>
-      <a class="lab-card" href="entropia.html">
-        <div class="lab-icon" style="background:rgba(191,90,242,0.1)">🎲</div>
-        <div class="lab-body">
-          <div class="lab-title">ENTROPIA</div>
-          <div class="lab-desc">MBT-inspireret familiespil for 2–4 spillere. Sænk din entropi gennem kærlighed, samarbejde og bevidste valg — inspireret af Tom Campbells "My Big TOE". Pass-and-play.</div>
-        </div>
-        <span class="lab-arrow">→</span>
-      </a>
-    </div>
-  </div>
-
+  <!-- netsi.dk services -->
   <div class="card reveal">
     <div class="card-title">AI Transformation · <a href="https://www.netsi.dk" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-size:inherit;font-weight:inherit;letter-spacing:inherit;text-transform:inherit">netsi.dk</a></div>
     <div class="services-grid">
-      <div class="service-card"><div class="service-icon">🤖</div><div class="service-title">LLM Integration</div><div class="service-desc">Integrér avancerede sprogmodeller fra OpenAI, Google og x.ai — fra kundeservice til vidensstyring.</div></div>
-      <div class="service-card"><div class="service-icon">⚡</div><div class="service-title">Workflow Automation</div><div class="service-desc">AI-drevet procesautomatisering der lærer og forbedrer sig over tid — frigør tid og reducér fejl.</div></div>
-      <div class="service-card"><div class="service-icon">📄</div><div class="service-title">Dokumentanalyse</div><div class="service-desc">Omdan ustruktureret data til brugbar indsigt med intelligent dokumentbehandling og analyse.</div></div>
-      <div class="service-card"><div class="service-icon">💬</div><div class="service-title">Custom GPT-løsninger</div><div class="service-desc">Skræddersyede GPT-løsninger til intern brug — hjælp medarbejdere med regler, processer og firmainfo.</div></div>
+      <div class="service-card">
+        <div class="service-icon">🤖</div>
+        <div class="service-title">LLM Integration</div>
+        <div class="service-desc">Integrér avancerede sprogmodeller fra OpenAI, Google og x.ai i din virksomhed — fra kundeservice til vidensstyring.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">⚡</div>
+        <div class="service-title">Workflow Automation</div>
+        <div class="service-desc">AI-drevet procesautomatisering der lærer og forbedrer sig over tid — frigør tid og reducér fejl.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📄</div>
+        <div class="service-title">Dokumentanalyse</div>
+        <div class="service-desc">Omdan ustruktureret data til brugbar indsigt med intelligent dokumentbehandling og analyse.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💬</div>
+        <div class="service-title">Custom GPT-løsninger</div>
+        <div class="service-desc">Skræddersyede GPT-løsninger til intern brug — hjælp medarbejdere med regler, processer og firmainfo.</div>
+      </div>
     </div>
   </div>
 
+  <!-- Experience -->
   <div class="card reveal">
     <div class="card-title">Erfaring</div>
     <div class="timeline">
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot gold"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">Trifork</div><div class="tl-role">Software Pilot</div><div class="tl-period">November 2017 – nu</div><div class="tl-desc">AI-konsulentbistand, udvikling, undervisning og indsalg af AI-løsninger til virksomheder.</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">netsi.dk</div><div class="tl-role">Ejer &amp; Director</div><div class="tl-period">Januar 1995 – nu · 30+ år</div><div class="tl-desc">AI Transformation Consulting. Specialist i Umbraco, Dynamicweb og WordPress.</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">Kamstrup</div><div class="tl-role">Software Developer – Front-end</div><div class="tl-period">Januar 2016 – Juni 2017</div><div class="tl-desc">Udvikling af frameworks til webapps i ReactJS.</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-company">AFS Interkulturel Udveksling</div><div class="tl-role">Frivillig stab</div><div class="tl-period">Maj 2021 – Juni 2023</div><div class="tl-desc">Kommunikationsbistand til AFS Aarhus.</div></div></div>
-      <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div class="tl-right"><div class="tl-company">Tidligere</div><div class="tl-role">Web &amp; Frontend Developer</div><div class="tl-period">727 online · Dynamicweb Software A/S · m.fl.</div></div></div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot gold"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-company">Trifork</div>
+          <div class="tl-role">Software Pilot</div>
+          <div class="tl-period">November 2017 – nu</div>
+          <div class="tl-desc">AI-konsulentbistand, udvikling, undervisning og indsalg af AI-løsninger til virksomheder.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-company">netsi.dk</div>
+          <div class="tl-role">Ejer & Director</div>
+          <div class="tl-period">Januar 1995 – nu · 30+ år</div>
+          <div class="tl-desc">AI Transformation Consulting. Specialist i Umbraco, Dynamicweb og WordPress. Implementering af hjemmesider og komplekse CMS-systemer.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-company">Kamstrup</div>
+          <div class="tl-role">Software Developer – Front-end</div>
+          <div class="tl-period">Januar 2016 – Juni 2017</div>
+          <div class="tl-desc">Udvikling af frameworks til webapps i ReactJS.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+          <div class="tl-company">AFS Interkulturel Udveksling</div>
+          <div class="tl-role">Frivillig stab</div>
+          <div class="tl-period">Maj 2021 – Juni 2023</div>
+          <div class="tl-desc">Kommunikationsbistand til AFS Aarhus.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div></div>
+        <div class="tl-right">
+          <div class="tl-company">Tidligere</div>
+          <div class="tl-role">Web & Frontend Developer</div>
+          <div class="tl-period">727 online · Dynamicweb Software A/S · m.fl.</div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Skills -->
   <div class="card reveal">
     <div class="card-title">Kompetencer</div>
     <div class="tags">
-      <span class="tag ai">Artificial Intelligence</span><span class="tag ai">LLM</span><span class="tag ai">AI-konsulentbistand</span><span class="tag ai">Prompt Engineering</span>
-      <span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">React / ReactJS</span><span class="tag">HTML5 &amp; CSS3</span>
-      <span class="tag">Web Components</span><span class="tag">Frontend Development</span><span class="tag">C# / .NET</span><span class="tag">Umbraco</span>
-      <span class="tag">Dynamicweb CMS</span><span class="tag">WordPress</span><span class="tag">REST APIs</span><span class="tag">Creative Problem Solving</span>
+      <span class="tag ai">Artificial Intelligence</span>
+      <span class="tag ai">LLM</span>
+      <span class="tag ai">AI-konsulentbistand</span>
+      <span class="tag ai">Prompt Engineering</span>
+      <span class="tag">JavaScript</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">React / ReactJS</span>
+      <span class="tag">HTML5 &amp; CSS3</span>
+      <span class="tag">Web Components</span>
+      <span class="tag">Frontend Development</span>
+      <span class="tag">C# / .NET</span>
+      <span class="tag">Umbraco</span>
+      <span class="tag">Dynamicweb CMS</span>
+      <span class="tag">WordPress</span>
+      <span class="tag">REST APIs</span>
+      <span class="tag">Creative Problem Solving</span>
     </div>
   </div>
 
+  <!-- Stats -->
   <div class="stats reveal" style="width:100%">
     <div class="stat"><div class="stat-num" data-count="30" data-suffix="+">0</div><div class="stat-label">Års erfaring i branchen</div></div>
     <div class="stat"><div class="stat-num" data-count="138" data-suffix="+">0</div><div class="stat-label">GitHub-projekter</div></div>
     <div class="stat"><div class="stat-num" data-count="3" data-suffix="">0</div><div class="stat-label">Sprog: DA · EN · DE</div></div>
   </div>
 
+  <!-- Quote -->
   <div class="card quote-card reveal">
-    <div class="qmark">“</div>
+    <div class="qmark">"</div>
     <div class="card-title">Anbefaling</div>
     <p class="quote-text">En programmørernes programmør med suverænt overblik over tilgængelige teknologier og stærk evne til at vurdere, hvilke programmeringstilgange der giver mening i et forretningsmæssigt miljø.</p>
     <div class="quote-by">— <strong>Anders Brandstrup</strong></div>
   </div>
 
+  <!-- Education + Languages -->
   <div class="two-col reveal" style="width:100%">
     <div class="card">
       <div class="card-title">Uddannelse</div>
@@ -279,6 +485,7 @@
       </div>
     </div>
   </div>
+
 </main>
 
 <footer>
@@ -288,23 +495,83 @@
 </footer>
 
 <script>
-  const c=document.getElementById('stars');
-  for(let i=0;i<130;i++){const s=document.createElement('span');const z=Math.random()*2+0.4;s.style.cssText=`width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*5+2).toFixed(1)}s;--delay:-${(Math.random()*9).toFixed(1)}s;--op:${(Math.random()*0.5+0.08).toFixed(2)}`;c.appendChild(s)}
+  // ── Stars (dark mode) ──
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 130; i++) {
+    const s = document.createElement('span');
+    const z = Math.random() * 2 + 0.4;
+    s.style.cssText = `width:${z}px;height:${z}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*5+2).toFixed(1)}s;--delay:-${(Math.random()*9).toFixed(1)}s;--op:${(Math.random()*0.5+0.08).toFixed(2)}`;
+    c.appendChild(s);
+  }
 
-  document.addEventListener('mousemove',e=>{const x=e.clientX/innerWidth-.5,y=e.clientY/innerHeight-.5;document.querySelectorAll('.orb').forEach((o,i)=>{o.style.transform=`translate(${x*(i+1)*20}px,${y*(i+1)*20}px)`})});
+  // ── Parallax orbs ──
+  document.addEventListener('mousemove', e => {
+    const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
+    document.querySelectorAll('.orb').forEach((o, i) => {
+      o.style.transform = `translate(${x*(i+1)*20}px,${y*(i+1)*20}px)`;
+    });
+  });
 
-  const btn=document.getElementById('themeBtn'),html=document.documentElement;
-  const saved=localStorage.getItem('theme')||'light';
-  html.setAttribute('data-theme',saved);
-  btn.textContent=saved==='dark'?'☀️':'🌙';
-  btn.addEventListener('click',()=>{const next=html.getAttribute('data-theme')==='dark'?'light':'dark';html.setAttribute('data-theme',next);btn.textContent=next==='dark'?'☀️':'🌙';localStorage.setItem('theme',next)});
+  // ── Theme toggle ──
+  const btn = document.getElementById('themeBtn');
+  const html = document.documentElement;
+  const saved = localStorage.getItem('theme') || 'light';
+  html.setAttribute('data-theme', saved);
+  btn.textContent = saved === 'dark' ? '☀️' : '🌙';
 
-  const obs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){const el=entry.target;setTimeout(()=>el.classList.add('visible'),el.dataset.delay||0);obs.unobserve(el);el.querySelectorAll('[data-count]').forEach(animateCount);}});},{threshold:0.12});
-  document.querySelectorAll('.reveal').forEach((el,i)=>{el.dataset.delay=i*60;obs.observe(el)});
+  btn.addEventListener('click', () => {
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('theme', next);
+  });
 
-  function animateCount(el){const target=parseInt(el.dataset.count),suffix=el.dataset.suffix||'',dur=900,start=performance.now();(function step(now){const p=Math.min((now-start)/dur,1),ease=1-Math.pow(1-p,3);el.textContent=Math.floor(ease*target)+suffix;if(p<1)requestAnimationFrame(step)})(start);}
+  // ── Scroll-reveal ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => el.classList.add('visible'), delay);
+        observer.unobserve(el);
+        // trigger counter if inside a stats block
+        el.querySelectorAll('[data-count]').forEach(animateCount);
+      }
+    });
+  }, { threshold: 0.12 });
 
-  document.querySelectorAll('.card').forEach(card=>{card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(700px) rotateY(${x*4}deg) rotateX(${-y*4}deg) translateY(-2px)`});card.addEventListener('mouseleave',()=>{card.style.transform=''})});
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.dataset.delay = i * 60;
+    observer.observe(el);
+  });
+
+  // ── Animated counters ──
+  function animateCount(el) {
+    const target = parseInt(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const dur = 900;
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(ease * target) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ── Card tilt on hover ──
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform = `perspective(700px) rotateY(${x*4}deg) rotateX(${-y*4}deg) translateY(-2px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
 </script>
 </body>
 </html>

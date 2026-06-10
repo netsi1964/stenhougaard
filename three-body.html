@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="da" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three-Body Problem – Interactive Simulation</title>
+  <title>Tre-Legeme Problem – Interaktiv Simulation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -384,42 +384,16 @@
     }
     .toggle input:checked + .toggle-slider { background: var(--accent); }
     .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
-
-    /* ── Language picker ── */
-    .lang-picker { display: flex; gap: 3px; }
-    .lang-btn {
-      padding: 4px 7px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-size: 0.70rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Space Grotesk', sans-serif;
-      transition: all .15s;
-      line-height: 1;
-    }
-    .lang-btn:hover { color: var(--text); border-color: var(--accent); }
-    .lang-btn.active { color: var(--accent); border-color: var(--accent); background: rgba(124,115,255,0.12); }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-title" data-i18n="header">⚛ Three-Body Problem</div>
+  <div class="header-title">⚛ Tre-Legeme Problem</div>
   <div class="header-actions">
     <span class="speed-badge" id="fpsDisplay">60 fps</span>
-    <div class="lang-picker" id="langPicker">
-      <button class="lang-btn active" data-lang="en">EN</button>
-      <button class="lang-btn" data-lang="da">DA</button>
-      <button class="lang-btn" data-lang="es">ES</button>
-      <button class="lang-btn" data-lang="zh">中文</button>
-    </div>
-    <button class="btn btn-icon" id="soundBtn" title="Toggle sound">🔇</button>
-    <button class="btn btn-icon" id="shareBtn" title="Share scenario">🔗</button>
-    <button class="btn btn-icon" id="themeBtn" data-i18n-title="themeTitle" title="Toggle theme">🌙</button>
-    <a href="index.html" class="btn" style="text-decoration:none" data-i18n="portfolio">← Portfolio</a>
+    <button class="btn btn-icon" id="themeBtn" title="Skift tema">🌙</button>
+    <a href="index.html" class="btn" style="text-decoration:none">← Portfolio</a>
   </div>
 </header>
 
@@ -433,7 +407,7 @@
       <div class="stat-pill" id="energyDisplay">E = –</div>
     </div>
     <div class="paused-banner">
-      <div class="paused-text" id="pausedText" data-i18n="pause_word">PAUSED</div>
+      <div class="paused-text" id="pausedText">PAUSE</div>
     </div>
   </div>
 
@@ -442,48 +416,48 @@
 
     <!-- Play controls -->
     <div class="panel">
-      <div class="section-title" data-i18n="sec_playback">Playback</div>
+      <div class="section-title">Afspilning</div>
       <div class="play-controls">
-        <button class="btn primary" id="playBtn" data-i18n="btn_pause">⏸ Pause</button>
-        <button class="btn danger" id="resetBtn" data-i18n="btn_reset">↺ Reset</button>
+        <button class="btn primary" id="playBtn">⏸ Pause</button>
+        <button class="btn danger" id="resetBtn">↺ Nulstil</button>
       </div>
     </div>
 
     <!-- Presets -->
     <div class="panel">
-      <div class="section-title" data-i18n="sec_presets">Presets</div>
+      <div class="section-title">Forudindstillinger</div>
       <div class="preset-grid">
-        <button class="preset-btn active" data-preset="figure8" data-i18n="preset_figure8">Figure-8</button>
-        <button class="preset-btn" data-preset="lagrange" data-i18n="preset_lagrange">Lagrange</button>
-        <button class="preset-btn" data-preset="solar" data-i18n="preset_solar">Solar System</button>
-        <button class="preset-btn" data-preset="chaotic" data-i18n="preset_chaotic">Chaotic</button>
+        <button class="preset-btn active" data-preset="figure8">Figur-8</button>
+        <button class="preset-btn" data-preset="lagrange">Lagrange</button>
+        <button class="preset-btn" data-preset="solar">Sol-system</button>
+        <button class="preset-btn" data-preset="chaotic">Kaotisk</button>
       </div>
     </div>
 
     <!-- Global -->
     <div class="panel">
-      <div class="section-title" data-i18n="sec_global">Global Parameters</div>
+      <div class="section-title">Globale parametre</div>
       <div class="global-row">
-        <span class="ctrl-label" data-i18n="lbl_gravity">Gravity G</span>
+        <span class="ctrl-label">Tyngde G</span>
         <input type="range" id="slG" min="0.1" max="5" step="0.05" value="1">
         <span class="ctrl-val" id="valG">1.00</span>
       </div>
       <div class="global-row">
-        <span class="ctrl-label" data-i18n="lbl_timestep">Time Step</span>
+        <span class="ctrl-label">Tidstrin</span>
         <input type="range" id="slDt" min="0.1" max="3" step="0.05" value="1">
         <span class="ctrl-val" id="valDt">1×</span>
       </div>
       <div class="global-row">
-        <span class="ctrl-label" data-i18n="lbl_trail">Trail Length</span>
+        <span class="ctrl-label">Sporbærer</span>
         <input type="range" id="slTrail" min="50" max="2000" step="50" value="600">
         <span class="ctrl-val" id="valTrail">600</span>
       </div>
       <div class="toggle-row">
-        <span class="toggle-label" data-i18n="lbl_showtrails">Show trails</span>
+        <span class="toggle-label">Vis baner</span>
         <label class="toggle"><input type="checkbox" id="chkTrail" checked><span class="toggle-slider"></span></label>
       </div>
       <div class="toggle-row">
-        <span class="toggle-label" data-i18n="lbl_showvec">Show vectors</span>
+        <span class="toggle-label">Vis vektorer</span>
         <label class="toggle"><input type="checkbox" id="chkVectors"><span class="toggle-slider"></span></label>
       </div>
     </div>
@@ -492,11 +466,11 @@
     <div class="panel body-panel b1">
       <div class="body-header">
         <div class="body-dot" style="background:var(--c1)"></div>
-        <span class="body-name" data-i18n="lbl_body1">Body 1</span>
+        <span class="body-name">Legeme 1</span>
         <span class="body-pos" id="pos1">x:0  y:0</span>
       </div>
       <div class="ctrl-row">
-        <span class="ctrl-label" data-i18n="lbl_mass">Mass</span>
+        <span class="ctrl-label">Masse</span>
         <input type="range" id="slM1" min="0.1" max="10" step="0.1" value="1">
         <span class="ctrl-val" id="valM1">1.0</span>
       </div>
@@ -504,7 +478,7 @@
         <span></span><span>Vx</span><span>Vy</span>
       </div>
       <div class="vel-row">
-        <span class="ctrl-label" data-i18n="lbl_velocity">Velocity</span>
+        <span class="ctrl-label">Hastighed</span>
         <input class="vel-input" type="number" id="vx1" step="0.01" value="0.347">
         <input class="vel-input" type="number" id="vy1" step="0.01" value="0.533">
       </div>
@@ -514,11 +488,11 @@
     <div class="panel body-panel b2">
       <div class="body-header">
         <div class="body-dot" style="background:var(--c2)"></div>
-        <span class="body-name" data-i18n="lbl_body2">Body 2</span>
+        <span class="body-name">Legeme 2</span>
         <span class="body-pos" id="pos2">x:0  y:0</span>
       </div>
       <div class="ctrl-row">
-        <span class="ctrl-label" data-i18n="lbl_mass">Mass</span>
+        <span class="ctrl-label">Masse</span>
         <input type="range" id="slM2" min="0.1" max="10" step="0.1" value="1">
         <span class="ctrl-val" id="valM2">1.0</span>
       </div>
@@ -526,7 +500,7 @@
         <span></span><span>Vx</span><span>Vy</span>
       </div>
       <div class="vel-row">
-        <span class="ctrl-label" data-i18n="lbl_velocity">Velocity</span>
+        <span class="ctrl-label">Hastighed</span>
         <input class="vel-input" type="number" id="vx2" step="0.01" value="0.347">
         <input class="vel-input" type="number" id="vy2" step="0.01" value="0.533">
       </div>
@@ -536,11 +510,11 @@
     <div class="panel body-panel b3">
       <div class="body-header">
         <div class="body-dot" style="background:var(--c3)"></div>
-        <span class="body-name" data-i18n="lbl_body3">Body 3</span>
+        <span class="body-name">Legeme 3</span>
         <span class="body-pos" id="pos3">x:0  y:0</span>
       </div>
       <div class="ctrl-row">
-        <span class="ctrl-label" data-i18n="lbl_mass">Mass</span>
+        <span class="ctrl-label">Masse</span>
         <input type="range" id="slM3" min="0.1" max="10" step="0.1" value="1">
         <span class="ctrl-val" id="valM3">1.0</span>
       </div>
@@ -548,7 +522,7 @@
         <span></span><span>Vx</span><span>Vy</span>
       </div>
       <div class="vel-row">
-        <span class="ctrl-label" data-i18n="lbl_velocity">Velocity</span>
+        <span class="ctrl-label">Hastighed</span>
         <input class="vel-input" type="number" id="vx3" step="0.01" value="-0.694">
         <input class="vel-input" type="number" id="vy3" step="0.01" value="-1.066">
       </div>
@@ -556,12 +530,12 @@
 
     <!-- Info -->
     <div class="panel">
-      <div class="section-title" data-i18n="sec_info">About</div>
-      <p class="info-text" data-i18n-html="info_html">
-        <strong>Three-body problem</strong> describes the motion of three bodies under mutual gravitational attraction.<br><br>
-        Integration: <strong>RK4</strong> (4th-order Runge-Kutta).<br>
-        Units: AU/year-like.<br><br>
-        Click and drag on the canvas to <strong>move bodies</strong>.
+      <div class="section-title">Om simuleringen</div>
+      <p class="info-text">
+        <strong>Tre-legeme problemet</strong> beskriver bevægelsen af tre himmellegemer under gensidig tyngdekraft.<br><br>
+        Integrationsmetode: <strong>RK4</strong> (4. ordens Runge-Kutta).<br>
+        Bevægelsesenhed: AU/år-lignende enheder.<br><br>
+        Klik og træk på canvas for at <strong>flytte legemer</strong>.
       </p>
     </div>
 
@@ -600,12 +574,6 @@ let drag = null;  // { bodyIdx, offsetX, offsetY }
 let lastFrameTime = 0;
 let frameCount = 0;
 let fpsSmooth = 60;
-
-// CSS canvas dimensions (updated in resizeCanvas)
-let cssW = 0, cssH = 0;
-
-// Active language (used by playBtn handler before TRANSLATIONS block loads)
-let currentLang = localStorage.getItem('three-body-lang') || 'en';
 
 // ── Presets ────────────────────────────────────────────────────────────────
 const PRESETS = {
@@ -646,13 +614,6 @@ const PRESETS = {
 // ── Helpers ────────────────────────────────────────────────────────────────
 function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
 
-function snapView() {
-  let cx = 0, cy = 0, totalM = 0;
-  bodies.forEach(b => { cx += b.x * b.m; cy += b.y * b.m; totalM += b.m; });
-  view.cx = cx / totalM;
-  view.cy = cy / totalM;
-}
-
 function loadPreset(name) {
   const p = PRESETS[name];
   if (!p) return;
@@ -663,7 +624,6 @@ function loadPreset(name) {
   initState = deepCopy(bodies);
   trails = [[], [], []];
   simTime = 0;
-  snapView();
 
   // Update UI
   document.getElementById('slG').value = G;
@@ -685,7 +645,7 @@ function loadPreset(name) {
 
 // ── Physics (RK4) ──────────────────────────────────────────────────────────
 function acceleration(bs) {
-  const eps = 1e-4; // softening
+  const eps = 0.01; // softening
   return bs.map((b, i) => {
     let ax = 0, ay = 0;
     bs.forEach((other, j) => {
@@ -757,41 +717,43 @@ function totalEnergy(bs) {
 let view = { cx: 0, cy: 0, scale: 120 };
 
 function toScreen(x, y) {
+  const W = canvas.width, H = canvas.height;
   return {
-    sx: cssW/2 + (x - view.cx) * view.scale,
-    sy: cssH/2 - (y - view.cy) * view.scale,
+    sx: W/2 + (x - view.cx) * view.scale,
+    sy: H/2 - (y - view.cy) * view.scale,
   };
 }
 
 function toWorld(sx, sy) {
+  const W = canvas.width, H = canvas.height;
   return {
-    x: (sx - cssW/2) / view.scale + view.cx,
-    y: (cssH/2 - sy) / view.scale + view.cy,
+    x: (sx - W/2) / view.scale + view.cx,
+    y: (H/2 - sy) / view.scale + view.cy,
   };
 }
 
 // ── Rendering ─────────────────────────────────────────────────────────────
 function resizeCanvas() {
   const rect = canvas.parentElement.getBoundingClientRect();
-  cssW = rect.width;
-  cssH = rect.height;
-  canvas.width  = cssW * window.devicePixelRatio;
-  canvas.height = cssH * window.devicePixelRatio;
-  canvas.style.width  = cssW + 'px';
-  canvas.style.height = cssH + 'px';
+  canvas.width  = rect.width  * window.devicePixelRatio;
+  canvas.height = rect.height * window.devicePixelRatio;
+  canvas.style.width  = rect.width  + 'px';
+  canvas.style.height = rect.height + 'px';
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  view.scale = Math.min(cssW, cssH) * 0.12;
+  view.scale = Math.min(rect.width, rect.height) * 0.12;
 }
 
 function drawGrid() {
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
   ctx.save();
   ctx.strokeStyle = 'rgba(255,255,255,0.04)';
   ctx.lineWidth = 1;
   const step = view.scale;
-  const ox = (cssW/2 - view.cx * view.scale) % step;
-  const oy = (cssH/2 + view.cy * view.scale) % step;
-  for (let x = ox; x < cssW; x += step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,cssH); ctx.stroke(); }
-  for (let y = oy; y < cssH; y += step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cssW,y); ctx.stroke(); }
+  const ox = (W/2 - view.cx * view.scale) % step;
+  const oy = (H/2 + view.cy * view.scale) % step;
+  for (let x = ox; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = oy; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
   ctx.restore();
 }
 
@@ -878,9 +840,12 @@ function drawCenterOfMass() {
 }
 
 function render() {
-  ctx.clearRect(0, 0, cssW, cssH);
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
+
+  ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#03030a';
-  ctx.fillRect(0, 0, cssW, cssH);
+  ctx.fillRect(0, 0, W, H);
 
   drawGrid();
   drawCenterOfMass();
@@ -948,7 +913,6 @@ function loop(timestamp) {
   if (running) {
     step();
     updateView();
-    sound.update(bodies);
   }
   render();
 }
@@ -956,8 +920,7 @@ function loop(timestamp) {
 // ── Controls wiring ────────────────────────────────────────────────────────
 document.getElementById('playBtn').addEventListener('click', () => {
   running = !running;
-  const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
-  document.getElementById('playBtn').textContent = running ? t.btn_pause : t.btn_play;
+  document.getElementById('playBtn').textContent = running ? '⏸ Pause' : '▶ Afspil';
   document.getElementById('pausedText').classList.toggle('show', !running);
 });
 
@@ -965,7 +928,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   bodies = deepCopy(initState);
   trails = [[], [], []];
   simTime = 0;
-  snapView();
+  view.cx = 0; view.cy = 0;
   running = true;
   document.getElementById('playBtn').textContent = '⏸ Pause';
   document.getElementById('pausedText').classList.remove('show');
@@ -1110,367 +1073,6 @@ canvas.addEventListener('wheel', e => {
   view.scale = Math.max(20, Math.min(800, view.scale * factor));
 }, { passive: false });
 
-// ── Sound engine (Web Audio API) ──────────────────────────────────────────
-//
-// Architecture:
-//   • 3 "pair" oscillators — one per body pair (0-1, 0-2, 1-2).
-//     Frequency maps 1/distance → 80 Hz (far) … 800 Hz (close).
-//     Volume also scales with proximity so distant pairs fade out.
-//   • 3 "body" oscillators — one per body.
-//     Base note A2/C#3/E3; pitch glides up by up to an octave as speed rises.
-//   • Low-pass filtered noise (space ambience, constant).
-//
-class SoundEngine {
-  constructor() {
-    this.ac         = null;
-    this.master     = null;
-    this.enabled    = false;
-    this.pairOscs   = [];  // [osc, osc, osc]
-    this.pairGains  = [];  // [gain, gain, gain]
-    this.bodyOscs   = [];  // [osc, osc, osc]
-    this.bodyGains  = [];  // [gain, gain, gain]
-  }
-
-  _init() {
-    if (this.ac) return;
-    this.ac     = new (window.AudioContext || window.webkitAudioContext)();
-    this.master = this.ac.createGain();
-    this.master.gain.value = 0;
-    this.master.connect(this.ac.destination);
-
-    // ── Ambient noise ──────────────────────────────────────────────────────
-    const len = this.ac.sampleRate * 3;
-    const buf = this.ac.createBuffer(1, len, this.ac.sampleRate);
-    const dat = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) dat[i] = Math.random() * 2 - 1;
-    const ns = this.ac.createBufferSource();
-    ns.buffer = buf; ns.loop = true;
-    const nf = this.ac.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 65;
-    const ng = this.ac.createGain(); ng.gain.value = 0.028;
-    ns.connect(nf); nf.connect(ng); ng.connect(this.master);
-    ns.start();
-
-    // ── Pair interaction oscillators ───────────────────────────────────────
-    for (let k = 0; k < 3; k++) {
-      const g  = this.ac.createGain(); g.gain.value = 0;
-      const bp = this.ac.createBiquadFilter();
-      bp.type = 'bandpass'; bp.Q.value = 1.2;
-      g.connect(bp); bp.connect(this.master);
-
-      const o = this.ac.createOscillator();
-      o.type = 'sine'; o.frequency.value = 80;
-      o.connect(g); o.start();
-
-      this.pairOscs.push(o);
-      this.pairGains.push(g);
-    }
-
-    // ── Body oscillators (A major triad: A2, C#3, E3) ─────────────────────
-    [110, 138.6, 165].forEach((baseF, i) => {
-      const g  = this.ac.createGain(); g.gain.value = 0;
-      const lp = this.ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 550;
-      g.connect(lp); lp.connect(this.master);
-
-      // Slightly detuned pair for warmth
-      [-1.8, 0].forEach(det => {
-        const o = this.ac.createOscillator();
-        o.type = 'triangle'; o.frequency.value = baseF; o.detune.value = det;
-        o.connect(g); o.start();
-      });
-
-      // Track the "lead" oscillator for pitch modulation
-      const lead = this.ac.createOscillator();
-      lead.type = 'triangle'; lead.frequency.value = baseF;
-      lead.connect(g); lead.start();
-
-      this.bodyOscs.push(lead);
-      this.bodyGains.push(g);
-    });
-  }
-
-  update(bs) {
-    if (!this.enabled || !this.ac) return;
-    const now = this.ac.currentTime;
-    const T   = 0.10; // smoothing time constant (seconds)
-
-    // Pair interactions — frequency driven by 1 / distance
-    const PAIRS = [[0,1],[0,2],[1,2]];
-    PAIRS.forEach(([a, b], k) => {
-      const r    = Math.max(0.04, Math.hypot(bs[b].x - bs[a].x, bs[b].y - bs[a].y));
-      const norm = Math.min(1, 0.6 / r);                    // 0 = far, 1 = very close
-      const freq = 80 * Math.pow(10, norm);                  // 80 Hz → 800 Hz (log)
-      const vol  = Math.min(0.14, 0.01 + 0.11 * norm * norm);
-
-      this.pairOscs[k].frequency.setTargetAtTime(freq, now, T);
-      this.pairGains[k].gain.setTargetAtTime(vol,  now, T);
-    });
-
-    // Individual body tones — pitch follows orbital speed
-    const BASE = [110, 138.6, 165];
-    bs.forEach((b, i) => {
-      if (!this.bodyOscs[i]) return;
-      const spd  = Math.hypot(b.vx, b.vy);
-      const freq = BASE[i] * Math.pow(2, Math.min(1, spd * 0.35)); // up to +1 octave
-      const vol  = Math.min(0.07, 0.006 + spd * 0.022) * Math.sqrt(b.m);
-
-      this.bodyOscs[i].frequency.setTargetAtTime(freq, now, T * 2);
-      this.bodyGains[i].gain.setTargetAtTime(vol,  now, T * 2);
-    });
-  }
-
-  toggle() {
-    this._init();
-    this.ac.resume();
-    this.enabled = !this.enabled;
-    const now = this.ac.currentTime;
-    this.master.gain.setTargetAtTime(this.enabled ? 0.68 : 0, now, 0.4);
-    return this.enabled;
-  }
-}
-
-const sound = new SoundEngine();
-
-// ── URL sharing ────────────────────────────────────────────────────────────
-function buildShareUrl() {
-  const p = new URLSearchParams();
-  p.set('lang',    currentLang);
-  p.set('G',       G.toFixed(3));
-  p.set('dt',      dtMult.toFixed(3));
-  p.set('trail',   maxTrail);
-  p.set('trails',  showTrails  ? '1' : '0');
-  p.set('vectors', showVectors ? '1' : '0');
-  (initState || bodies).forEach((b, i) => {
-    p.set(`x${i+1}`,  b.x.toFixed(6));
-    p.set(`y${i+1}`,  b.y.toFixed(6));
-    p.set(`vx${i+1}`, b.vx.toFixed(6));
-    p.set(`vy${i+1}`, b.vy.toFixed(6));
-    p.set(`m${i+1}`,  b.m.toFixed(3));
-  });
-  return `${location.origin}${location.pathname}?${p}`;
-}
-
-function readUrlParams() {
-  const p = new URLSearchParams(location.search);
-  if (!p.toString()) return;
-
-  const lang = p.get('lang');
-  if (lang && TRANSLATIONS[lang]) currentLang = lang;
-
-  const Gv = p.get('G');
-  if (Gv) { G = parseFloat(Gv); document.getElementById('slG').value = G; document.getElementById('valG').textContent = G.toFixed(2); }
-
-  const dtv = p.get('dt');
-  if (dtv) { dtMult = parseFloat(dtv); document.getElementById('slDt').value = dtMult; document.getElementById('valDt').textContent = dtMult.toFixed(1)+'×'; }
-
-  const trv = p.get('trail');
-  if (trv) { maxTrail = parseInt(trv); document.getElementById('slTrail').value = maxTrail; document.getElementById('valTrail').textContent = maxTrail; }
-
-  const trls = p.get('trails');
-  if (trls !== null) { showTrails = trls === '1'; document.getElementById('chkTrail').checked = showTrails; }
-
-  const vecs = p.get('vectors');
-  if (vecs !== null) { showVectors = vecs === '1'; document.getElementById('chkVectors').checked = showVectors; }
-
-  [1, 2, 3].forEach(i => {
-    const b  = bodies[i - 1];
-    const x  = p.get(`x${i}`);  if (x)  b.x  = parseFloat(x);
-    const y  = p.get(`y${i}`);  if (y)  b.y  = parseFloat(y);
-    const vx = p.get(`vx${i}`); if (vx) b.vx = parseFloat(vx);
-    const vy = p.get(`vy${i}`); if (vy) b.vy = parseFloat(vy);
-    const m  = p.get(`m${i}`);
-    if (m) {
-      b.m = parseFloat(m);
-      document.getElementById(`slM${i}`).value = b.m;
-      document.getElementById(`valM${i}`).textContent = b.m.toFixed(1);
-    }
-    if (vx || vy) {
-      document.getElementById(`vx${i}`).value = b.vx.toFixed(3);
-      document.getElementById(`vy${i}`).value = b.vy.toFixed(3);
-    }
-  });
-
-  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
-  initState = deepCopy(bodies);
-  snapView();
-}
-
-// ── i18n ───────────────────────────────────────────────────────────────────
-const TRANSLATIONS = {
-  en: {
-    title:          'Three-Body Problem – Interactive Simulation',
-    header:         '⚛ Three-Body Problem',
-    themeTitle:     'Toggle theme',
-    portfolio:      '← Portfolio',
-    pause_word:     'PAUSED',
-    sec_playback:   'Playback',
-    btn_pause:      '⏸ Pause',
-    btn_play:       '▶ Play',
-    btn_reset:      '↺ Reset',
-    sec_presets:    'Presets',
-    preset_figure8: 'Figure-8',
-    preset_lagrange:'Lagrange',
-    preset_solar:   'Solar System',
-    preset_chaotic: 'Chaotic',
-    sec_global:     'Global Parameters',
-    lbl_gravity:    'Gravity G',
-    lbl_timestep:   'Time Step',
-    lbl_trail:      'Trail Length',
-    lbl_showtrails: 'Show trails',
-    lbl_showvec:    'Show vectors',
-    lbl_body1:      'Body 1',
-    lbl_body2:      'Body 2',
-    lbl_body3:      'Body 3',
-    lbl_mass:       'Mass',
-    lbl_velocity:   'Velocity',
-    sec_info:       'About',
-    info_html:      '<strong>Three-body problem</strong> describes the motion of three bodies under mutual gravitational attraction.<br><br>Integration: <strong>RK4</strong> (4th-order Runge-Kutta).<br>Units: AU/year-like.<br><br>Click and drag on the canvas to <strong>move bodies</strong>.',
-  },
-  da: {
-    title:          'Tre-Legeme Problem – Interaktiv Simulation',
-    header:         '⚛ Tre-Legeme Problem',
-    themeTitle:     'Skift tema',
-    portfolio:      '← Portfolio',
-    pause_word:     'PAUSE',
-    sec_playback:   'Afspilning',
-    btn_pause:      '⏸ Pause',
-    btn_play:       '▶ Afspil',
-    btn_reset:      '↺ Nulstil',
-    sec_presets:    'Forudindstillinger',
-    preset_figure8: 'Figur-8',
-    preset_lagrange:'Lagrange',
-    preset_solar:   'Sol-system',
-    preset_chaotic: 'Kaotisk',
-    sec_global:     'Globale parametre',
-    lbl_gravity:    'Tyngde G',
-    lbl_timestep:   'Tidstrin',
-    lbl_trail:      'Sporbærer',
-    lbl_showtrails: 'Vis baner',
-    lbl_showvec:    'Vis vektorer',
-    lbl_body1:      'Legeme 1',
-    lbl_body2:      'Legeme 2',
-    lbl_body3:      'Legeme 3',
-    lbl_mass:       'Masse',
-    lbl_velocity:   'Hastighed',
-    sec_info:       'Om simuleringen',
-    info_html:      '<strong>Tre-legeme problemet</strong> beskriver bevægelsen af tre himmellegemer under gensidig tyngdekraft.<br><br>Integrationsmetode: <strong>RK4</strong> (4. ordens Runge-Kutta).<br>Bevægelsesenhed: AU/år-lignende enheder.<br><br>Klik og træk på canvas for at <strong>flytte legemer</strong>.',
-  },
-  es: {
-    title:          'Problema de los Tres Cuerpos – Simulación Interactiva',
-    header:         '⚛ Problema de los Tres Cuerpos',
-    themeTitle:     'Cambiar tema',
-    portfolio:      '← Portfolio',
-    pause_word:     'PAUSA',
-    sec_playback:   'Reproducción',
-    btn_pause:      '⏸ Pausar',
-    btn_play:       '▶ Reproducir',
-    btn_reset:      '↺ Reiniciar',
-    sec_presets:    'Preajustes',
-    preset_figure8: 'Figura-8',
-    preset_lagrange:'Lagrange',
-    preset_solar:   'Sistema Solar',
-    preset_chaotic: 'Caótico',
-    sec_global:     'Parámetros globales',
-    lbl_gravity:    'Gravedad G',
-    lbl_timestep:   'Paso temporal',
-    lbl_trail:      'Long. del rastro',
-    lbl_showtrails: 'Mostrar rastros',
-    lbl_showvec:    'Mostrar vectores',
-    lbl_body1:      'Cuerpo 1',
-    lbl_body2:      'Cuerpo 2',
-    lbl_body3:      'Cuerpo 3',
-    lbl_mass:       'Masa',
-    lbl_velocity:   'Velocidad',
-    sec_info:       'Acerca de',
-    info_html:      '<strong>El problema de los tres cuerpos</strong> describe el movimiento de tres cuerpos bajo atracción gravitacional mutua.<br><br>Integración: <strong>RK4</strong> (Runge-Kutta de 4.° orden).<br>Unidades: similares a UA/año.<br><br>Haz clic y arrastra en el canvas para <strong>mover los cuerpos</strong>.',
-  },
-  zh: {
-    title:          '三体问题 – 交互式模拟',
-    header:         '⚛ 三体问题',
-    themeTitle:     '切换主题',
-    portfolio:      '← 主页',
-    pause_word:     '已暂停',
-    sec_playback:   '播放控制',
-    btn_pause:      '⏸ 暂停',
-    btn_play:       '▶ 播放',
-    btn_reset:      '↺ 重置',
-    sec_presets:    '预设配置',
-    preset_figure8: '八字形',
-    preset_lagrange:'拉格朗日',
-    preset_solar:   '太阳系',
-    preset_chaotic: '混沌',
-    sec_global:     '全局参数',
-    lbl_gravity:    '引力 G',
-    lbl_timestep:   '时间步长',
-    lbl_trail:      '轨迹长度',
-    lbl_showtrails: '显示轨迹',
-    lbl_showvec:    '显示速度向量',
-    lbl_body1:      '天体 1',
-    lbl_body2:      '天体 2',
-    lbl_body3:      '天体 3',
-    lbl_mass:       '质量',
-    lbl_velocity:   '速度',
-    sec_info:       '关于模拟',
-    info_html:      '<strong>三体问题</strong>描述了三个天体在相互引力作用下的运动规律。<br><br>积分方法：<strong>RK4</strong>（四阶龙格-库塔）。<br>单位：天文单位／年。<br><br>在画布上点击并拖拽以<strong>移动天体</strong>。',
-  },
-};
-
-function applyLang(code) {
-  const t = TRANSLATIONS[code] || TRANSLATIONS.en;
-  currentLang = code;
-  localStorage.setItem('three-body-lang', code);
-
-  document.documentElement.lang = code;
-  document.title = t.title;
-
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (t[key] !== undefined) el.textContent = t[key];
-  });
-  document.querySelectorAll('[data-i18n-html]').forEach(el => {
-    const key = el.dataset.i18nHtml;
-    if (t[key] !== undefined) el.innerHTML = t[key];
-  });
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
-    const key = el.dataset.i18nTitle;
-    if (t[key] !== undefined) el.title = t[key];
-  });
-
-  // Keep playBtn in sync with running state
-  document.getElementById('playBtn').textContent = running ? t.btn_pause : t.btn_play;
-
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === code);
-  });
-}
-
-document.getElementById('langPicker').addEventListener('click', e => {
-  const btn = e.target.closest('.lang-btn');
-  if (btn) applyLang(btn.dataset.lang);
-});
-
-document.getElementById('soundBtn').addEventListener('click', () => {
-  const on = sound.toggle();
-  document.getElementById('soundBtn').textContent = on ? '🔊' : '🔇';
-});
-
-document.getElementById('shareBtn').addEventListener('click', () => {
-  const url = buildShareUrl();
-  const btn = document.getElementById('shareBtn');
-  const done = () => {
-    btn.textContent = '✓';
-    btn.style.color = '#43e97b';
-    setTimeout(() => { btn.textContent = '🔗'; btn.style.color = ''; }, 2000);
-  };
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(done).catch(() => {
-      prompt('URL til kopiering:', url);
-    });
-  } else {
-    prompt('URL til kopiering:', url);
-    done();
-  }
-});
-
 // ── Init ───────────────────────────────────────────────────────────────────
 window.addEventListener('resize', () => {
   resizeCanvas();
@@ -1478,8 +1080,6 @@ window.addEventListener('resize', () => {
 
 resizeCanvas();
 loadPreset('figure8');
-readUrlParams();
-applyLang(currentLang);
 requestAnimationFrame(loop);
 </script>
 </body>
