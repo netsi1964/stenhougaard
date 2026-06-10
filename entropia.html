@@ -260,22 +260,28 @@ footer a{color:var(--orange);text-decoration:none}
 
 /* 3-D Dice */
 .dice-stage{
-  perspective:380px;
-  display:flex;gap:28px;justify-content:center;align-items:flex-end;
-  height:120px;padding-bottom:10px;position:relative;
+  perspective:420px;perspective-origin:50% 30%;
+  display:flex;justify-content:center;align-items:center;
+  height:130px;position:relative;
 }
 .dice-stage::after{
-  content:'';position:absolute;bottom:6px;left:50%;
+  content:'';position:absolute;bottom:8px;left:50%;
   transform:translateX(-50%);
-  width:148px;height:16px;
-  background:radial-gradient(ellipse,rgba(0,0,0,.22) 0%,transparent 70%);
+  width:150px;height:14px;
+  background:radial-gradient(ellipse,rgba(0,0,0,.2) 0%,transparent 70%);
   border-radius:50%;pointer-events:none;
 }
-[data-theme="light"] .dice-stage::after{opacity:.55}
+[data-theme="light"] .dice-stage::after{opacity:.5}
+/* Scene tilt so viewer looks down at dice (~26°) — makes top face visible */
+.dice-scene{
+  transform-style:preserve-3d;
+  transform:rotateX(-26deg);
+  display:flex;gap:28px;align-items:center;justify-content:center;
+}
 .die3d-wrap{width:72px;height:72px;transform-style:preserve-3d}
 .die3d{
   width:72px;height:72px;position:relative;transform-style:preserve-3d;
-  transform:rotateX(-28deg)rotateY(38deg);
+  transform:rotateX(0deg)rotateY(20deg);
 }
 .die3d.settling{transition:transform .38s cubic-bezier(.22,1,.36,1)}
 .die3d-face{
@@ -1512,19 +1518,19 @@ function renderAction() {
   if (G.phase === 'roll') {
     area.innerHTML = `
       <div class="dice-area">
-        <div class="dice-stage" id="dice-stage"></div>
+        <div class="dice-stage" id="dice-stage"><div class="dice-scene" id="dice-scene"></div></div>
         <div class="die-sum" id="dice-sum">${I18N.t('roll_hint')}</div>
         <button class="btn btn-primary" id="roll-btn" style="width:100%">${I18N.t('roll_btn')}</button>
       </div>`;
-    insertDice(document.getElementById('dice-stage'));
+    insertDice(document.getElementById('dice-scene'));
     document.getElementById('roll-btn').addEventListener('click', doRoll);
   } else if (G.phase === 'rolling') {
     area.innerHTML = `
       <div class="dice-area">
-        <div class="dice-stage" id="dice-stage"></div>
+        <div class="dice-stage" id="dice-stage"><div class="dice-scene" id="dice-scene"></div></div>
         <div class="die-sum" id="dice-sum">…</div>
       </div>`;
-    insertDice(document.getElementById('dice-stage'));
+    insertDice(document.getElementById('dice-scene'));
   } else if (G.phase === 'moving') {
     area.innerHTML = `<div class="dice-area"><div class="die-sum">${I18N.t('moving')}</div></div>`;
   } else if (G.phase === 'feedback') {
@@ -1557,7 +1563,7 @@ function doRoll() {
       G.phase = 'moving';
       renderAction();
       movePlayer(G.cur, d1+d2);
-    }, 1100);
+    }, 1500);
   });
 }
 
