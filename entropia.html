@@ -334,6 +334,7 @@ footer a{color:var(--orange);text-decoration:none}
 }
 .choice-btn:hover{border-color:var(--orange);transform:translateX(3px);color:var(--orange)}
 .choice-btn:active{transform:scale(.98)}
+.choice-hint{font-size:11px;color:var(--text2);margin:-4px 0 10px 2px;opacity:.8}
 
 /* Feedback */
 .feedback-card{
@@ -566,6 +567,12 @@ const STR = {
     pass_start: n => `${n} passes START! +5 UP`,
     intent_fear: 'Fear', intent_control: 'Control', intent_neutral: 'Neutral',
     intent_trust: 'Trust', intent_love: 'Love',
+    intent_hints: {
+      love:  '❤️ Love — consciousness acting from its natural state',
+      trust: '🌿 Trust — openness that creates space for growth',
+      ego:   '⚡ Inner resistance — the ego protects itself; entropy rises',
+      fear:  '😰 Fear — a protection mechanism that closes the door to love',
+    },
     deck_choice: "Life's Choice", deck_temptation: 'Temptation',
     deck_development: 'Self-development', deck_event: 'Event',
     corner_reflection: 'Deep reflection opens the door to lower entropy.',
@@ -606,6 +613,12 @@ const STR = {
     pass_start: n => `${n} passerer START! +5 UP`,
     intent_fear: 'Frygt', intent_control: 'Kontrol', intent_neutral: 'Neutral',
     intent_trust: 'Tillid', intent_love: 'Kærlighed',
+    intent_hints: {
+      love:  '❤️ Kærlighed — bevidsthed der handler fra sin naturlige tilstand',
+      trust: '🌿 Tillid — åbenhed der skaber rum til vækst',
+      ego:   '⚡ Indre modstand — egoet beskytter sig selv; entropien stiger',
+      fear:  '😰 Frygt — en beskyttelsesmekanisme der lukker for kærligheden',
+    },
     deck_choice: 'Livets Valg', deck_temptation: 'Fristelse',
     deck_development: 'Selvudvikling', deck_event: 'Begivenhed',
     corner_reflection: 'Dyb refleksion åbner vejen til lavere entropi.',
@@ -646,6 +659,12 @@ const STR = {
     pass_start: n => `¡${n} pasa por INICIO! +5 UP`,
     intent_fear: 'Miedo', intent_control: 'Control', intent_neutral: 'Neutral',
     intent_trust: 'Confianza', intent_love: 'Amor',
+    intent_hints: {
+      love:  '❤️ Amor — la conciencia actuando desde su estado natural',
+      trust: '🌿 Confianza — apertura que crea espacio para el crecimiento',
+      ego:   '⚡ Resistencia interior — el ego se protege; la entropía sube',
+      fear:  '😰 Miedo — un mecanismo de protección que cierra la puerta al amor',
+    },
     deck_choice: 'Elección de Vida', deck_temptation: 'Tentación',
     deck_development: 'Autodesarrollo', deck_event: 'Evento',
     corner_reflection: 'La reflexión profunda abre la puerta a menor entropía.',
@@ -686,6 +705,12 @@ const STR = {
     pass_start: n => `${n} 经过起点！+5 UP`,
     intent_fear: '恐惧', intent_control: '控制', intent_neutral: '中立',
     intent_trust: '信任', intent_love: '爱',
+    intent_hints: {
+      love:  '❤️ 爱 — 意识从其自然状态行动',
+      trust: '🌿 信任 — 为成长创造空间的开放性',
+      ego:   '⚡ 内在阻力 — 自我保护自身；熵值上升',
+      fear:  '😰 恐惧 — 阻断爱的保护机制',
+    },
     deck_choice: '生命抉择', deck_temptation: '诱惑',
     deck_development: '自我成长', deck_event: '事件',
     corner_reflection: '深度反思打开通往低熵的大门。',
@@ -1671,11 +1696,17 @@ function showCard(pi, card, fieldType) {
   document.getElementById('card-story').textContent = card.story;
   const cc = document.getElementById('card-choices');
   cc.innerHTML='';
+  const hints = (STR[I18N.lang]||STR.en).intent_hints || STR.en.intent_hints;
   card.choices.forEach(c => {
     const btn = document.createElement('button');
     btn.className='choice-btn'; btn.textContent=c.text;
     btn.addEventListener('click',()=>{ hideCard(); choiceChosen(pi,c,dn); });
     cc.appendChild(btn);
+    if (c.intent && hints[c.intent]) {
+      const hint = document.createElement('p');
+      hint.className='choice-hint'; hint.textContent=hints[c.intent];
+      cc.appendChild(hint);
+    }
   });
   document.getElementById('card-overlay').classList.add('show');
 }
