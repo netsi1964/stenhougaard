@@ -275,7 +275,6 @@ footer a{color:var(--orange);text-decoration:none}
 /* Scene tilt so viewer looks down at dice (~26°) — makes top face visible */
 .dice-scene{
   transform-style:preserve-3d;
-  transform:rotateX(-26deg);
   display:flex;gap:28px;align-items:center;justify-content:center;
 }
 .die3d-wrap{width:72px;height:72px;transform-style:preserve-3d}
@@ -1255,15 +1254,15 @@ function insertDice(container){
   });
 }
 
-// FACE_ROTS: container rotation so that face N is on top (+Y)
+// FACE_ROTS: container rotation so that face N faces viewer (+Z, front)
 // Face layout: f1=+Z, f6=-Z, f2=+X, f5=-X, f3=+Y(top), f4=-Y(bottom)
 const FACE_ROTS={
-  1:{rx:-90,ry:0,rz:0},  // +Z → +Y
-  2:{rx:0,ry:0,rz:90},   // +X → +Y
-  3:{rx:0,ry:0,rz:0},    // already +Y
-  4:{rx:180,ry:0,rz:0},  // -Y → +Y
-  5:{rx:0,ry:0,rz:-90},  // -X → +Y
-  6:{rx:90,ry:0,rz:0},   // -Z → +Y
+  1:{rx:0,ry:0,rz:0},      // f1 already at +Z
+  2:{rx:0,ry:-90,rz:0},    // f2 at +X → rotateY(-90°) → +Z
+  3:{rx:90,ry:0,rz:0},     // f3 at +Y → rotateX(+90°) → +Z
+  4:{rx:-90,ry:0,rz:0},    // f4 at -Y → rotateX(-90°) → +Z
+  5:{rx:0,ry:90,rz:0},     // f5 at -X → rotateY(+90°) → +Z
+  6:{rx:0,ry:180,rz:0},    // f6 at -Z → rotateY(180°) → +Z
 };
 
 class Die3D {
