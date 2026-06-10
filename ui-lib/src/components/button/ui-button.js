@@ -1,67 +1,77 @@
 /**
- * <ui-button> — Accessible, themeable button component
+ * <ui-button> — Accessible, themeable button Web Component
  *
  * Attributes:
- *   variant   — 'primary' | 'secondary' | 'ghost' | 'danger' | 'neutral'
- *   size      — 'sm' | 'md' | 'lg'
- *   disabled  — boolean
- *   loading   — boolean
+ *   variant    — 'primary' | 'secondary' | 'ghost' | 'danger' | 'neutral'  (default: 'primary')
+ *   size       — 'sm' | 'md' | 'lg'                                         (default: 'md')
+ *   disabled   — boolean
+ *   loading    — boolean
  *   full-width — boolean
- *   type      — 'button' | 'submit' | 'reset'
+ *   type       — 'button' | 'submit' | 'reset'                              (default: 'button')
  *
  * Events:
- *   ui-click  — fired on click (unless disabled or loading), detail: { originalEvent }
+ *   ui-click   — fired on click unless disabled or loading
+ *                detail: { originalEvent: MouseEvent }
  *
  * Slots:
- *   (default)     — button label
- *   icon-start    — icon before the label
- *   icon-end      — icon after the label
+ *   (default)    — button label text
+ *   icon-start   — icon placed before the label
+ *   icon-end     — icon placed after the label
  *
  * CSS Parts:
- *   base          — the inner <button> element
+ *   base         — the inner <button> element (use ::part(base) from outside)
  *
  * CSS Custom Properties (all fall back to --ui-* tokens):
- *   --button-accent, --button-accent-hover, --button-accent-active,
- *   --button-accent-text, --button-radius, --button-font-weight,
- *   --button-transition, --button-focus-ring, --button-focus-offset,
- *   --button-disabled-bg, --button-disabled-text, --button-disabled-border
+ *   --button-accent            Background / border for primary variant
+ *   --button-accent-hover      Hover state accent
+ *   --button-accent-active     Active / pressed accent
+ *   --button-accent-text       Text color on accent background
+ *   --button-radius            Border radius
+ *   --button-font-weight       Font weight
+ *   --button-transition        Full transition shorthand
+ *   --button-focus-ring        Focus ring outline value
+ *   --button-focus-offset      Focus ring offset
+ *   --button-disabled-bg       Background when disabled
+ *   --button-disabled-text     Text color when disabled
+ *   --button-disabled-border   Border color when disabled
  */
 
 import { BaseElement } from '../../core/BaseElement.js';
 
 export class UiButton extends BaseElement {
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // Web Component definition
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   static get observedAttributes() {
     return ['variant', 'size', 'disabled', 'loading', 'full-width', 'type'];
   }
 
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // Styles
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   static css() {
     return /* css */`
-      /* ---- Host ---- */
+      /* ---- Host layout ---- */
       :host {
         display: inline-flex;
         vertical-align: middle;
 
-        /* Customisation hooks — fall back to global tokens */
+        /* Customisation hooks — fall back to global design tokens */
         --button-accent:          var(--ui-accent, #f97316);
         --button-accent-hover:    var(--ui-accent-hover, #ea580c);
         --button-accent-active:   var(--ui-accent-active, #c2410c);
         --button-accent-text:     var(--ui-accent-text, #ffffff);
         --button-radius:          var(--ui-radius-md, 0.5rem);
         --button-font-weight:     var(--ui-font-weight-semibold, 600);
-        --button-transition:      background-color var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
-                                  border-color     var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
-                                  color            var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
-                                  box-shadow       var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
-                                  opacity          var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
-                                  transform        var(--ui-duration-fast, 100ms)   var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1));
+        --button-transition:
+          background-color var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
+          border-color     var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
+          color            var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
+          box-shadow       var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
+          opacity          var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1)),
+          transform        var(--ui-duration-fast,   100ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1));
         --button-focus-ring:      var(--ui-focus-ring, 2px solid #f97316);
         --button-focus-offset:    var(--ui-focus-ring-offset, 2px);
         --button-disabled-bg:     var(--ui-state-disabled-bg, #f5f5f5);
@@ -74,27 +84,29 @@ export class UiButton extends BaseElement {
         width: 100%;
       }
 
-      /* ---- Base button ---- */
+      /* ---- Base button element ---- */
       button {
-        display:         inline-flex;
-        align-items:     center;
-        justify-content: center;
-        gap:             0.5em;
-        width:           100%;
-        border:          1.5px solid transparent;
-        border-radius:   var(--button-radius);
-        font-family:     var(--ui-font-family-sans, system-ui, sans-serif);
-        font-weight:     var(--button-font-weight);
-        line-height:     var(--ui-line-height-tight, 1.25);
-        cursor:          pointer;
-        white-space:     nowrap;
-        user-select:     none;
-        text-decoration: none;
-        position:        relative;
-        overflow:        hidden;
-        transition:      var(--button-transition);
+        display:            inline-flex;
+        align-items:        center;
+        justify-content:    center;
+        gap:                0.5em;
+        width:              100%;
+        border:             1.5px solid transparent;
+        border-radius:      var(--button-radius);
+        font-family:        var(--ui-font-family-sans, system-ui, sans-serif);
+        font-weight:        var(--button-font-weight);
+        line-height:        var(--ui-line-height-tight, 1.25);
+        cursor:             pointer;
+        white-space:        nowrap;
+        user-select:        none;
+        text-decoration:    none;
+        position:           relative;
+        overflow:           hidden;
+        transition:         var(--button-transition);
         -webkit-appearance: none;
         appearance:         none;
+        box-sizing:         border-box;
+        margin:             0;
       }
 
       button:focus {
@@ -111,28 +123,27 @@ export class UiButton extends BaseElement {
       }
 
       /* ---- Sizes ---- */
-      :host([size="sm"]) button,
-      button[data-size="sm"] {
-        padding:     0.375rem 0.75rem;
-        font-size:   var(--ui-font-size-sm, 0.875rem);
-        min-height:  2rem;
+      :host([size="sm"]) button {
+        padding:    0.375rem 0.75rem;
+        font-size:  var(--ui-font-size-sm, 0.875rem);
+        min-height: 2rem;
       }
 
       button,
       :host(:not([size])) button,
       :host([size="md"]) button {
-        padding:     0.5rem 1rem;
-        font-size:   var(--ui-font-size-sm, 0.875rem);
-        min-height:  2.5rem;
+        padding:    0.5rem 1rem;
+        font-size:  var(--ui-font-size-sm, 0.875rem);
+        min-height: 2.5rem;
       }
 
       :host([size="lg"]) button {
-        padding:     0.75rem 1.5rem;
-        font-size:   var(--ui-font-size-md, 1rem);
-        min-height:  3rem;
+        padding:    0.75rem 1.5rem;
+        font-size:  var(--ui-font-size-md, 1rem);
+        min-height: 3rem;
       }
 
-      /* ---- Variant: primary ---- */
+      /* ---- Variant: primary (default) ---- */
       :host(:not([variant])) button,
       :host([variant="primary"]) button {
         background-color: var(--button-accent);
@@ -199,15 +210,14 @@ export class UiButton extends BaseElement {
       }
 
       :host([variant="danger"]) button:active:not([disabled]) {
-        background-color: var(--primitive-red-700, #b91c1c);
-        border-color:     var(--primitive-red-700, #b91c1c);
-        filter:           brightness(0.9);
+        background-color: #991b1b;
+        border-color:     #991b1b;
       }
 
       /* ---- Variant: neutral ---- */
       :host([variant="neutral"]) button {
-        background-color: var(--ui-surface-raised, #404040);
-        border-color:     var(--ui-surface-raised, #404040);
+        background-color: #404040;
+        border-color:     #404040;
         color:            #ffffff;
       }
 
@@ -226,35 +236,30 @@ export class UiButton extends BaseElement {
       button[aria-disabled="true"] {
         cursor:           not-allowed;
         pointer-events:   none;
-        background-color: var(--button-disabled-bg)     !important;
+        background-color: var(--button-disabled-bg) !important;
         border-color:     var(--button-disabled-border) !important;
-        color:            var(--button-disabled-text)   !important;
+        color:            var(--button-disabled-text) !important;
         transform:        none !important;
         opacity:          1;
+        box-shadow:       none !important;
       }
 
       /* ---- Loading spinner ---- */
       .spinner {
-        display:          inline-block;
-        width:            1em;
-        height:           1em;
-        border:           2px solid currentColor;
+        display:        inline-block;
+        width:          1em;
+        height:         1em;
+        border:         2px solid currentColor;
         border-top-color: transparent;
-        border-radius:    50%;
-        flex-shrink:      0;
-        animation:        ui-spin var(--ui-duration-slow, 300ms) linear infinite;
-        opacity:          0;
-        position:         absolute;
-        left:             50%;
-        transform:        translateX(-50%);
-        pointer-events:   none;
+        border-radius:  50%;
+        flex-shrink:    0;
+        opacity:        0;
+        pointer-events: none;
+        transition:     opacity var(--ui-duration-normal, 200ms) var(--ui-easing-default, cubic-bezier(0.4,0,0.2,1));
       }
 
-      /* Show spinner, dim slot content when loading */
       :host([loading]) .spinner {
-        opacity:  1;
-        position: static;
-        transform: none;
+        opacity:   1;
         animation: ui-spin 600ms linear infinite;
       }
 
@@ -275,14 +280,14 @@ export class UiButton extends BaseElement {
 
       /* ---- Reduced motion ---- */
       @media (prefers-reduced-motion: reduce) {
-        .spinner {
-          animation: none;
+        :host([loading]) .spinner {
+          animation:        none;
           border-top-color: currentColor;
-          opacity: 0.6;
+          opacity:          0.8;
         }
       }
 
-      /* ---- Slot styling ---- */
+      /* ---- Slotted content ---- */
       ::slotted(*) {
         pointer-events: none;
       }
@@ -295,14 +300,15 @@ export class UiButton extends BaseElement {
         height:      1em;
       }
 
-      /* part="base" — style the inner button element from outside via ::part(base) */
+      /* part="base" — expose inner <button> for external ::part(base) styling */
     `;
   }
 
-  // -------------------------------------------------------------------------
-  // Properties
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Properties with getters/setters (reflect to/from attributes)
+  // ---------------------------------------------------------------------------
 
+  /** @returns {'primary'|'secondary'|'ghost'|'danger'|'neutral'} */
   get variant() {
     return this.getStr('variant', 'primary');
   }
@@ -310,6 +316,7 @@ export class UiButton extends BaseElement {
     this.setAttribute('variant', value);
   }
 
+  /** @returns {'sm'|'md'|'lg'} */
   get size() {
     return this.getStr('size', 'md');
   }
@@ -317,27 +324,31 @@ export class UiButton extends BaseElement {
     this.setAttribute('size', value);
   }
 
+  /** @returns {boolean} */
   get disabled() {
     return this.getBool('disabled');
   }
   set disabled(value) {
-    this.setBool('disabled', value);
+    this.setBool('disabled', Boolean(value));
   }
 
+  /** @returns {boolean} */
   get loading() {
     return this.getBool('loading');
   }
   set loading(value) {
-    this.setBool('loading', value);
+    this.setBool('loading', Boolean(value));
   }
 
+  /** @returns {boolean} */
   get fullWidth() {
     return this.getBool('full-width');
   }
   set fullWidth(value) {
-    this.setBool('full-width', value);
+    this.setBool('full-width', Boolean(value));
   }
 
+  /** @returns {'button'|'submit'|'reset'} */
   get type() {
     return this.getStr('type', 'button');
   }
@@ -345,9 +356,9 @@ export class UiButton extends BaseElement {
     this.setAttribute('type', value);
   }
 
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // Template
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   template() {
     const isDisabled = this.disabled;
@@ -369,9 +380,9 @@ export class UiButton extends BaseElement {
     `;
   }
 
-  // -------------------------------------------------------------------------
-  // Events
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Event binding
+  // ---------------------------------------------------------------------------
 
   _bindEvents() {
     const btn = this.query('button');
@@ -390,9 +401,9 @@ export class UiButton extends BaseElement {
     this.onCleanup(() => btn.removeEventListener('click', handleClick));
   }
 
-  // -------------------------------------------------------------------------
-  // Updates
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Incremental updates (called after attribute changes)
+  // ---------------------------------------------------------------------------
 
   _update() {
     const btn = this.query('button');
@@ -408,8 +419,8 @@ export class UiButton extends BaseElement {
     }
 
     btn.setAttribute('aria-disabled', String(isDisabled));
-    btn.setAttribute('aria-busy', String(isLoading));
-    btn.setAttribute('type', this.type);
+    btn.setAttribute('aria-busy',     String(isLoading));
+    btn.setAttribute('type',          this.type);
 
     super._update();
   }
