@@ -256,22 +256,43 @@ footer a{color:var(--orange);text-decoration:none}
 
 /* Dice */
 .dice-area{display:flex;flex-direction:column;gap:10px;align-items:center}
-.dice-row{display:flex;gap:14px;justify-content:center}
-.die{
-  width:50px;height:50px;background:var(--bg3);border:2px solid var(--border);
-  border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:26px;font-weight:900;color:var(--text);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 2px 8px rgba(0,0,0,.3);
+.die-sum{font-size:13px;color:var(--text2);font-weight:600;min-height:18px}
+
+/* 3-D Dice */
+.dice-stage{
+  perspective:380px;
+  display:flex;gap:28px;justify-content:center;align-items:flex-end;
+  height:120px;padding-bottom:10px;position:relative;
 }
-.die.rolling{animation:roll-die .8s ease}
-@keyframes roll-die{
-  0%{transform:rotate(0deg) scale(1)}
-  25%{transform:rotate(180deg) scale(1.1)}
-  50%{transform:rotate(360deg) scale(0.9)}
-  75%{transform:rotate(540deg) scale(1.1)}
-  100%{transform:rotate(720deg) scale(1)}
+.dice-stage::after{
+  content:'';position:absolute;bottom:6px;left:50%;
+  transform:translateX(-50%);
+  width:148px;height:16px;
+  background:radial-gradient(ellipse,rgba(0,0,0,.22) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;
 }
-.die-sum{font-size:12px;color:var(--text2);font-weight:600}
+[data-theme="light"] .dice-stage::after{opacity:.55}
+.die3d-wrap{width:72px;height:72px;transform-style:preserve-3d}
+.die3d{
+  width:72px;height:72px;position:relative;transform-style:preserve-3d;
+  transform:rotateX(-28deg)rotateY(38deg);
+}
+.die3d.settling{transition:transform .38s cubic-bezier(.22,1,.36,1)}
+.die3d-face{
+  position:absolute;width:72px;height:72px;
+  background:#ffffff;border:1.5px solid rgba(0,0,0,.14);border-radius:12px;
+  box-shadow:inset 0 0 6px rgba(0,0,0,.07);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px;gap:0;
+}
+[data-theme="dark"] .die3d-face{background:#e9e9ee}
+.die3d-face .p{border-radius:50%;background:#1d1d1f;width:100%;height:100%;display:block;margin:auto}
+.die3d-face .x{display:block}
+.die3d .f1{transform:translateZ(36px)}
+.die3d .f6{transform:rotateY(180deg)translateZ(36px)}
+.die3d .f2{transform:rotateY(90deg)translateZ(36px)}
+.die3d .f5{transform:rotateY(-90deg)translateZ(36px)}
+.die3d .f3{transform:rotateX(-90deg)translateZ(36px)}
+.die3d .f4{transform:rotateX(90deg)translateZ(36px)}
 
 /* Card overlay */
 .card-overlay{
@@ -1175,6 +1196,115 @@ function playLand()  { tone(440,.12,'sine',.08); }
 function playGood()  { tone(440,.1); setTimeout(()=>tone(550,.1),90); setTimeout(()=>tone(660,.15),180); }
 function playBad()   { tone(440,.1); setTimeout(()=>tone(390,.1),90); setTimeout(()=>tone(330,.18),180); }
 function playWin()   { [523,659,784,1047].forEach((n,i)=>setTimeout(()=>tone(n,.3,'sine',.18),i*140)); }
+function playDiceRolling() {
+  try {
+    const ctx = ac(), n = 10, dur = 1.7;
+    for (let i=0;i<n;i++) {
+      const t = ctx.currentTime + i*(dur/n) + Math.random()*.05;
+      const buf = ctx.createBuffer(1,Math.floor(ctx.sampleRate*.018),ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*Math.exp(-j/(ctx.sampleRate*.006));
+      const s = ctx.createBufferSource(); s.buffer=buf;
+      const g = ctx.createGain(); g.gain.value = .07*(1-i/n*.45);
+      const f = ctx.createBiquadFilter(); f.type='bandpass';
+      f.frequency.value=1600+Math.random()*1600; f.Q.value=3;
+      s.connect(f); f.connect(g); g.connect(ctx.destination);
+      s.start(t);
+    }
+  } catch(e){}
+}
+function playDiceSettle() {
+  try {
+    const ctx = ac();
+    const buf = ctx.createBuffer(1,Math.floor(ctx.sampleRate*.055),ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*.055*Math.exp(-j/(ctx.sampleRate*.014));
+    const s = ctx.createBufferSource(); s.buffer=buf;
+    const f = ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=700;
+    s.connect(f); f.connect(ctx.destination); s.start();
+  } catch(e){}
+}
+
+/* =========================================================
+   3-D DICE PHYSICS
+   ========================================================= */
+const PIP_CELLS = {
+  1:[0,0,0, 0,1,0, 0,0,0],
+  2:[1,0,0, 0,0,0, 0,0,1],
+  3:[1,0,0, 0,1,0, 0,0,1],
+  4:[1,0,1, 0,0,0, 1,0,1],
+  5:[1,0,1, 0,1,0, 1,0,1],
+  6:[1,0,1, 1,0,1, 1,0,1],
+};
+function pipFace(n){ return PIP_CELLS[n].map(v=>`<span class="${v?'p':'x'}"></span>`).join(''); }
+function insertDice(container){
+  [0,1].forEach(id=>{
+    const w=document.createElement('div'); w.className='die3d-wrap';
+    const d=document.createElement('div'); d.className='die3d'; d.id=`die3d-${id}`;
+    [[1,'f1'],[6,'f6'],[2,'f2'],[5,'f5'],[3,'f3'],[4,'f4']].forEach(([n,fc])=>{
+      const f=document.createElement('div'); f.className=`die3d-face ${fc}`;
+      f.innerHTML=pipFace(n); d.appendChild(f);
+    });
+    w.appendChild(d); container.appendChild(w);
+  });
+}
+
+// FACE_ROTS: container rotation so that face N is on top (+Y)
+// Face layout: f1=+Z, f6=-Z, f2=+X, f5=-X, f3=+Y(top), f4=-Y(bottom)
+const FACE_ROTS={
+  1:{rx:-90,ry:0,rz:0},  // +Z → +Y
+  2:{rx:0,ry:0,rz:90},   // +X → +Y
+  3:{rx:0,ry:0,rz:0},    // already +Y
+  4:{rx:180,ry:0,rz:0},  // -Y → +Y
+  5:{rx:0,ry:0,rz:-90},  // -X → +Y
+  6:{rx:90,ry:0,rz:0},   // -Z → +Y
+};
+
+class Die3D {
+  constructor(el){ this.el=el; this.rx=0;this.ry=0;this.rz=0; this.vrx=0;this.vry=0;this.vrz=0; this.settled=false; }
+  throw(value){
+    this.value=value; this.settled=false; this.el.classList.remove('settling');
+    const s=()=>Math.random()>.5?1:-1;
+    this.vrx=s()*(460+Math.random()*340); this.vry=s()*(360+Math.random()*280); this.vrz=s()*(180+Math.random()*160);
+    this.rx=Math.random()*360; this.ry=Math.random()*360; this.rz=Math.random()*360;
+    this._apply();
+  }
+  update(dt){
+    if(this.settled) return false;
+    this.rx+=this.vrx*dt; this.ry+=this.vry*dt; this.rz+=this.vrz*dt;
+    const drag=Math.pow(0.905,dt*60);
+    this.vrx*=drag; this.vry*=drag; this.vrz*=drag;
+    this._apply();
+    if(Math.abs(this.vrx)+Math.abs(this.vry)+Math.abs(this.vrz)<14){ this.settle(); return false; }
+    return true;
+  }
+  _apply(){ this.el.style.transform=`rotateX(${this.rx}deg)rotateY(${this.ry}deg)rotateZ(${this.rz}deg)`; }
+  settle(){
+    if(this.settled) return; this.settled=true;
+    const t=FACE_ROTS[this.value];
+    const near=(c,t)=>t+Math.round((c-t)/360)*360;
+    this.rx=near(this.rx,t.rx); this.ry=near(this.ry,t.ry); this.rz=near(this.rz,t.rz);
+    this.el.classList.add('settling'); this._apply();
+  }
+}
+
+let _dice=[], _diceRaf=null, _dicePrevT=null;
+function throwDice(v1,v2,onDone){
+  const e1=document.getElementById('die3d-0'), e2=document.getElementById('die3d-1');
+  if(!e1||!e2) return;
+  _dice=[new Die3D(e1),new Die3D(e2)];
+  _dice[0].throw(v1); _dice[1].throw(v2);
+  _dicePrevT=null;
+  if(_diceRaf) cancelAnimationFrame(_diceRaf);
+  const frame=ts=>{
+    if(!_dicePrevT) _dicePrevT=ts;
+    const dt=Math.min((ts-_dicePrevT)/1000,.05); _dicePrevT=ts;
+    const alive=_dice.some(d=>d.update(dt));
+    if(alive){ _diceRaf=requestAnimationFrame(frame); }
+    else { _diceRaf=null; setTimeout(onDone,380); }
+  };
+  _diceRaf=requestAnimationFrame(frame);
+}
 
 /* =========================================================
    BOARD LAYOUT
@@ -1380,17 +1510,21 @@ function renderPieces() {
 function renderAction() {
   const area = document.getElementById('action-area');
   if (G.phase === 'roll') {
-    const r = G.roll;
     area.innerHTML = `
       <div class="dice-area">
-        <div class="dice-row">
-          <div class="die" id="die1">${r ? r[0] : '?'}</div>
-          <div class="die" id="die2">${r ? r[1] : '?'}</div>
-        </div>
-        <div class="die-sum">${r ? `${r[0]} + ${r[1]} = ${r[0]+r[1]}` : I18N.t('roll_hint')}</div>
-        <button class="btn btn-primary" id="roll-btn">${I18N.t('roll_btn')}</button>
+        <div class="dice-stage" id="dice-stage"></div>
+        <div class="die-sum" id="dice-sum">${I18N.t('roll_hint')}</div>
+        <button class="btn btn-primary" id="roll-btn" style="width:100%">${I18N.t('roll_btn')}</button>
       </div>`;
+    insertDice(document.getElementById('dice-stage'));
     document.getElementById('roll-btn').addEventListener('click', doRoll);
+  } else if (G.phase === 'rolling') {
+    area.innerHTML = `
+      <div class="dice-area">
+        <div class="dice-stage" id="dice-stage"></div>
+        <div class="die-sum" id="dice-sum">…</div>
+      </div>`;
+    insertDice(document.getElementById('dice-stage'));
   } else if (G.phase === 'moving') {
     area.innerHTML = `<div class="dice-area"><div class="die-sum">${I18N.t('moving')}</div></div>`;
   } else if (G.phase === 'feedback') {
@@ -1410,21 +1544,21 @@ function renderAction() {
    ROLL
    ========================================================= */
 function doRoll() {
-  G.phase = 'moving';
-  renderAction();
-  playDice();
   const d1 = Math.ceil(Math.random()*6), d2 = Math.ceil(Math.random()*6);
   G.roll = [d1,d2];
-  const die1 = document.getElementById('die1'), die2 = document.getElementById('die2');
-  if (die1) { die1.classList.add('rolling'); die2.classList.add('rolling'); }
-  const tick = setInterval(() => {
-    if (die1) { die1.textContent = Math.ceil(Math.random()*6); die2.textContent = Math.ceil(Math.random()*6); }
-  }, 100);
-  setTimeout(() => {
-    clearInterval(tick);
-    if (die1) { die1.textContent=d1; die1.classList.remove('rolling'); die2.textContent=d2; die2.classList.remove('rolling'); }
-    setTimeout(() => movePlayer(G.cur, d1+d2), 200);
-  }, 800);
+  G.phase = 'rolling';
+  renderAction();       // builds dice-stage + inserts die3d elements
+  playDiceRolling();
+  throwDice(d1, d2, () => {
+    playDiceSettle();
+    const sumEl = document.getElementById('dice-sum');
+    if (sumEl) sumEl.textContent = `${d1} + ${d2} = ${d1+d2}`;
+    setTimeout(() => {
+      G.phase = 'moving';
+      renderAction();
+      movePlayer(G.cur, d1+d2);
+    }, 1100);
+  });
 }
 
 /* =========================================================
@@ -1577,6 +1711,7 @@ function nextTurn() {
   G.cur = (G.cur+1) % G.players.length;
   G.turn++;
   G.phase='roll';
+  G.roll=null;
   G.feedback=null;
   renderGame();
 }
