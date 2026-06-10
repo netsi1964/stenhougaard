@@ -1359,16 +1359,6 @@ function applyChoice(pi, c) {
   if (c.nextUp) nxt.up = Math.max(0, nxt.up + c.nextUp);
   if (c.groupEp) G.players.forEach(pl => pl.ep = Math.min(100, Math.max(-20, pl.ep + c.groupEp)));
 }
-function drawCard(deck) {
-  if (!deckIdx[deck] || !deckIdx[deck].length) {
-    deckIdx[deck] = [...Array(DECKS[deck].length).keys()];
-    for (let i=deckIdx[deck].length-1;i>0;i--) {
-      const j=Math.floor(Math.random()*(i+1));
-      [deckIdx[deck][i],deckIdx[deck][j]]=[deckIdx[deck][j],deckIdx[deck][i]];
-    }
-  }
-  return DECKS[deck][deckIdx[deck].pop()];
-}
 
 /* =========================================================
    SETUP UI
@@ -1532,6 +1522,8 @@ function renderAction() {
     insertDice(document.getElementById('dice-scene'));
   } else if (G.phase === 'moving') {
     area.innerHTML = `<div class="dice-area"><div class="die-sum">${I18N.t('moving')}</div></div>`;
+  } else if (G.phase === 'action') {
+    area.innerHTML = '';
   } else if (G.phase === 'feedback') {
     const fb = G.feedback;
     area.innerHTML = `
