@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENTROPIA – Rules</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root,[data-theme="light"]{
+  --bg:#f5f5f7;--bg2:#ffffff;--bg3:#f0f0f3;--bg4:#e5e5ea;
+  --border:rgba(0,0,0,0.09);
+  --text:#1d1d1f;--text2:#515154;--text3:#909095;
+  --orange:#ff6a00;--orange-soft:rgba(255,106,0,.12);
+  --ok:#34c759;--purple:#bf5af2;--blue:#0a84ff;
+  --shadow:0 2px 12px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.05);
+  --radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c24;--bg4:#26262f;
+  --border:rgba(255,255,255,0.09);
+  --text:#f0f0f2;--text2:#a8a8ad;--text3:#67676d;
+  --shadow:0 2px 12px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.4);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh;transition:background .25s,color .25s;
+}
+
+header{
+  position:sticky;top:0;z-index:100;height:56px;
+  display:flex;align-items:center;gap:12px;padding:0 20px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.back-link{color:var(--orange);text-decoration:none;font-size:13px;white-space:nowrap;transition:opacity .15s}
+.back-link:hover{opacity:.6}
+.brand{font-size:15px;font-weight:700;flex:1;letter-spacing:.05em}
+.brand span{color:var(--orange)}
+
+.theme-btn{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  color:var(--text2);cursor:pointer;font-size:16px;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,color .15s;
+}
+.theme-btn:hover{border-color:var(--orange);color:var(--orange)}
+.lang-btns{display:flex;gap:4px}
+.lang-btn{
+  background:none;border:1px solid var(--border);border-radius:7px;
+  color:var(--text2);cursor:pointer;font-size:11px;font-weight:700;
+  padding:0 7px;height:30px;transition:all .15s;font-family:inherit;
+}
+.lang-btn:hover{border-color:var(--orange);color:var(--orange)}
+.lang-btn.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+main{max-width:760px;margin:0 auto;padding:32px 20px 80px}
+
+.page-hero{text-align:center;margin-bottom:40px}
+.page-title{
+  font-size:clamp(40px,12vw,72px);font-weight:900;
+  letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,#ff6a00 0%,#bf5af2 40%,#0a84ff 80%,#34c759 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:8px;
+}
+.page-sub{font-size:13px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
+
+.section{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:24px 24px;margin-bottom:16px;
+}
+.section-icon{font-size:28px;margin-bottom:10px}
+.section h2{font-size:17px;font-weight:800;margin-bottom:12px;color:var(--text)}
+.section p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.section p:last-child{margin-bottom:0}
+.section ul,.section ol{
+  font-size:14px;color:var(--text2);line-height:1.7;
+  padding-left:20px;margin-bottom:10px;
+}
+.section li{margin-bottom:5px}
+.section li:last-child{margin-bottom:0}
+strong{color:var(--text);font-weight:700}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:14px}
+.card-type{
+  border-radius:12px;padding:14px;border:1px solid var(--border);
+  font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:5px;
+}
+.card-type .ct-icon{font-size:22px}
+.card-type .ct-name{font-weight:800}
+.card-type .ct-desc{font-size:12px;color:var(--text2);font-weight:500;line-height:1.4}
+
+.field-types{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ft-pill{
+  font-size:12px;font-weight:700;padding:5px 11px;border-radius:8px;
+  display:flex;align-items:center;gap:5px;border:1px solid transparent;
+}
+
+.intent-scale{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.intent-row{display:flex;align-items:center;gap:10px;font-size:13px}
+.intent-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.intent-label{font-weight:700;min-width:80px}
+.intent-desc{color:var(--text2);line-height:1.4}
+
+.philosophy-quote{
+  border-left:3px solid var(--orange);padding:12px 16px;
+  background:var(--orange-soft);border-radius:0 10px 10px 0;
+  font-size:14px;color:var(--text2);line-height:1.6;font-style:italic;
+  margin:12px 0;
+}
+
+.win-box{
+  background:var(--bg3);border-radius:12px;padding:14px;border:1px solid var(--border);
+  margin-top:10px;font-size:13px;color:var(--text2);line-height:1.6;
+}
+.win-box strong{display:block;margin-bottom:3px}
+
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.toc a{
+  font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;
+  background:var(--bg2);border:1px solid var(--border);color:var(--text2);
+  text-decoration:none;transition:all .15s;
+}
+.toc a:hover{border-color:var(--orange);color:var(--orange)}
+
+footer{text-align:center;padding:18px;font-size:12px;color:var(--text3)}
+footer a{color:var(--orange);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="entropia.html" class="back-link" id="back-game">← Game</a>
+  <div class="brand">ENTRO<span>PIA</span></div>
+  <div class="lang-btns" id="lang-btns">
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="da">DA</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="zh">中</button>
+  </div>
+  <button class="theme-btn" id="theme-btn">☀️</button>
+</header>
+
+<main>
+  <div class="page-hero">
+    <div class="page-title">ENTROPIA</div>
+    <div class="page-sub" id="page-sub">Rules &amp; Philosophy</div>
+  </div>
+
+  <nav class="toc" id="toc"></nav>
+
+  <div id="rules-content"></div>
+</main>
+
+<footer id="footer-el">
+  <a href="entropia.html">← Game</a> · <a href="index.html">Labs</a>
+</footer>
+
+<script>
+'use strict';
+
+/* =========================================================
+   I18N
+   ========================================================= */
+const CONTENT = {
+  en: {
+    page_sub: 'Rules & Philosophy',
+    back_game: '← Game',
+    toc: ['Goal','Setup','Your Turn','Board Fields','Cards','Intent','Winning','Philosophy'],
+    sections: [
+      {
+        id:'goal', icon:'🎯', title:'Goal of the Game',
+        body:`<p>In ENTROPIA, each player begins with <strong>80 Entropy Points (EP)</strong>. The goal is to reduce your EP to <strong>0 or below</strong> by making conscious, love-driven choices — not to defeat others, but to grow together.</p>
+<p>The game is inspired by Tom Campbell's <em>My Big TOE</em> (My Big Theory of Everything) philosophy: consciousness evolves by reducing entropy through love. Every decision is a chance to move toward lower entropy — or to stay stuck in fear-based patterns that keep it high.</p>
+<div class="philosophy-quote">"Love is not a feeling — it is the fundamental quality of a low-entropy consciousness. Fear is not the enemy; it is simply the system telling you there is room to grow."</div>`
+      },
+      {
+        id:'setup', icon:'🎲', title:'Setup',
+        body:`<ul>
+<li>Choose <strong>2–4 players</strong>. Each picks a name and emoji token.</li>
+<li>All players start on the <strong>START</strong> field (bottom-right corner).</li>
+<li>Each player begins with <strong>80 EP</strong>, <strong>0 Wisdom Points (UP)</strong>, and an <strong>Intent of 5/10</strong> (Neutral).</li>
+<li>Four card decks are shuffled separately: Life's Choice, Temptation, Self-development, and Event.</li>
+<li>The youngest player goes first. Play proceeds clockwise.</li>
+</ul>`
+      },
+      {
+        id:'turn', icon:'🔄', title:'Your Turn',
+        body:`<ol>
+<li><strong>Roll the dice.</strong> Move your token the shown number of fields clockwise around the board.</li>
+<li><strong>Land on a field.</strong> The field type determines what happens next (see Board Fields).</li>
+<li>If you draw a card, <strong>read it aloud</strong> and choose one of the options. The effect is applied immediately.</li>
+<li>After resolving the field/card, <strong>feedback</strong> is shown — read it together. It reflects the MBT view of the choice.</li>
+<li>Press <strong>"Next player"</strong> to pass the device to the next person.</li>
+</ol>
+<p>Passing <strong>START</strong> mid-turn earns <strong>+5 UP</strong>. Landing on START earns <strong>+10 UP</strong>.</p>`
+      },
+      {
+        id:'fields', icon:'🗺️', title:'Board Fields',
+        body:`<div class="field-types">
+<div class="ft-pill" style="background:#d4f5de;border-color:#34c759;color:#1a7a3a">🌟 START</div>
+<div class="ft-pill" style="background:#d0e8ff;border-color:#007aff;color:#004a99">🧘 Self-development</div>
+<div class="ft-pill" style="background:#ffd5d5;border-color:#ff3b30;color:#8b1a14">😈 Temptation</div>
+<div class="ft-pill" style="background:#ffe8cc;border-color:#ff9500;color:#7a4400">🤝 Help</div>
+<div class="ft-pill" style="background:#fff5cc;border-color:#d4a800;color:#6b5200">⚖️ Life's Choice</div>
+<div class="ft-pill" style="background:#ccf5da;border-color:#30d158;color:#0a5c23">🌍 Cooperation</div>
+<div class="ft-pill" style="background:#e5e5e5;border-color:#636366;color:#444">🔗 Challenge</div>
+<div class="ft-pill" style="background:#ccebff;border-color:#0a84ff;color:#004a9e">🔔 Event</div>
+<div class="ft-pill" style="background:#e0dfff;border-color:#5e5ce6;color:#2d2b8a">🔮 Corner</div>
+</div>
+<ul style="margin-top:14px">
+<li><strong>Self-development:</strong> Draw a Self-development card. Introspection and growth.</li>
+<li><strong>Temptation:</strong> Draw a Temptation card. Ego and short-term thinking tested.</li>
+<li><strong>Life's Choice:</strong> Draw a Life's Choice card. Fundamental value decisions.</li>
+<li><strong>Help:</strong> Automatic effect — your choice to help reduces your EP and often gifts UP to the next player.</li>
+<li><strong>Cooperation:</strong> Everyone's EP is reduced by 5. Love made visible.</li>
+<li><strong>Challenge:</strong> +8 EP. Old patterns surface. Not a punishment — a mirror.</li>
+<li><strong>Event:</strong> Draw an Event card. Affects all players.</li>
+<li><strong>Corners (4):</strong> REFLECTION (−12 EP +5 UP), INNER PEACE (all −15 EP), GIFT (+15 UP to next player), START.</li>
+</ul>`
+      },
+      {
+        id:'cards', icon:'🃏', title:'The Four Card Decks',
+        body:`<div class="card-grid">
+<div class="card-type" style="background:#fff5cc;border-color:#d4a800">
+  <span class="ct-icon">⚖️</span>
+  <span class="ct-name" style="color:#6b5200">Life's Choice</span>
+  <span class="ct-desc">Core value dilemmas. How you treat others when under pressure.</span>
+</div>
+<div class="card-type" style="background:#ffd5d5;border-color:#ff3b30">
+  <span class="ct-icon">😈</span>
+  <span class="ct-name" style="color:#8b1a14">Temptation</span>
+  <span class="ct-desc">Ego-based shortcuts. The pull of short-term gain over long-term integrity.</span>
+</div>
+<div class="card-type" style="background:#d0e8ff;border-color:#007aff">
+  <span class="ct-icon">🧘</span>
+  <span class="ct-name" style="color:#004a99">Self-development</span>
+  <span class="ct-desc">Inner work. Mirrors, shadows, meditation, boundaries, and new habits.</span>
+</div>
+<div class="card-type" style="background:#ccebff;border-color:#0a84ff">
+  <span class="ct-icon">🔔</span>
+  <span class="ct-name" style="color:#004a9e">Event</span>
+  <span class="ct-desc">Collective moments. Crises, waves of awakening, shared celebrations.</span>
+</div>
+</div>
+<p style="margin-top:14px">Each card presents a scenario and 2–3 choices. Every choice has an <strong>EP effect</strong> (entropy change), a <strong>UP effect</strong> (wisdom gained), and an <strong>Intent shift</strong>. Love-based choices amplify EP reductions.</p>`
+      },
+      {
+        id:'intent', icon:'🌡️', title:'The Intent Scale',
+        body:`<p>Each player has an <strong>Intent score from 1–10</strong>, reflecting their current operating mode:</p>
+<div class="intent-scale">
+<div class="intent-row"><div class="intent-dot" style="background:#ff3b30"></div><span class="intent-label">1–2 Fear</span><span class="intent-desc">Decisions driven by survival and self-protection</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ff9500"></div><span class="intent-label">3–4 Control</span><span class="intent-desc">Decisions driven by a need to manage outcomes</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ffd60a"></div><span class="intent-label">5–6 Neutral</span><span class="intent-desc">Balanced — aware, but not yet leading from love</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#34c759"></div><span class="intent-label">7–8 Trust</span><span class="intent-desc">Decisions from openness and faith in the process</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#0a84ff"></div><span class="intent-label">9–10 Love</span><span class="intent-desc">Fully love-driven — the system's most efficient state</span></div>
+</div>
+<p style="margin-top:12px"><strong>Intent multiplier:</strong> When your EP goes down (good outcomes), your current intent amplifies the effect. A player at Intent 10 reduces entropy <strong>50% more</strong> than a player at Intent 5. A player at Intent 1–2 reduces only <strong>half as much</strong>. Intent itself shifts based on your choices — love choices move it up, fear choices move it down.</p>`
+      },
+      {
+        id:'winning', icon:'🏆', title:'Winning',
+        body:`<div class="win-box"><strong>🏆 Individual Victory</strong> The first player to reach <strong>0 EP or below</strong> wins the game. The round is completed so all players finish the same number of turns.</div>
+<div class="win-box" style="margin-top:8px"><strong>🌍 Collective Victory</strong> If <em>all</em> players reach <strong>20 EP or below</strong> at the same time, the whole group wins together. This is the highest form of victory in ENTROPIA — a reflection of collective love lowering the group's entropy.</div>
+<p style="margin-top:12px">At game end, results show each player's final EP, Wisdom (UP), and Intent level. The journey matters as much as the destination.</p>`
+      },
+      {
+        id:'philosophy', icon:'🌌', title:'The MBT Philosophy',
+        body:`<p>ENTROPIA is rooted in <strong>Tom Campbell's My Big TOE</strong> (My Big Theory of Everything) — a model of consciousness, reality, and evolution.</p>
+<p>In MBT, our universe is a virtual reality created by a larger consciousness system (LCS). The LCS evolves by reducing its entropy — its disorder, fear, and separation. We, as individualised units of consciousness (IUACs), do the same through our choices.</p>
+<div class="philosophy-quote">"Entropy is not the enemy — it is the teacher. Every fearful choice is the system showing you where growth lives. Every loving choice is the system evolving."</div>
+<p><strong>Key ideas in ENTROPIA:</strong></p>
+<ul>
+<li><strong>Low entropy = love.</strong> Acting from love, trust, and openness naturally reduces the disorder in your consciousness.</li>
+<li><strong>High entropy = fear.</strong> Choices from fear, ego, and control reflect and increase inner disorder.</li>
+<li><strong>No punishment.</strong> When entropy rises, it is not a setback — it is honest feedback. The system is showing you where growth awaits.</li>
+<li><strong>Intent is everything.</strong> The quality of your consciousness — not the outcome — determines whether entropy falls. Good actions from ego help less than imperfect actions from love.</li>
+<li><strong>We evolve together.</strong> Collective victories are possible because love shared between people reduces the entropy of the entire system.</li>
+</ul>
+<p>The game is not about winning against others. It is about learning to act from love — and watching the entropy reflect that back.</p>`
+      },
+    ],
+  },
+
+  da: {
+    page_sub: 'Regler & Filosofi',
+    back_game: '← Spil',
+    toc: ['Mål','Opstilling','Din tur','Felter','Kort','Intention','Sejr','Filosofi'],
+    sections: [
+      {
+        id:'goal', icon:'🎯', title:'Spillets mål',
+        body:`<p>I ENTROPIA starter hver spiller med <strong>80 Entropipoint (EP)</strong>. Målet er at reducere din EP til <strong>0 eller derunder</strong> ved at træffe bevidste, kærlighedsdrevne valg — ikke for at besejre andre, men for at vokse sammen.</p>
+<p>Spillet er inspireret af Tom Campbells <em>My Big TOE</em> (Min store teori om alt): bevidstheden udvikler sig ved at reducere entropi gennem kærlighed. Hvert valg er en mulighed for at bevæge sig mod lavere entropi — eller at forblive fanget i frygtbaserede mønstre.</p>
+<div class="philosophy-quote">"Kærlighed er ikke en følelse — det er den grundlæggende kvalitet ved en lav-entropi-bevidsthed. Frygt er ikke fjenden; det er blot systemet der fortæller dig, at der er plads til vækst."</div>`
+      },
+      {
+        id:'setup', icon:'🎲', title:'Opstilling',
+        body:`<ul>
+<li>Vælg <strong>2–4 spillere</strong>. Hver vælger et navn og en emoji-brik.</li>
+<li>Alle spillere starter på <strong>START</strong>-feltet (nederste højre hjørne).</li>
+<li>Hver spiller begynder med <strong>80 EP</strong>, <strong>0 Visdomspoint (UP)</strong> og en <strong>Intention på 5/10</strong> (Neutral).</li>
+<li>Fire kortbunker blandes separat: Livets Valg, Fristelse, Selvudvikling og Begivenhed.</li>
+<li>Den yngste spiller starter. Spillet fortsætter med uret.</li>
+</ul>`
+      },
+      {
+        id:'turn', icon:'🔄', title:'Din tur',
+        body:`<ol>
+<li><strong>Kast terningerne.</strong> Flyt din brik det viste antal felter med uret rundt på brættet.</li>
+<li><strong>Land på et felt.</strong> Felttypen bestemmer hvad der sker (se Felter).</li>
+<li>Hvis du trækker et kort, <strong>læs det højt</strong> og vælg en af mulighederne. Effekten anvendes øjeblikkeligt.</li>
+<li>Efter at have løst feltet/kortet vises <strong>feedback</strong> — læs det sammen. Det afspejler MBT-synspunktet på valget.</li>
+<li>Tryk på <strong>"Næste spiller"</strong> for at sende enheden videre.</li>
+</ol>
+<p>At passere <strong>START</strong> midt i en tur giver <strong>+5 UP</strong>. At lande på START giver <strong>+10 UP</strong>.</p>`
+      },
+      {
+        id:'fields', icon:'🗺️', title:'Brætfelter',
+        body:`<ul>
+<li><strong>Selvudvikling:</strong> Træk et Selvudvikling-kort. Introspektive vækstopgaver.</li>
+<li><strong>Fristelse:</strong> Træk et Fristelse-kort. Ego og kortsigtet tænkning testes.</li>
+<li><strong>Livets Valg:</strong> Træk et Livets Valg-kort. Grundlæggende værdibeslutnigner.</li>
+<li><strong>Hjælp:</strong> Automatisk effekt — din vilje til at hjælpe reducerer din EP og giver UP til næste spiller.</li>
+<li><strong>Samarbejde:</strong> Alles EP reduceres med 5. Kærlighed gjort synlig.</li>
+<li><strong>Udfordring:</strong> +8 EP. Gamle mønstre dukker op. Ikke en straf — et spejl.</li>
+<li><strong>Begivenhed:</strong> Træk et Begivenhed-kort. Påvirker alle spillere.</li>
+<li><strong>Hjørner (4):</strong> REFLEKSION (−12 EP +5 UP), INDRE RO (alle −15 EP), GAVE (+15 UP til næste spiller), START.</li>
+</ul>`
+      },
+      {
+        id:'cards', icon:'🃏', title:'De fire kortbunker',
+        body:`<p>Hver kortbunke testeter en dimension af bevidsthedsudvikling:</p>
+<ul>
+<li><strong>⚖️ Livets Valg:</strong> Kernedilemmaer om værdier. Hvordan behandler du andre under pres?</li>
+<li><strong>😈 Fristelse:</strong> Ego-baserede genveje. Trækket af kortvarig gevinst over langsigtet integritet.</li>
+<li><strong>🧘 Selvudvikling:</strong> Indre arbejde. Spejle, skygger, meditation, grænser og nye vaner.</li>
+<li><strong>🔔 Begivenhed:</strong> Kollektive øjeblikke. Kriser, bevidsthedsbølger, fælles fejringer.</li>
+</ul>
+<p>Hvert kort præsenterer et scenarie og 2–3 valgmuligheder. Kærlighedsbaserede valg forstærker EP-reduktioner.</p>`
+      },
+      {
+        id:'intent', icon:'🌡️', title:'Intentionsskalaen',
+        body:`<p>Hver spiller har en <strong>intentionsscore fra 1–10</strong>:</p>
+<div class="intent-scale">
+<div class="intent-row"><div class="intent-dot" style="background:#ff3b30"></div><span class="intent-label">1–2 Frygt</span><span class="intent-desc">Beslutninger drevet af overlevelse og selvbeskyttelse</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ff9500"></div><span class="intent-label">3–4 Kontrol</span><span class="intent-desc">Beslutninger drevet af behovet for at styre resultater</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ffd60a"></div><span class="intent-label">5–6 Neutral</span><span class="intent-desc">Balanceret — bevidst, men endnu ikke ledet af kærlighed</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#34c759"></div><span class="intent-label">7–8 Tillid</span><span class="intent-desc">Beslutninger fra åbenhed og tillid til processen</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#0a84ff"></div><span class="intent-label">9–10 Kærlighed</span><span class="intent-desc">Fuldt kærlighedsdrevet — systemets mest effektive tilstand</span></div>
+</div>
+<p style="margin-top:12px"><strong>Intentionsmultiplikator:</strong> En spiller med intention 10 reducerer entropi <strong>50% mere</strong> end en spiller på 5. En spiller med intention 1–2 reducerer kun <strong>halvt så meget</strong>.</p>`
+      },
+      {
+        id:'winning', icon:'🏆', title:'Sejr',
+        body:`<div class="win-box"><strong>🏆 Individuel sejr</strong> Den første spiller der når <strong>0 EP eller derunder</strong> vinder spillet.</div>
+<div class="win-box" style="margin-top:8px"><strong>🌍 Kollektiv sejr</strong> Hvis <em>alle</em> spillere når <strong>20 EP eller derunder</strong> på samme tid, vinder hele gruppen. Dette er den højeste form for sejr i ENTROPIA — en afspejling af kollektiv kærlighed der sænker gruppens entropi.</div>`
+      },
+      {
+        id:'philosophy', icon:'🌌', title:'MBT-filosofien',
+        body:`<p>ENTROPIA er forankret i <strong>Tom Campbells My Big TOE</strong> — en model for bevidsthed, virkelighed og evolution.</p>
+<p>I MBT er vores univers en virtuel virkelighed skabt af et større bevidsthedsystem (LCS). LCS udvikler sig ved at reducere sin entropi — sin uorden, frygt og adskillelse. Vi, som individualiserede bevidsthedsenheder, gør det samme gennem vores valg.</p>
+<div class="philosophy-quote">"Entropi er ikke fjenden — det er læreren. Hvert frygtet valg er systemet der viser dig, hvor væksten lever. Hvert kærlighedsvalg er systemet der udvikler sig."</div>
+<ul>
+<li><strong>Lav entropi = kærlighed.</strong> At handle fra kærlighed, tillid og åbenhed reducerer naturligt uordenen i din bevidsthed.</li>
+<li><strong>Høj entropi = frygt.</strong> Valg fra frygt, ego og kontrol afspejler og øger indre uorden.</li>
+<li><strong>Ingen straf.</strong> Når entropien stiger, er det ikke et tilbageslag — det er ærlig feedback.</li>
+<li><strong>Intention er alt.</strong> Kvaliteten af din bevidsthed bestemmer om entropien falder, ikke resultatet.</li>
+<li><strong>Vi udvikler os sammen.</strong> Kollektive sejre er mulige fordi delt kærlighed reducerer hele systemets entropi.</li>
+</ul>`
+      },
+    ],
+  },
+
+  es: {
+    page_sub: 'Reglas & Filosofía',
+    back_game: '← Juego',
+    toc: ['Objetivo','Preparación','Tu turno','Casillas','Cartas','Intención','Victoria','Filosofía'],
+    sections: [
+      {
+        id:'goal', icon:'🎯', title:'Objetivo del juego',
+        body:`<p>En ENTROPIA, cada jugador comienza con <strong>80 Puntos de Entropía (EP)</strong>. El objetivo es reducir tu EP a <strong>0 o menos</strong> tomando decisiones conscientes y basadas en el amor — no para derrotar a otros, sino para crecer juntos.</p>
+<p>El juego está inspirado en la filosofía <em>My Big TOE</em> de Tom Campbell: la conciencia evoluciona reduciendo la entropía a través del amor.</p>
+<div class="philosophy-quote">"El amor no es un sentimiento — es la cualidad fundamental de una conciencia de baja entropía. El miedo no es el enemigo; es simplemente el sistema diciéndote que hay espacio para crecer."</div>`
+      },
+      {
+        id:'setup', icon:'🎲', title:'Preparación',
+        body:`<ul>
+<li>Elige <strong>2–4 jugadores</strong>. Cada uno elige un nombre y una ficha emoji.</li>
+<li>Todos los jugadores comienzan en la casilla <strong>INICIO</strong> (esquina inferior derecha).</li>
+<li>Cada jugador comienza con <strong>80 EP</strong>, <strong>0 Puntos de Sabiduría (UP)</strong> e <strong>Intención 5/10</strong> (Neutral).</li>
+<li>Se barajan por separado cuatro mazos: Elección de Vida, Tentación, Autodesarrollo y Evento.</li>
+<li>El jugador más joven empieza. Se juega en sentido horario.</li>
+</ul>`
+      },
+      {
+        id:'turn', icon:'🔄', title:'Tu turno',
+        body:`<ol>
+<li><strong>Lanza los dados.</strong> Mueve tu ficha el número indicado de casillas en sentido horario.</li>
+<li><strong>Cae en una casilla.</strong> El tipo de casilla determina lo que ocurre.</li>
+<li>Si robas una carta, <strong>léela en voz alta</strong> y elige una opción. El efecto se aplica inmediatamente.</li>
+<li>Después de resolver el campo/carta, se muestra <strong>retroalimentación</strong> — léela juntos.</li>
+<li>Presiona <strong>"Siguiente jugador"</strong> para pasar el dispositivo.</li>
+</ol>
+<p>Pasar por <strong>INICIO</strong> en medio de un turno otorga <strong>+5 UP</strong>. Caer en INICIO otorga <strong>+10 UP</strong>.</p>`
+      },
+      {
+        id:'fields', icon:'🗺️', title:'Casillas del tablero',
+        body:`<ul>
+<li><strong>Autodesarrollo:</strong> Roba carta de Autodesarrollo. Tareas de introspección y crecimiento.</li>
+<li><strong>Tentación:</strong> Roba carta de Tentación. El ego y el pensamiento a corto plazo se ponen a prueba.</li>
+<li><strong>Elección de Vida:</strong> Roba carta de Elección de Vida. Decisiones de valores fundamentales.</li>
+<li><strong>Ayuda:</strong> Efecto automático — reduces tu EP y obsequias UP al siguiente jugador.</li>
+<li><strong>Cooperación:</strong> El EP de todos se reduce en 5. Amor hecho visible.</li>
+<li><strong>Desafío:</strong> +8 EP. Patrones antiguos emergen. No es un castigo — es un espejo.</li>
+<li><strong>Evento:</strong> Roba carta de Evento. Afecta a todos los jugadores.</li>
+<li><strong>Esquinas (4):</strong> REFLEXIÓN (−12 EP +5 UP), PAZ INTERIOR (todos −15 EP), REGALO (+15 UP al siguiente), INICIO.</li>
+</ul>`
+      },
+      {
+        id:'cards', icon:'🃏', title:'Los cuatro mazos',
+        body:`<ul>
+<li><strong>⚖️ Elección de Vida:</strong> Dilemas de valores fundamentales. ¿Cómo tratas a los demás bajo presión?</li>
+<li><strong>😈 Tentación:</strong> Atajos basados en el ego. La atracción de la ganancia a corto plazo sobre la integridad.</li>
+<li><strong>🧘 Autodesarrollo:</strong> Trabajo interior. Espejos, sombras, meditación, límites y nuevos hábitos.</li>
+<li><strong>🔔 Evento:</strong> Momentos colectivos. Crisis, olas de despertar, celebraciones compartidas.</li>
+</ul>`
+      },
+      {
+        id:'intent', icon:'🌡️', title:'La escala de intención',
+        body:`<p>Cada jugador tiene una <strong>puntuación de Intención de 1–10</strong>:</p>
+<div class="intent-scale">
+<div class="intent-row"><div class="intent-dot" style="background:#ff3b30"></div><span class="intent-label">1–2 Miedo</span><span class="intent-desc">Decisiones impulsadas por la supervivencia</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ff9500"></div><span class="intent-label">3–4 Control</span><span class="intent-desc">Decisiones impulsadas por la necesidad de controlar</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ffd60a"></div><span class="intent-label">5–6 Neutral</span><span class="intent-desc">Equilibrado — consciente, pero aún no liderado por el amor</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#34c759"></div><span class="intent-label">7–8 Confianza</span><span class="intent-desc">Decisiones desde la apertura y la fe en el proceso</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#0a84ff"></div><span class="intent-label">9–10 Amor</span><span class="intent-desc">Totalmente guiado por el amor — el estado más eficiente</span></div>
+</div>
+<p style="margin-top:12px"><strong>Multiplicador de intención:</strong> Un jugador con Intención 10 reduce la entropía un <strong>50% más</strong> que uno con Intención 5.</p>`
+      },
+      {
+        id:'winning', icon:'🏆', title:'Victoria',
+        body:`<div class="win-box"><strong>🏆 Victoria individual</strong> El primer jugador en alcanzar <strong>0 EP o menos</strong> gana el juego.</div>
+<div class="win-box" style="margin-top:8px"><strong>🌍 Victoria colectiva</strong> Si <em>todos</em> los jugadores alcanzan <strong>20 EP o menos</strong> al mismo tiempo, todo el grupo gana juntos.</div>`
+      },
+      {
+        id:'philosophy', icon:'🌌', title:'La filosofía MBT',
+        body:`<p>ENTROPIA está arraigada en <strong>My Big TOE de Tom Campbell</strong> — un modelo de conciencia, realidad y evolución.</p>
+<div class="philosophy-quote">"La entropía no es el enemigo — es el maestro. Cada elección temerosa es el sistema mostrándote dónde vive el crecimiento. Cada elección amorosa es el sistema evolucionando."</div>
+<ul>
+<li><strong>Baja entropía = amor.</strong> Actuar desde el amor reduce naturalmente el desorden en tu conciencia.</li>
+<li><strong>Alta entropía = miedo.</strong> Las elecciones desde el miedo, el ego y el control reflejan y aumentan el desorden interior.</li>
+<li><strong>Sin castigo.</strong> Cuando la entropía sube, no es un retroceso — es retroalimentación honesta.</li>
+<li><strong>La intención lo es todo.</strong> La calidad de tu conciencia determina si la entropía cae.</li>
+<li><strong>Evolucionamos juntos.</strong> Las victorias colectivas son posibles porque el amor compartido reduce la entropía de todo el sistema.</li>
+</ul>`
+      },
+    ],
+  },
+
+  zh: {
+    page_sub: '规则与哲学',
+    back_game: '← 游戏',
+    toc: ['目标','准备','你的回合','格子','卡牌','意图','胜利','哲学'],
+    sections: [
+      {
+        id:'goal', icon:'🎯', title:'游戏目标',
+        body:`<p>在熵游戏中，每位玩家从<strong>80熵值点（EP）</strong>开始。目标是通过做出有意识的、以爱为驱动的选择，将EP降至<strong>0或以下</strong>——不是为了击败他人，而是共同成长。</p>
+<p>游戏灵感来源于汤姆·坎贝尔的<em>《我的大脚趾》（My Big TOE）</em>哲学：意识通过爱来降低熵而进化。</p>
+<div class="philosophy-quote">"爱不是一种感觉——它是低熵意识的基本品质。恐惧不是敌人；它只是系统在告诉你，这里有成长的空间。"</div>`
+      },
+      {
+        id:'setup', icon:'🎲', title:'游戏准备',
+        body:`<ul>
+<li>选择<strong>2–4名玩家</strong>。每人选择一个名字和表情符号棋子。</li>
+<li>所有玩家从<strong>起点</strong>格子（右下角）开始。</li>
+<li>每位玩家以<strong>80 EP</strong>、<strong>0智慧点（UP）</strong>和<strong>意图5/10</strong>（中立）开始。</li>
+<li>四副牌分别洗牌：生命抉择、诱惑、自我成长和事件。</li>
+<li>最年轻的玩家先行，顺时针进行游戏。</li>
+</ul>`
+      },
+      {
+        id:'turn', icon:'🔄', title:'你的回合',
+        body:`<ol>
+<li><strong>掷骰子。</strong>将你的棋子顺时针移动显示的格数。</li>
+<li><strong>落在格子上。</strong>格子类型决定接下来发生什么。</li>
+<li>如果你抽到牌，<strong>大声读出来</strong>并选择一个选项。效果立即生效。</li>
+<li>解决格子/卡牌后，会显示<strong>反馈</strong>——一起阅读它，反映MBT对该选择的看法。</li>
+<li>按<strong>"下一位玩家"</strong>将设备传给下一人。</li>
+</ol>
+<p>中途经过<strong>起点</strong>获得<strong>+5 UP</strong>。落在起点获得<strong>+10 UP</strong>。</p>`
+      },
+      {
+        id:'fields', icon:'🗺️', title:'棋盘格子',
+        body:`<ul>
+<li><strong>自我成长：</strong>抽一张自我成长牌。内省与成长任务。</li>
+<li><strong>诱惑：</strong>抽一张诱惑牌。自我和短视思维受到考验。</li>
+<li><strong>生命抉择：</strong>抽一张生命抉择牌。基本价值决策。</li>
+<li><strong>帮助：</strong>自动效果——帮助意愿降低你的EP，通常给下位玩家UP。</li>
+<li><strong>合作：</strong>所有人的EP减少5。爱的可见形式。</li>
+<li><strong>挑战：</strong>+8 EP。旧模式浮现。不是惩罚——是镜子。</li>
+<li><strong>事件：</strong>抽一张事件牌。影响所有玩家。</li>
+<li><strong>角落（4个）：</strong>反思（−12 EP +5 UP）、内心平静（所有人−15 EP）、礼物（+15 UP给下位玩家）、起点。</li>
+</ul>`
+      },
+      {
+        id:'cards', icon:'🃏', title:'四副牌',
+        body:`<ul>
+<li><strong>⚖️ 生命抉择：</strong>核心价值困境。压力下如何对待他人？</li>
+<li><strong>😈 诱惑：</strong>基于自我的捷径。短期收益对长期诚信的诱惑。</li>
+<li><strong>🧘 自我成长：</strong>内在功课。镜子、阴影、冥想、界限和新习惯。</li>
+<li><strong>🔔 事件：</strong>集体时刻。危机、觉醒浪潮、共同庆祝。</li>
+</ul>`
+      },
+      {
+        id:'intent', icon:'🌡️', title:'意图量表',
+        body:`<p>每位玩家有一个<strong>1–10的意图分数</strong>：</p>
+<div class="intent-scale">
+<div class="intent-row"><div class="intent-dot" style="background:#ff3b30"></div><span class="intent-label">1–2 恐惧</span><span class="intent-desc">由生存和自我保护驱动的决定</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ff9500"></div><span class="intent-label">3–4 控制</span><span class="intent-desc">由需要管理结果驱动的决定</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#ffd60a"></div><span class="intent-label">5–6 中立</span><span class="intent-desc">平衡——有意识，但尚未以爱为引导</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#34c759"></div><span class="intent-label">7–8 信任</span><span class="intent-desc">来自开放和对过程信任的决定</span></div>
+<div class="intent-row"><div class="intent-dot" style="background:#0a84ff"></div><span class="intent-label">9–10 爱</span><span class="intent-desc">完全以爱为驱动——系统最高效的状态</span></div>
+</div>
+<p style="margin-top:12px"><strong>意图倍增器：</strong>意图为10的玩家比意图为5的玩家减少熵值多<strong>50%</strong>。</p>`
+      },
+      {
+        id:'winning', icon:'🏆', title:'胜利',
+        body:`<div class="win-box"><strong>🏆 个人胜利</strong>第一个达到<strong>0 EP或以下</strong>的玩家赢得游戏。</div>
+<div class="win-box" style="margin-top:8px"><strong>🌍 集体胜利</strong>如果<em>所有</em>玩家同时达到<strong>20 EP或以下</strong>，整个团队共同获胜。这是ENTROPIA中最高形式的胜利。</div>`
+      },
+      {
+        id:'philosophy', icon:'🌌', title:'MBT哲学',
+        body:`<p>ENTROPIA根植于<strong>汤姆·坎贝尔的《我的大脚趾》</strong>——一个关于意识、现实和进化的模型。</p>
+<div class="philosophy-quote">"熵不是敌人——它是老师。每一个恐惧的选择都是系统向你展示成长所在之处。每一个充满爱的选择都是系统在进化。"</div>
+<ul>
+<li><strong>低熵 = 爱。</strong>从爱、信任和开放出发行动，自然地减少意识中的混乱。</li>
+<li><strong>高熵 = 恐惧。</strong>来自恐惧、自我和控制的选择反映并增加内在混乱。</li>
+<li><strong>没有惩罚。</strong>当熵值上升时，这不是倒退——而是诚实的反馈。</li>
+<li><strong>意图就是一切。</strong>你意识的质量，而非结果，决定熵值是否下降。</li>
+<li><strong>我们共同进化。</strong>集体胜利之所以可能，是因为人与人之间共享的爱降低了整个系统的熵。</li>
+</ul>`
+      },
+    ],
+  },
+};
+
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  lang: localStorage.getItem('entropia_lang') || 'en',
+  set(l) {
+    this.lang = l;
+    localStorage.setItem('entropia_lang', l);
+    document.documentElement.lang = l;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+    render();
+  }
+};
+document.querySelectorAll('.lang-btn').forEach(b => {
+  b.classList.toggle('active', b.dataset.lang === I18N.lang);
+  b.addEventListener('click', () => I18N.set(b.dataset.lang));
+});
+
+/* =========================================================
+   THEME
+   ========================================================= */
+const themeBtn = document.getElementById('theme-btn');
+let currentTheme = localStorage.getItem('entropia_theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+themeBtn.addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  localStorage.setItem('entropia_theme', currentTheme);
+  themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+});
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render() {
+  const C = CONTENT[I18N.lang] || CONTENT.en;
+  document.documentElement.lang = I18N.lang;
+  document.getElementById('page-sub').textContent = C.page_sub;
+  document.getElementById('back-game').textContent = C.back_game;
+  document.title = 'ENTROPIA – ' + C.page_sub;
+
+  // TOC
+  const toc = document.getElementById('toc');
+  toc.innerHTML = C.toc.map((label,i) =>
+    `<a href="#${C.sections[i].id}">${C.sections[i].icon} ${label}</a>`
+  ).join('');
+
+  // Sections
+  const content = document.getElementById('rules-content');
+  content.innerHTML = C.sections.map(s => `
+    <div class="section" id="${s.id}">
+      <div class="section-icon">${s.icon}</div>
+      <h2>${s.title}</h2>
+      ${s.body}
+    </div>
+  `).join('');
+}
+
+render();
+</script>
+</body>
+</html>

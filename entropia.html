@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENTROPIA – Familiespil</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root,[data-theme="dark"]{
+  --bg:#0a0a0f;--bg2:#13131a;--bg3:#1c1c24;--bg4:#26262f;
+  --border:rgba(255,255,255,0.09);
+  --text:#f0f0f2;--text2:#a8a8ad;--text3:#67676d;
+  --orange:#ff6a00;--orange-soft:rgba(255,106,0,.15);
+  --ok:#34c759;--err:#ff3b30;
+  --shadow:0 2px 12px rgba(0,0,0,.5),0 8px 32px rgba(0,0,0,.4);
+  --radius:16px;
+}
+[data-theme="light"]{
+  --bg:#f5f5f7;--bg2:#ffffff;--bg3:#f0f0f3;--bg4:#e5e5ea;
+  --border:rgba(0,0,0,0.09);
+  --text:#1d1d1f;--text2:#515154;--text3:#909095;
+  --orange:#ff6a00;--orange-soft:rgba(255,106,0,.12);
+  --ok:#34c759;--err:#ff3b30;
+  --shadow:0 2px 12px rgba(0,0,0,.06),0 8px 32px rgba(0,0,0,.05);
+  --radius:16px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh;transition:background .25s,color .25s;
+}
+
+header{
+  position:sticky;top:0;z-index:100;height:56px;
+  display:flex;align-items:center;gap:12px;padding:0 20px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.back-link{color:var(--orange);text-decoration:none;font-size:13px;white-space:nowrap;transition:opacity .15s}
+.back-link:hover{opacity:.6}
+.brand{font-size:15px;font-weight:700;flex:1;letter-spacing:.05em}
+.brand span{color:var(--orange)}
+
+.theme-btn{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  color:var(--text2);cursor:pointer;font-size:16px;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,color .15s;
+}
+.theme-btn:hover{border-color:var(--orange);color:var(--orange)}
+.lang-btns{display:flex;gap:4px}
+.lang-btn{
+  background:none;border:1px solid var(--border);border-radius:7px;
+  color:var(--text2);cursor:pointer;font-size:11px;font-weight:700;
+  padding:0 7px;height:30px;transition:all .15s;font-family:inherit;
+}
+.lang-btn:hover{border-color:var(--orange);color:var(--orange)}
+.lang-btn.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+button{font-family:inherit}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;font-weight:600;padding:12px 20px;border-radius:12px;min-height:44px;
+  border:1px solid var(--border);background:var(--bg3);color:var(--text);
+  cursor:pointer;transition:all .18s ease;
+}
+.btn:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn-primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn-primary:hover{background:#e85f00;color:#fff;box-shadow:0 4px 16px rgba(255,106,0,.4);transform:translateY(-1px)}
+
+footer{text-align:center;padding:18px;font-size:12px;color:var(--text3)}
+footer a{color:var(--orange);text-decoration:none}
+
+/* ===== SCREENS ===== */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ===== SETUP SCREEN ===== */
+#setup-screen{
+  display:none;
+  flex-direction:column;align-items:center;
+  padding:40px 20px 80px;min-height:calc(100vh - 56px);
+}
+#setup-screen.active{display:flex}
+
+.setup-hero{text-align:center;margin-bottom:40px}
+.entropia-title{
+  font-size:clamp(52px,14vw,96px);font-weight:900;
+  letter-spacing:.12em;text-transform:uppercase;
+  background:linear-gradient(135deg,#ff6a00 0%,#bf5af2 40%,#0a84ff 80%,#34c759 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:8px;
+}
+.entropia-sub{font-size:13px;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.setup-tagline{font-size:15px;color:var(--text2);max-width:440px;margin:0 auto;line-height:1.6}
+
+.setup-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:28px;width:100%;max-width:480px;
+}
+.setup-section{margin-bottom:24px}
+.setup-label{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.player-count-btns{display:flex;gap:8px}
+.player-count-btns .btn{flex:1;font-size:18px;font-weight:800}
+.player-count-btns .btn.selected{background:var(--orange);border-color:var(--orange);color:#fff}
+
+.player-rows{display:flex;flex-direction:column;gap:8px}
+.player-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border-radius:12px;padding:10px 12px;
+  border:1px solid var(--border);
+}
+.player-row-num{font-size:11px;font-weight:800;width:16px;text-align:center}
+.player-name-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-size:15px;font-family:inherit;min-width:0;
+}
+.player-name-input::placeholder{color:var(--text3)}
+.emoji-row{display:flex;gap:4px}
+.emoji-btn{
+  font-size:18px;background:none;border:2px solid transparent;
+  border-radius:8px;cursor:pointer;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,transform .1s;
+}
+.emoji-btn.selected{border-color:var(--orange);transform:scale(1.15)}
+.emoji-btn:hover{border-color:var(--border)}
+
+/* ===== GAME SCREEN ===== */
+#game-screen{display:none}
+#game-screen.active{display:block}
+
+.game-layout{
+  display:flex;flex-direction:column;
+  padding:12px;gap:12px;
+  max-width:1200px;margin:0 auto;
+}
+@media(min-width:800px){
+  .game-layout{flex-direction:row;align-items:flex-start;padding:16px;gap:16px}
+  .board-wrap{flex:0 0 auto;width:min(520px,55vw)}
+  .game-panel{flex:1;min-width:260px}
+}
+
+/* ===== BOARD ===== */
+.board{
+  display:grid;
+  grid-template-columns:repeat(11,1fr);
+  grid-template-rows:repeat(11,1fr);
+  width:100%;
+  aspect-ratio:1;
+  gap:2px;
+  background:var(--bg4);
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+
+.field{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;overflow:hidden;
+  min-width:0;min-height:0;padding:1px;
+}
+.field-icon{font-size:clamp(9px,2vw,16px);line-height:1;pointer-events:none}
+.field-name{
+  font-size:clamp(4px,0.8vw,7px);font-weight:600;text-align:center;
+  color:rgba(255,255,255,0.8);line-height:1.1;pointer-events:none;
+  display:none;padding:0 1px;
+}
+[data-theme="light"] .field-name{color:rgba(0,0,0,0.75)}
+@media(min-width:500px){.field-name{display:block}}
+
+.field-start  {background:#0d2e14;border:2px solid #34c759}
+.field-corner {background:#14133a;border:1px solid #5e5ce6}
+.field-dev    {background:#041830;border:1px solid #007aff}
+.field-temp   {background:#300808;border:1px solid #ff3b30}
+.field-help   {background:#301500;border:1px solid #ff9500}
+.field-choice {background:#261c00;border:1px solid #ffd60a}
+.field-coop   {background:#042210;border:1px solid #30d158}
+.field-chal   {background:#1a1a1a;border:1px solid #636366}
+.field-event  {background:#001830;border:1px solid #0a84ff}
+
+[data-theme="light"] .field-start  {background:#d4f5de;border:2px solid #34c759}
+[data-theme="light"] .field-corner {background:#e0dfff;border:1px solid #5e5ce6}
+[data-theme="light"] .field-dev    {background:#d0e8ff;border:1px solid #007aff}
+[data-theme="light"] .field-temp   {background:#ffd5d5;border:1px solid #ff3b30}
+[data-theme="light"] .field-help   {background:#ffe8cc;border:1px solid #ff9500}
+[data-theme="light"] .field-choice {background:#fff5cc;border:1px solid #d4a800}
+[data-theme="light"] .field-coop   {background:#ccf5da;border:1px solid #30d158}
+[data-theme="light"] .field-chal   {background:#e5e5e5;border:1px solid #636366}
+[data-theme="light"] .field-event  {background:#ccebff;border:1px solid #0a84ff}
+
+/* Board center */
+.board-center{
+  grid-column:2/11;grid-row:2/11;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg2);gap:4px;padding:6px;
+}
+.center-title{
+  font-size:clamp(12px,3.2vw,26px);font-weight:900;letter-spacing:.1em;text-transform:uppercase;
+  background:linear-gradient(135deg,#ff6a00,#bf5af2,#0a84ff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.center-sub{font-size:clamp(6px,1.2vw,10px);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;text-align:center;line-height:1.4}
+.center-logo{font-size:clamp(20px,5vw,40px);line-height:1}
+
+/* Player pieces */
+.piece{
+  position:absolute;
+  width:clamp(9px,1.8vw,14px);height:clamp(9px,1.8vw,14px);
+  border-radius:50%;border:1.5px solid rgba(255,255,255,.7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(5px,1vw,9px);line-height:1;
+  z-index:10;
+  box-shadow:0 1px 4px rgba(0,0,0,.5);
+}
+.piece.active-piece{
+  box-shadow:0 0 0 2px var(--orange),0 0 6px rgba(255,106,0,.6);
+  animation:pulse-piece 1.5s ease-in-out infinite;
+}
+@keyframes pulse-piece{
+  0%,100%{box-shadow:0 0 0 2px var(--orange),0 0 5px rgba(255,106,0,.5)}
+  50%{box-shadow:0 0 0 3px var(--orange),0 0 10px rgba(255,106,0,.4)}
+}
+
+/* ===== GAME PANEL ===== */
+.game-panel{display:flex;flex-direction:column;gap:10px}
+
+.panel-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px;
+}
+.panel-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+
+.turn-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.turn-emoji{font-size:26px;line-height:1}
+.turn-name{font-size:17px;font-weight:700}
+.turn-sub{font-size:11px;color:var(--text2)}
+
+.stat-row{margin-bottom:10px}
+.stat-label{font-size:11px;color:var(--text3);font-weight:600;display:flex;justify-content:space-between;margin-bottom:3px}
+.ep-bar{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.ep-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#34c759,#ff9500,#ff3b30);transition:width .4s ease}
+.intent-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:8px;background:var(--bg3);
+  font-size:12px;font-weight:600;border:1px solid var(--border);
+}
+
+/* Dice */
+.dice-area{display:flex;flex-direction:column;gap:10px;align-items:center}
+.dice-row{display:flex;gap:14px;justify-content:center}
+.die{
+  width:50px;height:50px;background:var(--bg3);border:2px solid var(--border);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;color:var(--text);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 2px 8px rgba(0,0,0,.3);
+}
+.die.rolling{animation:roll-die .8s ease}
+@keyframes roll-die{
+  0%{transform:rotate(0deg) scale(1)}
+  25%{transform:rotate(180deg) scale(1.1)}
+  50%{transform:rotate(360deg) scale(0.9)}
+  75%{transform:rotate(540deg) scale(1.1)}
+  100%{transform:rotate(720deg) scale(1)}
+}
+.die-sum{font-size:12px;color:var(--text2);font-weight:600}
+
+/* Card overlay */
+.card-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(4px);
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.card-overlay.show{opacity:1;pointer-events:all}
+.card-modal{
+  background:var(--bg2);border-radius:20px 20px 0 0;
+  border:1px solid var(--border);border-bottom:none;
+  width:100%;max-width:560px;padding:24px 20px 44px;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  max-height:88vh;overflow-y:auto;
+}
+.card-overlay.show .card-modal{transform:translateY(0)}
+@media(min-width:600px){
+  .card-overlay{align-items:center;padding:20px}
+  .card-modal{border-radius:20px;border-bottom:1px solid var(--border);max-height:80vh}
+}
+.card-type-tag{
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 10px;border-radius:6px;margin-bottom:12px;display:inline-block;
+}
+.card-modal h2{font-size:19px;font-weight:800;margin-bottom:8px}
+.card-story{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.choice-btn{
+  display:block;width:100%;text-align:left;
+  padding:13px 15px;margin-bottom:8px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:14px;font-weight:500;line-height:1.4;
+  cursor:pointer;transition:all .15s;min-height:44px;
+}
+.choice-btn:hover{border-color:var(--orange);transform:translateX(3px);color:var(--orange)}
+.choice-btn:active{transform:scale(.98)}
+
+/* Feedback */
+.feedback-card{
+  background:var(--bg3);border-radius:12px;padding:14px;
+  border:1px solid var(--border);margin-bottom:12px;
+}
+.feedback-title{font-size:13px;font-weight:700;margin-bottom:5px}
+.feedback-text{font-size:13px;color:var(--text2);line-height:1.6}
+.feedback-effects{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+.effect-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px}
+.effect-good{background:rgba(52,199,89,.15);color:#34c759;border:1px solid rgba(52,199,89,.25)}
+.effect-bad{background:rgba(255,59,48,.15);color:#ff3b30;border:1px solid rgba(255,59,48,.25)}
+.effect-neutral{background:var(--bg4);color:var(--text2);border:1px solid var(--border)}
+
+/* Players strip */
+.players-strip{
+  display:flex;gap:8px;flex-wrap:wrap;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px;box-shadow:var(--shadow);
+}
+.player-chip{
+  flex:1;min-width:90px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:9px 10px;transition:border-color .15s;
+}
+.player-chip.active-chip{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange)}
+.chip-top{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.chip-emoji{font-size:16px}
+.chip-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip-ep{font-size:10px;font-weight:700}
+.chip-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.chip-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#34c759,#ff9500,#ff3b30);transition:width .4s}
+.chip-up{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:9px 16px;font-size:13px;font-weight:600;white-space:nowrap;
+  box-shadow:var(--shadow);z-index:300;
+  opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== END SCREEN ===== */
+#end-screen{
+  display:none;flex-direction:column;align-items:center;
+  padding:40px 20px 80px;min-height:calc(100vh - 56px);
+}
+#end-screen.active{display:flex}
+.end-winner{font-size:clamp(48px,14vw,88px);margin-bottom:10px;text-align:center}
+.end-title{font-size:22px;font-weight:900;margin-bottom:4px;text-align:center}
+.end-sub{font-size:14px;color:var(--text2);margin-bottom:32px;text-align:center}
+.end-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;width:100%;max-width:460px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.result-row{
+  display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.result-row:last-child{border-bottom:none}
+.result-emoji{font-size:20px}
+.result-name{font-weight:700;flex:1}
+.result-stats{font-size:11px;color:var(--text2);text-align:right;line-height:1.5}
+
+.collective-win-banner{
+  background:linear-gradient(135deg,rgba(52,199,89,.15),rgba(10,132,255,.15));
+  border:1px solid rgba(52,199,89,.4);border-radius:12px;padding:14px;
+  text-align:center;margin-bottom:16px;font-weight:600;font-size:14px;
+  max-width:460px;width:100%;
+}
+
+/* Confetti */
+.confetti-container{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
+.confetti-piece{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:confetti-fall linear forwards;
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+/* Field highlight */
+.field.highlight-field{animation:field-pulse .5s ease}
+@keyframes field-pulse{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(2)}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="back-link">← Labs</a>
+  <div class="brand">ENTRO<span>PIA</span></div>
+  <a href="entropia-rules.html" class="back-link" id="rules-link" style="margin-left:4px">📖</a>
+  <div class="lang-btns" id="lang-btns">
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="da">DA</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="zh">中</button>
+  </div>
+  <button class="theme-btn" id="theme-btn" title="Toggle theme">☀️</button>
+</header>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" class="screen active">
+  <div class="setup-hero">
+    <div class="entropia-title">ENTROPIA</div>
+    <div class="entropia-sub">Familiespil om bevidsthed og kærlighed</div>
+    <p class="setup-tagline">Sænk din entropi gennem visdom, samarbejde og kærlighed. Inspireret af Tom Campbells My Big TOE-filosofi.</p>
+  </div>
+  <div class="setup-card">
+    <div class="setup-section">
+      <div class="setup-label">Antal spillere</div>
+      <div class="player-count-btns">
+        <button class="btn" data-count="2">2</button>
+        <button class="btn selected" data-count="3">3</button>
+        <button class="btn" data-count="4">4</button>
+      </div>
+    </div>
+    <div class="setup-section">
+      <div class="setup-label">Spillere</div>
+      <div class="player-rows" id="player-rows"></div>
+    </div>
+    <button class="btn btn-primary" id="start-btn" style="width:100%;font-size:15px;padding:14px">
+      ✨ Start spillet
+    </button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <div class="game-layout">
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+    </div>
+    <div class="game-panel">
+      <div class="panel-card" id="turn-panel">
+        <div class="turn-header" id="turn-header">
+          <div class="turn-emoji" id="turn-emoji">🔴</div>
+          <div>
+            <div class="turn-name" id="turn-name">Spiller 1</div>
+            <div class="turn-sub" id="turn-sub">Din tur</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">
+            <span>Entropi (EP)</span>
+            <span id="ep-val">80</span>
+          </div>
+          <div class="ep-bar"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label"><span>Visdom</span><span id="up-val">0 UP</span></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="intent-badge" id="intent-badge">😐 Neutral</div>
+        </div>
+        <div id="action-area"></div>
+      </div>
+      <div id="field-info-card" class="panel-card" style="display:none">
+        <div class="panel-title">Aktuelt felt</div>
+        <div id="field-info-content"></div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 12px 16px">
+    <div class="players-strip" id="players-strip"></div>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen" class="screen">
+  <div class="end-winner" id="end-winner">🏆</div>
+  <div class="end-title" id="end-title">Vi har en vinder!</div>
+  <div class="end-sub" id="end-sub">Entropien er besejret</div>
+  <div id="collective-win-banner" class="collective-win-banner" style="display:none">
+    🌍 KOLLEKTIV SEJR – alle spillere nåede under 20 EP!
+  </div>
+  <div class="end-card" id="results-card"></div>
+  <button class="btn btn-primary" id="play-again-btn" style="font-size:15px;padding:13px 28px">🔄 Spil igen</button>
+</div>
+
+<!-- Card overlay -->
+<div class="card-overlay" id="card-overlay">
+  <div class="card-modal">
+    <span class="card-type-tag" id="card-type-tag">Valg</span>
+    <h2 id="card-title">Titel</h2>
+    <p class="card-story" id="card-story">…</p>
+    <div id="card-choices"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confetti -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<footer>
+  <a href="index.html">← Labs</a> · ENTROPIA er et ikke-kommercielt kunstprojekt
+</footer>
+
+<script>
+'use strict';
+
+/* =========================================================
+   I18N
+   ========================================================= */
+const STR = {
+  en: {
+    title_suffix: 'Family game',
+    subtitle: 'Family game about consciousness and love',
+    tagline: "Lower your entropy through wisdom, cooperation and love. Inspired by Tom Campbell's My Big TOE philosophy.",
+    players_label: 'Number of players',
+    players_section: 'Players',
+    player_ph: i => `Player ${i+1}`,
+    start_btn: '✨ Start game',
+    entropy_label: 'Entropy (EP)',
+    wisdom_label: 'Wisdom',
+    roll_hint: 'Roll to move',
+    roll_btn: '🎲 Roll dice',
+    moving: 'Moving…',
+    next_btn: 'Next player →',
+    current_field: 'Current field',
+    turn_sub: (t,r) => `Turn ${t} · Round ${r}`,
+    pass_start: n => `${n} passes START! +5 UP`,
+    intent_fear: 'Fear', intent_control: 'Control', intent_neutral: 'Neutral',
+    intent_trust: 'Trust', intent_love: 'Love',
+    deck_choice: "Life's Choice", deck_temptation: 'Temptation',
+    deck_development: 'Self-development', deck_event: 'Event',
+    corner_reflection: 'Deep reflection opens the door to lower entropy.',
+    corner_innerpeace: 'A collective stillness settles in. Everyone finds inner peace.',
+    corner_gift: n => `You offer a gift to ${n}!`,
+    challenge_text: '+8 EP — old patterns surface. The system invites you to look closer.',
+    coop_text: 'Cooperation is love made visible. Entropy falls for everyone.',
+    start_land: 'You landed on START! A new beginning!',
+    winner_title: n => `${n} wins!`,
+    winner_sub: ep => `Entropy brought to ${ep} EP through love`,
+    collective_title: 'Collective victory!',
+    collective_sub: 'All players reached under 20 EP',
+    collective_banner: '🌍 COLLECTIVE VICTORY – all players reached under 20 EP!',
+    final_standings: 'Final standings',
+    play_again: '🔄 Play again',
+    footer_text: '← Labs · ENTROPIA is a non-commercial art project',
+    end_title: 'A winner emerges!',
+    end_sub: 'Entropy has been overcome',
+    center_sub: 'Lower entropy<br>with love',
+    rules_link: 'Rules',
+  },
+  da: {
+    title_suffix: 'Familiespil',
+    subtitle: 'Familiespil om bevidsthed og kærlighed',
+    tagline: 'Sænk din entropi gennem visdom, samarbejde og kærlighed. Inspireret af Tom Campbells My Big TOE-filosofi.',
+    players_label: 'Antal spillere',
+    players_section: 'Spillere',
+    player_ph: i => `Spiller ${i+1}`,
+    start_btn: '✨ Start spillet',
+    entropy_label: 'Entropi (EP)',
+    wisdom_label: 'Visdom',
+    roll_hint: 'Kast for at flytte',
+    roll_btn: '🎲 Kast terning',
+    moving: 'Bevæger sig…',
+    next_btn: 'Næste spiller →',
+    current_field: 'Aktuelt felt',
+    turn_sub: (t,r) => `Tur ${t} · Runde ${r}`,
+    pass_start: n => `${n} passerer START! +5 UP`,
+    intent_fear: 'Frygt', intent_control: 'Kontrol', intent_neutral: 'Neutral',
+    intent_trust: 'Tillid', intent_love: 'Kærlighed',
+    deck_choice: 'Livets Valg', deck_temptation: 'Fristelse',
+    deck_development: 'Selvudvikling', deck_event: 'Begivenhed',
+    corner_reflection: 'Dyb refleksion åbner vejen til lavere entropi.',
+    corner_innerpeace: 'En kollektiv stilhed sænker sig. Alle finder indre fred.',
+    corner_gift: n => `Du giver en gave til ${n}!`,
+    challenge_text: '+8 EP — gamle mønstre dukker op. Systemet inviterer dig til at se nærmere.',
+    coop_text: 'Samarbejde er kærlighed gjort synlig. Entropien falder for alle.',
+    start_land: 'Du landede på START! En ny begyndelse!',
+    winner_title: n => `${n} vinder!`,
+    winner_sub: ep => `Entropi bragt til ${ep} EP gennem kærlighed`,
+    collective_title: 'Kollektiv sejr!',
+    collective_sub: 'Alle spillere nåede under 20 EP',
+    collective_banner: '🌍 KOLLEKTIV SEJR – alle spillere nåede under 20 EP!',
+    final_standings: 'Slutstilling',
+    play_again: '🔄 Spil igen',
+    footer_text: '← Labs · ENTROPIA er et ikke-kommercielt kunstprojekt',
+    end_title: 'Vi har en vinder!',
+    end_sub: 'Entropien er overvundet',
+    center_sub: 'Sænk entropien<br>med kærlighed',
+    rules_link: 'Regler',
+  },
+  es: {
+    title_suffix: 'Juego familiar',
+    subtitle: 'Juego familiar sobre conciencia y amor',
+    tagline: 'Reduce tu entropía a través de la sabiduría, la cooperación y el amor. Inspirado en la filosofía My Big TOE de Tom Campbell.',
+    players_label: 'Número de jugadores',
+    players_section: 'Jugadores',
+    player_ph: i => `Jugador ${i+1}`,
+    start_btn: '✨ Iniciar juego',
+    entropy_label: 'Entropía (EP)',
+    wisdom_label: 'Sabiduría',
+    roll_hint: 'Lanza para moverte',
+    roll_btn: '🎲 Lanzar dados',
+    moving: 'Moviéndose…',
+    next_btn: 'Siguiente jugador →',
+    current_field: 'Casilla actual',
+    turn_sub: (t,r) => `Turno ${t} · Ronda ${r}`,
+    pass_start: n => `¡${n} pasa por INICIO! +5 UP`,
+    intent_fear: 'Miedo', intent_control: 'Control', intent_neutral: 'Neutral',
+    intent_trust: 'Confianza', intent_love: 'Amor',
+    deck_choice: 'Elección de Vida', deck_temptation: 'Tentación',
+    deck_development: 'Autodesarrollo', deck_event: 'Evento',
+    corner_reflection: 'La reflexión profunda abre la puerta a menor entropía.',
+    corner_innerpeace: 'Una calma colectiva se asienta. Todos encuentran paz interior.',
+    corner_gift: n => `¡Ofreces un regalo a ${n}!`,
+    challenge_text: '+8 EP — viejos patrones emergen. El sistema te invita a mirar más de cerca.',
+    coop_text: 'La cooperación es el amor hecho visible. La entropía baja para todos.',
+    start_land: '¡Caíste en INICIO! ¡Un nuevo comienzo!',
+    winner_title: n => `¡${n} gana!`,
+    winner_sub: ep => `Entropía llevada a ${ep} EP a través del amor`,
+    collective_title: '¡Victoria colectiva!',
+    collective_sub: 'Todos los jugadores alcanzaron menos de 20 EP',
+    collective_banner: '🌍 VICTORIA COLECTIVA – ¡todos los jugadores alcanzaron menos de 20 EP!',
+    final_standings: 'Clasificación final',
+    play_again: '🔄 Jugar de nuevo',
+    footer_text: '← Labs · ENTROPIA es un proyecto artístico sin ánimo de lucro',
+    end_title: '¡Tenemos un ganador!',
+    end_sub: 'La entropía ha sido superada',
+    center_sub: 'Reduce la entropía<br>con amor',
+    rules_link: 'Reglas',
+  },
+  zh: {
+    title_suffix: '家庭游戏',
+    subtitle: '关于意识与爱的家庭游戏',
+    tagline: '通过智慧、合作与爱降低熵值。灵感来源于汤姆·坎贝尔的《我的大脚趾》哲学。',
+    players_label: '玩家人数',
+    players_section: '玩家',
+    player_ph: i => `玩家 ${i+1}`,
+    start_btn: '✨ 开始游戏',
+    entropy_label: '熵值 (EP)',
+    wisdom_label: '智慧',
+    roll_hint: '掷骰前进',
+    roll_btn: '🎲 掷骰',
+    moving: '移动中…',
+    next_btn: '下一位玩家 →',
+    current_field: '当前格子',
+    turn_sub: (t,r) => `第${t}回合 · 第${r}轮`,
+    pass_start: n => `${n} 经过起点！+5 UP`,
+    intent_fear: '恐惧', intent_control: '控制', intent_neutral: '中立',
+    intent_trust: '信任', intent_love: '爱',
+    deck_choice: '生命抉择', deck_temptation: '诱惑',
+    deck_development: '自我成长', deck_event: '事件',
+    corner_reflection: '深度反思打开通往低熵的大门。',
+    corner_innerpeace: '集体宁静降临，所有人都找到内心平静。',
+    corner_gift: n => `你向${n}献上礼物！`,
+    challenge_text: '+8 EP — 旧模式浮现。系统邀请你深入探索。',
+    coop_text: '合作是爱的可见形式。所有人的熵值下降。',
+    start_land: '你降落在起点！新的旅程开始了！',
+    winner_title: n => `${n} 获胜！`,
+    winner_sub: ep => `通过爱将熵值降至 ${ep} EP`,
+    collective_title: '集体胜利！',
+    collective_sub: '所有玩家达到低于20 EP',
+    collective_banner: '🌍 集体胜利 — 所有玩家达到低于20 EP！',
+    final_standings: '最终排名',
+    play_again: '🔄 再玩一次',
+    footer_text: '← Labs · ENTROPIA 是一个非商业艺术项目',
+    end_title: '诞生了胜者！',
+    end_sub: '熵值已被克服',
+    center_sub: '用爱降低熵值',
+    rules_link: '规则',
+  },
+};
+
+const I18N = {
+  lang: localStorage.getItem('entropia_lang') || 'en',
+  t(k, ...a) {
+    const s = (STR[this.lang] && STR[this.lang][k]) || STR.en[k] || k;
+    return typeof s === 'function' ? s(...a) : s;
+  },
+  set(l) {
+    this.lang = l;
+    localStorage.setItem('entropia_lang', l);
+    document.documentElement.lang = l;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+    applyStaticI18n();
+    if (G) { buildBoard(); renderGame(); }
+  }
+};
+document.querySelectorAll('.lang-btn').forEach(b => {
+  b.classList.toggle('active', b.dataset.lang === I18N.lang);
+  b.addEventListener('click', () => I18N.set(b.dataset.lang));
+});
+
+function applyStaticI18n() {
+  document.querySelector('.entropia-sub').textContent      = I18N.t('subtitle');
+  document.querySelector('.setup-tagline').textContent     = I18N.t('tagline');
+  const setupLabels = document.querySelectorAll('.setup-label');
+  if (setupLabels[0]) setupLabels[0].textContent = I18N.t('players_label');
+  if (setupLabels[1]) setupLabels[1].textContent = I18N.t('players_section');
+  document.getElementById('start-btn').textContent         = I18N.t('start_btn');
+  document.querySelector('footer').innerHTML               = `<a href="index.html">${I18N.t('footer_text')}</a> · <a href="entropia-rules.html">${I18N.t('rules_link')}</a>`;
+  document.getElementById('play-again-btn').textContent    = I18N.t('play_again');
+  const rlink = document.getElementById('rules-link');
+  if (rlink) rlink.title = I18N.t('rules_link');
+  renderSetup();
+}
+
+/* =========================================================
+   THEME
+   ========================================================= */
+const themeBtn = document.getElementById('theme-btn');
+let currentTheme = localStorage.getItem('entropia_theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+themeBtn.addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  localStorage.setItem('entropia_theme', currentTheme);
+  themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+});
+
+/* =========================================================
+   DATA
+   ========================================================= */
+const FIELD_META = [
+  {id:0,  type:'start',  icon:'🌟'},{id:1,  type:'dev',    icon:'🧘'},{id:2,  type:'temp',   icon:'😈'},
+  {id:3,  type:'help',   icon:'🤝'},{id:4,  type:'choice', icon:'⚖️'},{id:5,  type:'coop',   icon:'🌍'},
+  {id:6,  type:'chal',   icon:'🔗'},{id:7,  type:'dev',    icon:'🪞'},{id:8,  type:'help',   icon:'📚'},
+  {id:9,  type:'event',  icon:'🔔'},{id:10, type:'corner', icon:'🔮'},{id:11, type:'temp',   icon:'🏃'},
+  {id:12, type:'dev',    icon:'💡'},{id:13, type:'help',   icon:'👂'},{id:14, type:'choice', icon:'⚖️'},
+  {id:15, type:'chal',   icon:'🌀'},{id:16, type:'help',   icon:'🕊️'},{id:17, type:'dev',    icon:'✨'},
+  {id:18, type:'event',  icon:'🌅'},{id:19, type:'temp',   icon:'👑'},{id:20, type:'corner', icon:'🧘'},
+  {id:21, type:'temp',   icon:'😈'},{id:22, type:'dev',    icon:'🔭'},{id:23, type:'help',   icon:'🤲'},
+  {id:24, type:'choice', icon:'⚖️'},{id:25, type:'chal',   icon:'⛓️'},{id:26, type:'help',   icon:'💚'},
+  {id:27, type:'dev',    icon:'🌈'},{id:28, type:'event',  icon:'🦋'},{id:29, type:'temp',   icon:'💎'},
+  {id:30, type:'corner', icon:'🎁'},{id:31, type:'dev',    icon:'🧠'},{id:32, type:'help',   icon:'💪'},
+  {id:33, type:'choice', icon:'⚖️'},{id:34, type:'chal',   icon:'👻'},{id:35, type:'event',  icon:'🌐'},
+  {id:36, type:'dev',    icon:'⚡'},{id:37, type:'help',   icon:'🌟'},{id:38, type:'temp',   icon:'🎯'},
+  {id:39, type:'dev',    icon:'🪞'},
+];
+
+const FIELD_TRANS = [
+  {en:{name:'START',desc:'New journey! Everyone passing: +5 UP'},da:{name:'START',desc:'Ny rejse! Alle der passerer: +5 UP'},es:{name:'INICIO',desc:'¡Nuevo viaje! Todos los que pasan: +5 UP'},zh:{name:'起点',desc:'新旅程！所有经过的人：+5 UP'}},
+  {en:{name:'Meditation',desc:'Draw a Self-development card'},da:{name:'Meditation',desc:'Tegn Selvudvikling-kort'},es:{name:'Meditación',desc:'Roba carta de Autodesarrollo'},zh:{name:'冥想',desc:'抽一张自我发展牌'}},
+  {en:{name:'Quick gain',desc:'Draw a Temptation card'},da:{name:'Hurtig gevinst',desc:'Tegn Fristelse-kort'},es:{name:'Ganancia rápida',desc:'Roba carta de Tentación'},zh:{name:'快速收益',desc:'抽一张诱惑牌'}},
+  {en:{name:'Help someone',desc:'−5 EP, next player +5 UP'},da:{name:'Hjælp nogen',desc:'−5 EP, næste spiller +5 UP'},es:{name:'Ayuda a alguien',desc:'−5 EP, siguiente +5 UP'},zh:{name:'帮助他人',desc:'−5 EP，下位玩家+5 UP'}},
+  {en:{name:"Life's choice",desc:"Draw a Life's Choice card"},da:{name:'Livets valg',desc:'Tegn Livets Valg-kort'},es:{name:'Elección de vida',desc:'Roba carta de Elección de Vida'},zh:{name:'生命抉择',desc:'抽一张生命抉择牌'}},
+  {en:{name:'Cooperation',desc:'All players −5 EP'},da:{name:'Samarbejde',desc:'Alle spillere −5 EP'},es:{name:'Cooperación',desc:'Todos −5 EP'},zh:{name:'合作',desc:'所有玩家−5 EP'}},
+  {en:{name:'Old patterns',desc:'+8 EP'},da:{name:'Gamle mønstre',desc:'+8 EP'},es:{name:'Viejos patrones',desc:'+8 EP'},zh:{name:'旧模式',desc:'+8 EP'}},
+  {en:{name:'Mirror moment',desc:'Draw a Self-development card'},da:{name:'Spejlmoment',desc:'Tegn Selvudvikling-kort'},es:{name:'Momento espejo',desc:'Roba carta de Autodesarrollo'},zh:{name:'镜像时刻',desc:'抽一张自我发展牌'}},
+  {en:{name:'Share knowledge',desc:'−5 EP, next player +5 UP'},da:{name:'Del din viden',desc:'−5 EP, næste spiller +5 UP'},es:{name:'Comparte tu saber',desc:'−5 EP, siguiente +5 UP'},zh:{name:'分享知识',desc:'−5 EP，下位玩家+5 UP'}},
+  {en:{name:'Crisis meeting',desc:'Draw an Event card'},da:{name:'Krisemøde',desc:'Tegn Begivenhed-kort'},es:{name:'Reunión de crisis',desc:'Roba carta de Evento'},zh:{name:'危机会议',desc:'抽一张事件牌'}},
+  {en:{name:'REFLECTION',desc:'−12 EP, +5 UP'},da:{name:'REFLEKSION',desc:'−12 EP, +5 UP'},es:{name:'REFLEXIÓN',desc:'−12 EP, +5 UP'},zh:{name:'反思',desc:'−12 EP，+5 UP'}},
+  {en:{name:'Easy shortcut',desc:'Draw a Temptation card'},da:{name:'Nem genvej',desc:'Tegn Fristelse-kort'},es:{name:'Atajo fácil',desc:'Roba carta de Tentación'},zh:{name:'简单捷径',desc:'抽一张诱惑牌'}},
+  {en:{name:'New insight',desc:'Draw a Self-development card'},da:{name:'Ny indsigt',desc:'Tegn Selvudvikling-kort'},es:{name:'Nueva visión',desc:'Roba carta de Autodesarrollo'},zh:{name:'新洞见',desc:'抽一张自我发展牌'}},
+  {en:{name:'Active listening',desc:'−5 EP, next player +5 UP'},da:{name:'Aktiv lytning',desc:'−5 EP, næste spiller +5 UP'},es:{name:'Escucha activa',desc:'−5 EP, siguiente +5 UP'},zh:{name:'主动倾听',desc:'−5 EP，下位玩家+5 UP'}},
+  {en:{name:"Life's choice",desc:"Draw a Life's Choice card"},da:{name:'Livets valg',desc:'Tegn Livets Valg-kort'},es:{name:'Elección de vida',desc:'Roba carta de Elección de Vida'},zh:{name:'生命抉择',desc:'抽一张生命抉择牌'}},
+  {en:{name:'Inner resistance',desc:'+8 EP'},da:{name:'Indre modstand',desc:'+8 EP'},es:{name:'Resistencia interior',desc:'+8 EP'},zh:{name:'内在阻力',desc:'+8 EP'}},
+  {en:{name:'Forgive someone',desc:'−10 EP'},da:{name:'Tilgiv nogen',desc:'−10 EP'},es:{name:'Perdona a alguien',desc:'−10 EP'},zh:{name:'宽恕他人',desc:'−10 EP'}},
+  {en:{name:'Learning moment',desc:'Draw a Self-development card'},da:{name:'Læringsmoment',desc:'Tegn Selvudvikling-kort'},es:{name:'Momento de aprendizaje',desc:'Roba carta de Autodesarrollo'},zh:{name:'学习时刻',desc:'抽一张自我发展牌'}},
+  {en:{name:'Collective awakening',desc:'Draw an Event card'},da:{name:'Fælles opvågnen',desc:'Tegn Begivenhed-kort'},es:{name:'Despertar colectivo',desc:'Roba carta de Evento'},zh:{name:'集体觉醒',desc:'抽一张事件牌'}},
+  {en:{name:'Quick power',desc:'Draw a Temptation card'},da:{name:'Hurtig magt',desc:'Tegn Fristelse-kort'},es:{name:'Poder rápido',desc:'Roba carta de Tentación'},zh:{name:'速成权力',desc:'抽一张诱惑牌'}},
+  {en:{name:'INNER PEACE',desc:'All −15 EP'},da:{name:'INDRE RO',desc:'Alle −15 EP'},es:{name:'PAZ INTERIOR',desc:'Todos −15 EP'},zh:{name:'内心平静',desc:'所有人−15 EP'}},
+  {en:{name:'Short-term choice',desc:'Draw a Temptation card'},da:{name:'Kortsigtet valg',desc:'Tegn Fristelse-kort'},es:{name:'Elección a corto plazo',desc:'Roba carta de Tentación'},zh:{name:'短视选择',desc:'抽一张诱惑牌'}},
+  {en:{name:'Consciousness mirror',desc:'Draw a Self-development card'},da:{name:'Bevidsthedsspejl',desc:'Tegn Selvudvikling-kort'},es:{name:'Espejo de conciencia',desc:'Roba carta de Autodesarrollo'},zh:{name:'意识之镜',desc:'抽一张自我发展牌'}},
+  {en:{name:'Lift everyone up',desc:'−5 EP, next player +5 UP'},da:{name:'Løft alle op',desc:'−5 EP, næste spiller +5 UP'},es:{name:'Eleva a todos',desc:'−5 EP, siguiente +5 UP'},zh:{name:'提升所有人',desc:'−5 EP，下位玩家+5 UP'}},
+  {en:{name:'True intention',desc:"Draw a Life's Choice card"},da:{name:'Sand intention',desc:'Tegn Livets Valg-kort'},es:{name:'Intención verdadera',desc:'Roba carta de Elección de Vida'},zh:{name:'真实意图',desc:'抽一张生命抉择牌'}},
+  {en:{name:'Need to control',desc:'+8 EP'},da:{name:'Kontroltrang',desc:'+8 EP'},es:{name:'Necesidad de control',desc:'+8 EP'},zh:{name:'控制欲',desc:'+8 EP'}},
+  {en:{name:'Presence',desc:'−6 EP, next player +5 UP'},da:{name:'Nærværelse',desc:'−6 EP, næste spiller +5 UP'},es:{name:'Presencia',desc:'−6 EP, siguiente +5 UP'},zh:{name:'当下临在',desc:'−6 EP，下位玩家+5 UP'}},
+  {en:{name:'New perspective',desc:'Draw a Self-development card'},da:{name:'Nyt perspektiv',desc:'Tegn Selvudvikling-kort'},es:{name:'Nueva perspectiva',desc:'Roba carta de Autodesarrollo'},zh:{name:'新视角',desc:'抽一张自我发展牌'}},
+  {en:{name:'Transformation',desc:'Draw an Event card'},da:{name:'Transformation',desc:'Tegn Begivenhed-kort'},es:{name:'Transformación',desc:'Roba carta de Evento'},zh:{name:'蜕变',desc:'抽一张事件牌'}},
+  {en:{name:'Ego boost',desc:'Draw a Temptation card'},da:{name:'Ego-boost',desc:'Tegn Fristelse-kort'},es:{name:'Impulso del ego',desc:'Roba carta de Tentación'},zh:{name:'自我膨胀',desc:'抽一张诱惑牌'}},
+  {en:{name:'GIFT',desc:'Give next player +15 UP'},da:{name:'GAVE',desc:'Giv næste spiller +15 UP'},es:{name:'REGALO',desc:'Da al siguiente +15 UP'},zh:{name:'礼物',desc:'给下位玩家+15 UP'}},
+  {en:{name:'Deeper understanding',desc:'Draw a Self-development card'},da:{name:'Dybere forståelse',desc:'Tegn Selvudvikling-kort'},es:{name:'Comprensión profunda',desc:'Roba carta de Autodesarrollo'},zh:{name:'深层理解',desc:'抽一张自我发展牌'}},
+  {en:{name:'Share your strength',desc:'−5 EP, next player +5 UP'},da:{name:'Del din styrke',desc:'−5 EP, næste spiller +5 UP'},es:{name:'Comparte tu fuerza',desc:'−5 EP, siguiente +5 UP'},zh:{name:'分享力量',desc:'−5 EP，下位玩家+5 UP'}},
+  {en:{name:'Courage or fear',desc:"Draw a Life's Choice card"},da:{name:'Mod eller frygt',desc:'Tegn Livets Valg-kort'},es:{name:'Valor o miedo',desc:'Roba carta de Elección de Vida'},zh:{name:'勇气还是恐惧',desc:'抽一张生命抉择牌'}},
+  {en:{name:'Old fear',desc:'+8 EP'},da:{name:'Gammel frygt',desc:'+8 EP'},es:{name:'Viejo miedo',desc:'+8 EP'},zh:{name:'旧日恐惧',desc:'+8 EP'}},
+  {en:{name:'Global impulse',desc:'Draw an Event card'},da:{name:'Global impuls',desc:'Tegn Begivenhed-kort'},es:{name:'Impulso global',desc:'Roba carta de Evento'},zh:{name:'全球冲动',desc:'抽一张事件牌'}},
+  {en:{name:'Integration',desc:'Draw a Self-development card'},da:{name:'Integration',desc:'Tegn Selvudvikling-kort'},es:{name:'Integración',desc:'Roba carta de Autodesarrollo'},zh:{name:'整合',desc:'抽一张自我发展牌'}},
+  {en:{name:'Recognition',desc:'−5 EP, next player +5 UP'},da:{name:'Anerkendelse',desc:'−5 EP, næste spiller +5 UP'},es:{name:'Reconocimiento',desc:'−5 EP, siguiente +5 UP'},zh:{name:'认可',desc:'−5 EP，下位玩家+5 UP'}},
+  {en:{name:'Easy solution',desc:'Draw a Temptation card'},da:{name:'Let løsning',desc:'Tegn Fristelse-kort'},es:{name:'Solución fácil',desc:'Roba carta de Tentación'},zh:{name:'简单方案',desc:'抽一张诱惑牌'}},
+  {en:{name:'Mirror yourself',desc:'Draw a Self-development card. −8 EP!'},da:{name:'Spejl dig selv',desc:'Tegn Selvudvikling-kort. −8 EP!'},es:{name:'Mírate al espejo',desc:'Roba carta de Autodesarrollo. ¡−8 EP!'},zh:{name:'映照自身',desc:'抽一张自我发展牌。−8 EP！'}},
+];
+
+function getField(id) {
+  const meta = FIELD_META[id];
+  const trans = (FIELD_TRANS[id][I18N.lang] || FIELD_TRANS[id].en);
+  return { ...meta, ...trans };
+}
+const FIELDS = FIELD_META; // backward compat ref for land()
+
+const CARD_DATA = {
+  choice: [
+    { en:{title:'Colleague in need',story:'Your colleague asks for help. You are stretched thin yourself.',choices:[
+        {text:'🏃 "Too busy right now"',ep:+12,up:+2,intent:'ego',nextUp:0,fb:"The ego made the quick call. The entropy increase is the system's honest reflection — not punishment, a pointer toward growth. Next turn is a new opportunity."},
+        {text:'🤝 "Of course I\'ll help"',ep:-10,up:+6,intent:'love',nextUp:8,fb:'You chose connection. When consciousness acts from love, entropy naturally falls — this is how the system is designed.'}]},
+      da:{title:'Kollega i nød',story:'Din kollega beder om hjælp. Du er selv presset på tid.',choices:[
+        {text:'🏃 "Jeg har for travlt"',ep:+12,up:+2,intent:'ego',nextUp:0,fb:'Egoet tog en hurtig beslutning. Entropistigningen er systemets ærlige spejling — ikke en straf, men en retningspil mod vækst.'},
+        {text:'🤝 "Selvfølgelig hjælper jeg"',ep:-10,up:+6,intent:'love',nextUp:8,fb:'Du valgte forbindelsen. Bevidsthed der handler fra kærlighed finder naturligt lavere entropi.'}]},
+      es:{title:'Colega en apuros',story:'Tu colega pide ayuda. Tú mismo estás bajo presión.',choices:[
+        {text:'🏃 "Estoy demasiado ocupado"',ep:+12,up:+2,intent:'ego',nextUp:0,fb:'El ego tomó la decisión rápida. El aumento de entropía es el reflejo honesto del sistema — no un castigo, sino una señal hacia el crecimiento.'},
+        {text:'🤝 "Claro que te ayudaré"',ep:-10,up:+6,intent:'love',nextUp:8,fb:'Elegiste la conexión. Cuando la conciencia actúa desde el amor, la entropía baja naturalmente.'}]},
+      zh:{title:'同事需要帮助',story:'你的同事请求帮助，而你自己也压力很大。',choices:[
+        {text:'🏃 "我太忙了"',ep:+12,up:+2,intent:'ego',nextUp:0,fb:'自我做出了快速决定。熵值的增加是系统的诚实反映——不是惩罚，而是指向成长的指针。'},
+        {text:'🤝 "当然，我来帮你"',ep:-10,up:+6,intent:'love',nextUp:8,fb:'你选择了连接。当意识从爱出发行动时，熵自然降低——这正是系统运作的方式。'}]}},
+    { en:{title:'The easy lie',story:'You can gain a big advantage by slightly exaggerating your results.',choices:[
+        {text:'🤥 Exaggerate a little',ep:+18,up:+5,intent:'fear',nextUp:0,fb:'Fear of not measuring up drove this choice. The entropy spike shows the system noticed. Honesty awaits on the other side.'},
+        {text:'🌟 Tell the truth',ep:-8,up:+5,intent:'trust',nextUp:0,fb:'Honesty takes courage. You chose trust over fear — and your entropy reflects the alignment.'}]},
+      da:{title:'Den lette løgn',story:'Du kan opnå en stor fordel ved at overdrive dine resultater lidt.',choices:[
+        {text:'🤥 Overdriv lidt',ep:+18,up:+5,intent:'fear',nextUp:0,fb:'Frygt for ikke at slå til drev dette valg. Entropien steg — systemet bemærkede. Ærlighed venter på den anden side.'},
+        {text:'🌟 Fortæl sandheden',ep:-8,up:+5,intent:'trust',nextUp:0,fb:'Ærlighed kræver mod. Du valgte tillid over frygt — og din entropi afspejler det.'}]},
+      es:{title:'La mentira fácil',story:'Puedes obtener una gran ventaja exagerando un poco tus resultados.',choices:[
+        {text:'🤥 Exagerar un poco',ep:+18,up:+5,intent:'fear',nextUp:0,fb:'El miedo a no ser suficiente impulsó esta elección. La entropía subió — el sistema lo notó.'},
+        {text:'🌟 Decir la verdad',ep:-8,up:+5,intent:'trust',nextUp:0,fb:'La honestidad requiere valor. Elegiste la confianza sobre el miedo.'}]},
+      zh:{title:'容易的谎言',story:'稍微夸大一下成果就能获得巨大优势。',choices:[
+        {text:'🤥 稍微夸大',ep:+18,up:+5,intent:'fear',nextUp:0,fb:'对自身不足的恐惧驱动了这个选择。熵值上升——系统注意到了。诚实在另一边等待着你。'},
+        {text:'🌟 说实话',ep:-8,up:+5,intent:'trust',nextUp:0,fb:'诚实需要勇气。你选择了信任而非恐惧——你的熵值反映了这种一致性。'}]}},
+    { en:{title:'Money or the project',story:'You have a surplus. What do you do with it?',choices:[
+        {text:'💰 Keep it all',ep:+10,up:+4,intent:'ego',groupEp:0,fb:'A safe, self-focused decision. Entropy rose — the system points toward greater generosity.'},
+        {text:'🤲 Half to the community',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'You chose trust over control. Everyone −5 EP. Love shared multiplies.'},
+        {text:'🎁 Give it all away',ep:-15,up:+10,intent:'love',groupEp:-10,fb:'Full trust! Profound entropy reduction for all. This is love in action.'}]},
+      da:{title:'Pengene eller projektet',story:'Du har overskud. Hvad gør du med det?',choices:[
+        {text:'💰 Behold alt',ep:+10,up:+4,intent:'ego',groupEp:0,fb:'En selv-fokuseret beslutning. Entropien steg — systemet peger mod større gavmildhed.'},
+        {text:'🤲 Halvdelen til fællesskabet',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'Du valgte tillid over kontrol. Alle −5 EP. Delt kærlighed mangedobles.'},
+        {text:'🎁 Giv det hele væk',ep:-15,up:+10,intent:'love',groupEp:-10,fb:'Fuld tillid! Dyb entropireduktion for alle. Kærlighed i handling.'}]},
+      es:{title:'El dinero o el proyecto',story:'Tienes un excedente. ¿Qué haces con él?',choices:[
+        {text:'💰 Guardarlo todo',ep:+10,up:+4,intent:'ego',groupEp:0,fb:'Una decisión centrada en uno mismo. La entropía subió.'},
+        {text:'🤲 La mitad a la comunidad',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'Elegiste la confianza sobre el control. Todos −5 EP.'},
+        {text:'🎁 Darlo todo',ep:-15,up:+10,intent:'love',groupEp:-10,fb:'¡Plena confianza! Gran reducción de entropía para todos.'}]},
+      zh:{title:'金钱还是项目',story:'你有盈余。你会怎么做？',choices:[
+        {text:'💰 全部留下',ep:+10,up:+4,intent:'ego',groupEp:0,fb:'以自我为中心的决定。熵值上升——系统指向更大的慷慨。'},
+        {text:'🤲 一半给社区',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'你选择了信任而非控制。所有人−5 EP。分享的爱会倍增。'},
+        {text:'🎁 全部给出去',ep:-15,up:+10,intent:'love',groupEp:-10,fb:'完全信任！所有人深度减熵。这就是爱的行动。'}]}},
+    { en:{title:'Self-promotion',story:'You can secure an opportunity, but it means leaving someone else out.',choices:[
+        {text:'🚀 Grab it alone',ep:+14,up:+4,intent:'ego',nextUp:0,fb:'Fast action from ego. Entropy rose — an invitation to notice when self-interest closes doors for others.'},
+        {text:'🌿 Invite everyone',ep:-6,up:+7,intent:'love',nextUp:5,fb:'You chose the collective. Next player +5 UP. Inclusive love reduces entropy.'}]},
+      da:{title:'Fremme dig selv',story:'Du kan sikre en mulighed, men det kræver at du udelader en anden.',choices:[
+        {text:'🚀 Grib chancen alene',ep:+14,up:+4,intent:'ego',nextUp:0,fb:'Hurtig handling fra ego. Entropien steg — en invitation til at lægge mærke til, hvornår egeninteresse lukker døre for andre.'},
+        {text:'🌿 Invitér alle med',ep:-6,up:+7,intent:'love',nextUp:5,fb:'Du valgte fællesskabet. Næste spiller +5 UP. Inkluderende kærlighed reducerer entropi.'}]},
+      es:{title:'Autopromoción',story:'Puedes asegurar una oportunidad, pero significa excluir a alguien.',choices:[
+        {text:'🚀 Agarrarlo solo',ep:+14,up:+4,intent:'ego',nextUp:0,fb:'Acción rápida del ego. La entropía subió.'},
+        {text:'🌿 Invitar a todos',ep:-6,up:+7,intent:'love',nextUp:5,fb:'Elegiste el colectivo. El amor inclusivo reduce la entropía.'}]},
+      zh:{title:'自我推销',story:'你可以确保一个机会，但这意味着排除别人。',choices:[
+        {text:'🚀 独自抓住机会',ep:+14,up:+4,intent:'ego',nextUp:0,fb:'来自自我的快速行动。熵值上升——邀请你注意自身利益何时为他人关闭了门。'},
+        {text:'🌿 邀请所有人',ep:-6,up:+7,intent:'love',nextUp:5,fb:'你选择了集体。下位玩家+5 UP。包容的爱降低熵值。'}]}},
+    { en:{title:'Responsibility or flight',story:'Something went wrong. You can own it — or hide.',choices:[
+        {text:'🫣 Avoid responsibility',ep:+16,up:+2,intent:'fear',nextUp:0,fb:'Fear drove you away from accountability. Entropy rose to show the way back. The next step toward love is owning it.'},
+        {text:'💪 Take responsibility',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'Accountability takes courage. You moved toward love — entropy fell markedly.'}]},
+      da:{title:'Ansvaret eller flugten',story:'Noget er gået galt. Du kan tage ansvar – eller gemme dig.',choices:[
+        {text:'🫣 Undgå ansvar',ep:+16,up:+2,intent:'fear',nextUp:0,fb:'Frygt drev dig væk fra ansvarlighed. Entropien steg for at vise vejen tilbage. Næste skridt mod kærlighed er at eje det.'},
+        {text:'💪 Tag ansvar',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'Ansvarlighed kræver mod. Du bevægede dig mod kærlighed — entropien faldt markant.'}]},
+      es:{title:'Responsabilidad o huida',story:'Algo salió mal. Puedes asumirlo — o esconderte.',choices:[
+        {text:'🫣 Evitar la responsabilidad',ep:+16,up:+2,intent:'fear',nextUp:0,fb:'El miedo te alejó de la responsabilidad. La entropía subió para mostrar el camino de regreso.'},
+        {text:'💪 Asumir la responsabilidad',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'La responsabilidad requiere valentía. Te moviste hacia el amor — la entropía bajó notablemente.'}]},
+      zh:{title:'责任还是逃避',story:'出了问题。你可以承担责任——或者躲避。',choices:[
+        {text:'🫣 逃避责任',ep:+16,up:+2,intent:'fear',nextUp:0,fb:'恐惧让你远离了责任感。熵值上升以指引回归之路。下一步迈向爱就是承担它。'},
+        {text:'💪 承担责任',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'承担责任需要勇气。你向爱迈进——熵值显著下降。'}]}},
+    { en:{title:'The comfort zone',story:'You are invited into something new and challenging.',choices:[
+        {text:'😴 Stay in the familiar',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'Fear of the unknown kept you comfortable. Entropy notes the growth that awaits when you are ready.'},
+        {text:'🌟 Accept the challenge',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'You leaned into growth. Challenges expand consciousness — entropy fell because you chose love over safety.'}]},
+      da:{title:'Komfortzonen',story:'Du inviteres til noget nyt og udfordrende.',choices:[
+        {text:'😴 Bliv i det kendte',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'Frygt for det ukendte holdt dig komfortabel. Entropi noterer den vækst, der venter, når du er klar.'},
+        {text:'🌟 Acceptér udfordringen',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'Du lænede dig ind i væksten. Udfordringer udvider bevidstheden — entropien faldt fordi du valgte kærlighed over tryghed.'}]},
+      es:{title:'La zona de confort',story:'Te invitan a algo nuevo y desafiante.',choices:[
+        {text:'😴 Quedarse en lo familiar',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'El miedo a lo desconocido te mantuvo cómodo. La entropía nota el crecimiento que te espera.'},
+        {text:'🌟 Aceptar el desafío',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'Te inclinaste hacia el crecimiento. La entropía bajó porque elegiste el amor sobre la seguridad.'}]},
+      zh:{title:'舒适区',story:'你被邀请去做一些新的、有挑战性的事情。',choices:[
+        {text:'😴 留在熟悉的地方',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'对未知的恐惧让你保持舒适。熵值记录了当你准备好时等待着的成长。'},
+        {text:'🌟 接受挑战',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'你向成长倾斜。挑战扩展意识——你选择了爱而非安全感，熵值下降了。'}]}},
+    { en:{title:'Time to rest',story:'You are exhausted. A chance to rest — or push through.',choices:[
+        {text:'⚡ Push through on willpower',ep:+10,up:+6,intent:'ego',nextUp:0,fb:'Forcing progress from fear of falling behind increases entropy. The system invites you to trust rest as part of the journey.'},
+        {text:'🌙 Rest and rebuild',ep:-10,up:+5,intent:'trust',nextUp:0,fb:'True rest is not weakness — it is wisdom. You trusted the process; entropy fell.'}]},
+      da:{title:'Tid til at hvile',story:'Du er udmattet. En chance for at slappe af – eller presse videre.',choices:[
+        {text:'⚡ Pres videre med viljestyrke',ep:+10,up:+6,intent:'ego',nextUp:0,fb:'Tvungen fremgang af frygt for at falde bagud øger entropi. Systemet inviterer dig til at stole på hvile som del af rejsen.'},
+        {text:'🌙 Hvil og genopbyg',ep:-10,up:+5,intent:'trust',nextUp:0,fb:'Ægte hvile er ikke svaghed — det er visdom. Du stolede på processen; entropien faldt.'}]},
+      es:{title:'Tiempo para descansar',story:'Estás agotado. Una oportunidad para descansar — o seguir adelante.',choices:[
+        {text:'⚡ Seguir adelante con fuerza de voluntad',ep:+10,up:+6,intent:'ego',nextUp:0,fb:'Forzar el progreso por miedo a quedarse atrás aumenta la entropía.'},
+        {text:'🌙 Descansar y recuperarse',ep:-10,up:+5,intent:'trust',nextUp:0,fb:'El verdadero descanso no es debilidad — es sabiduría. La entropía bajó.'}]},
+      zh:{title:'休息的时间',story:'你精疲力竭。一个休息的机会——或者继续前进。',choices:[
+        {text:'⚡ 靠意志力继续前进',ep:+10,up:+6,intent:'ego',nextUp:0,fb:'出于对落后的恐惧而强迫前进会增加熵值。系统邀请你相信休息是旅程的一部分。'},
+        {text:'🌙 休息并重建',ep:-10,up:+5,intent:'trust',nextUp:0,fb:'真正的休息不是软弱——而是智慧。你信任了这个过程；熵值下降了。'}]}},
+  ],
+  temptation: [
+    { en:{title:'The sweet shortcut',story:'You can gain points by copying someone else\'s work.',choices:[
+        {text:'📋 Copy it',ep:+15,up:+8,intent:'ego',nextUp:0,fb:'Short-term gain, but entropy rose sharply. The system notes: genuine growth does not come from borrowed effort.'},
+        {text:'✍️ Do your own work',ep:-5,up:+5,intent:'trust',nextUp:0,fb:'Slower, but real. Your own effort is the only path to genuine consciousness growth.'}]},
+      da:{title:'Den søde genvej',story:'Du kan score point ved at kopiere en andens arbejde.',choices:[
+        {text:'📋 Kopiér',ep:+15,up:+8,intent:'ego',nextUp:0,fb:'Kortvarig gevinst, men entropi steg kraftigt. Systemet bemærker: ægte vækst kommer ikke fra lånt indsats.'},
+        {text:'✍️ Lav dit eget',ep:-5,up:+5,intent:'trust',nextUp:0,fb:'Langsommere, men ægte. Din egen indsats er den eneste vej til reel bevidsthedsvækst.'}]},
+      es:{title:'El atajo dulce',story:'Puedes ganar puntos copiando el trabajo de alguien más.',choices:[
+        {text:'📋 Copiarlo',ep:+15,up:+8,intent:'ego',nextUp:0,fb:'Ganancia a corto plazo, pero la entropía subió. El crecimiento genuino no viene del esfuerzo prestado.'},
+        {text:'✍️ Hacer tu propio trabajo',ep:-5,up:+5,intent:'trust',nextUp:0,fb:'Más lento, pero real. Tu propio esfuerzo es el único camino.'}]},
+      zh:{title:'甜蜜的捷径',story:'你可以通过复制别人的工作来得分。',choices:[
+        {text:'📋 复制',ep:+15,up:+8,intent:'ego',nextUp:0,fb:'短期收益，但熵值急剧上升。系统注意到：真正的成长不来自借用的努力。'},
+        {text:'✍️ 做自己的工作',ep:-5,up:+5,intent:'trust',nextUp:0,fb:'更慢，但真实。你自己的努力是真正意识成长的唯一途径。'}]}},
+    { en:{title:'The gossip',story:'You heard something about another player. Sharing it gains you social capital.',choices:[
+        {text:'😬 Share the rumour',ep:+18,up:+3,intent:'fear',nextEp:+10,fb:'Fear of social standing drove this. The other player +10 EP. Gossip is fear speaking — the system reflected it back clearly.'},
+        {text:'🤐 Keep it to yourself',ep:-8,up:+5,intent:'love',nextUp:0,fb:'You chose integrity. Protecting others\' dignity is love in action — entropy fell.'}]},
+      da:{title:'Rygtesmeden',story:'Du hørte noget om en medspiller. At dele det giver dig social kapital.',choices:[
+        {text:'😬 Del rygtet',ep:+18,up:+3,intent:'fear',nextEp:+10,fb:'Frygt for social status drev dette. Den anden spiller +10 EP. Sladder er frygt der taler — systemet spejlede det tydeligt tilbage.'},
+        {text:'🤐 Hold det for dig selv',ep:-8,up:+5,intent:'love',nextUp:0,fb:'Du valgte integritet. At beskytte andres værdighed er kærlighed i handling — entropien faldt.'}]},
+      es:{title:'El chisme',story:'Escuchaste algo sobre otro jugador. Compartirlo te da capital social.',choices:[
+        {text:'😬 Compartir el rumor',ep:+18,up:+3,intent:'fear',nextEp:+10,fb:'El miedo al estatus social impulsó esto. El otro jugador +10 EP.'},
+        {text:'🤐 Guardarlo para ti',ep:-8,up:+5,intent:'love',nextUp:0,fb:'Elegiste la integridad. Proteger la dignidad de los demás es amor en acción.'}]},
+      zh:{title:'八卦',story:'你听到了关于另一位玩家的事情。分享它能给你带来社交资本。',choices:[
+        {text:'😬 传播谣言',ep:+18,up:+3,intent:'fear',nextEp:+10,fb:'对社交地位的恐惧驱动了这一行为。另一位玩家+10 EP。八卦是恐惧在说话——系统清晰地将它反射回来。'},
+        {text:'🤐 保密',ep:-8,up:+5,intent:'love',nextUp:0,fb:'你选择了正直。保护他人的尊严是爱的行动——熵值下降了。'}]}},
+    { en:{title:'The power play',story:'You can manipulate a situation so you look best.',choices:[
+        {text:'🎭 Manipulate',ep:+20,up:+5,intent:'ego',nextEp:+8,fb:'Ego won the moment, but manipulation creates high entropy for everyone. The system shows the cost of fear-based control.'},
+        {text:'🕊️ Be authentic',ep:-10,up:+6,intent:'love',nextUp:0,fb:'Authenticity takes courage. You chose love over strategy — entropy fell for you and those around you.'}]},
+      da:{title:'Magtspillet',story:'Du kan manipulere en situation så du ser bedst ud.',choices:[
+        {text:'🎭 Manipulér',ep:+20,up:+5,intent:'ego',nextEp:+8,fb:'Egoet vandt øjeblikket, men manipulation skaber høj entropi for alle. Systemet viser prisen for frygt-baseret kontrol.'},
+        {text:'🕊️ Vær autentisk',ep:-10,up:+6,intent:'love',nextUp:0,fb:'Autenticitet kræver mod. Du valgte kærlighed over strategi — entropien faldt for dig og dem omkring dig.'}]},
+      es:{title:'El juego de poder',story:'Puedes manipular una situación para quedar mejor.',choices:[
+        {text:'🎭 Manipular',ep:+20,up:+5,intent:'ego',nextEp:+8,fb:'El ego ganó el momento, pero la manipulación crea alta entropía para todos.'},
+        {text:'🕊️ Ser auténtico',ep:-10,up:+6,intent:'love',nextUp:0,fb:'La autenticidad requiere valentía. Elegiste el amor sobre la estrategia.'}]},
+      zh:{title:'权力游戏',story:'你可以操纵局势让自己看起来最好。',choices:[
+        {text:'🎭 操纵',ep:+20,up:+5,intent:'ego',nextEp:+8,fb:'自我赢得了这一刻，但操纵为所有人创造了高熵。系统展示了基于恐惧的控制的代价。'},
+        {text:'🕊️ 真诚',ep:-10,up:+6,intent:'love',nextUp:0,fb:'真诚需要勇气。你选择了爱而非策略——你和周围人的熵值都下降了。'}]}},
+    { en:{title:'The loud voice',story:'You can "win" a discussion by raising your voice.',choices:[
+        {text:'📢 Push through',ep:+12,up:+4,intent:'ego',nextUp:0,fb:'You won the argument but not understanding. Volume is fear\'s substitute for wisdom — entropy rose to reflect this.'},
+        {text:'👂 Listen and discuss',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'True dialogue is love in action. You chose understanding over dominance — entropy fell.'}]},
+      da:{title:'Den høje stemme',story:'Du kan "vinde" en diskussion ved at hæve stemmen.',choices:[
+        {text:'📢 Tryk igennem',ep:+12,up:+4,intent:'ego',nextUp:0,fb:'Du vandt argumentet men ikke forståelsen. Volumen er frygtens erstatning for visdom — entropien steg for at afspejle dette.'},
+        {text:'👂 Lyt og diskutér',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'Ægte dialog er kærlighed i handling. Du valgte forståelse over dominans — entropien faldt.'}]},
+      es:{title:'La voz alta',story:'Puedes "ganar" una discusión levantando la voz.',choices:[
+        {text:'📢 Imponerse',ep:+12,up:+4,intent:'ego',nextUp:0,fb:'Ganaste el argumento pero no la comprensión. El volumen es el sustituto del miedo a la sabiduría.'},
+        {text:'👂 Escuchar y discutir',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'El diálogo verdadero es amor en acción. Elegiste la comprensión sobre la dominación.'}]},
+      zh:{title:'大声争论',story:'你可以通过提高声音来"赢得"讨论。',choices:[
+        {text:'📢 强行推进',ep:+12,up:+4,intent:'ego',nextUp:0,fb:'你赢得了争论但没有赢得理解。音量是恐惧对智慧的替代——熵值上升以反映这一点。'},
+        {text:'👂 倾听和讨论',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'真正的对话是爱的行动。你选择了理解而非支配——熵值下降了。'}]}},
+    { en:{title:'Instant gratification',story:'An immediate pleasure that will cost dearly in the long run.',choices:[
+        {text:'🍬 Take the quick hit',ep:+14,up:+2,intent:'ego',nextUp:0,fb:'Short-term pleasure at the cost of long-term growth. Entropy rose as a gentle reminder of where true fulfillment lives.'},
+        {text:'🌱 Choose the long-term path',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'You chose growth over instant gratification. Love always takes the longer view — entropy fell.'}]},
+      da:{title:'Øjeblikkets glæde',story:'En øjeblikkelig nydelse, der vil koste dyrt på sigt.',choices:[
+        {text:'🍬 Tag den hurtige tilfredsstillelse',ep:+14,up:+2,intent:'ego',nextUp:0,fb:'Kortvarig nydelse på bekostning af langsigtet vækst. Entropien steg som en blid påmindelse om, hvor sand tilfredsstillelse lever.'},
+        {text:'🌱 Vælg den langsigtede vej',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'Du valgte vækst over øjeblikkelig tilfredsstillelse. Kærlighed tager altid det længere perspektiv — entropien faldt.'}]},
+      es:{title:'La gratificación instantánea',story:'Un placer inmediato que costará caro a largo plazo.',choices:[
+        {text:'🍬 Tomar la satisfacción rápida',ep:+14,up:+2,intent:'ego',nextUp:0,fb:'Placer a corto plazo a costa del crecimiento a largo plazo.'},
+        {text:'🌱 Elegir el camino a largo plazo',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'Elegiste el crecimiento sobre la gratificación instantánea.'}]},
+      zh:{title:'即时满足',story:'一种立即的享乐，长期来看会付出高昂代价。',choices:[
+        {text:'🍬 获取快速满足',ep:+14,up:+2,intent:'ego',nextUp:0,fb:'以长期成长为代价的短期享乐。熵值上升，温和地提醒你真正的满足感在哪里。'},
+        {text:'🌱 选择长远之路',ep:-8,up:+6,intent:'trust',nextUp:0,fb:'你选择了成长而非即时满足。爱总是着眼更长远——熵值下降了。'}]}},
+    { en:{title:'Empty flattery',story:'You can win favor by flattering someone falsely.',choices:[
+        {text:'😊 Flatter falsely',ep:+10,up:+3,intent:'ego',nextUp:0,fb:'False flattery is fear wearing a smile. Entropy rose to show the gap between the mask and the truth.'},
+        {text:'💛 Give genuine recognition',ep:-6,up:+5,intent:'love',nextUp:4,fb:'Genuine appreciation lifts both giver and receiver. Love-based acknowledgment reduces entropy for everyone.'}]},
+      da:{title:'Den billige smigreri',story:'Du kan vinde gunst ved at smigre nogen falskt.',choices:[
+        {text:'😊 Smiger falskt',ep:+10,up:+3,intent:'ego',nextUp:0,fb:'Falsk smigreri er frygt med et smil. Entropien steg for at vise kløften mellem masken og sandheden.'},
+        {text:'💛 Giv ægte anerkendelse',ep:-6,up:+5,intent:'love',nextUp:4,fb:'Ægte anerkendelse løfter både giver og modtager. Kærlighedsbaseret anerkendelse reducerer entropi for alle.'}]},
+      es:{title:'La adulación vacía',story:'Puedes ganar favor adulando falsamente a alguien.',choices:[
+        {text:'😊 Adular falsamente',ep:+10,up:+3,intent:'ego',nextUp:0,fb:'La adulación falsa es el miedo con una sonrisa. La entropía subió.'},
+        {text:'💛 Dar reconocimiento genuino',ep:-6,up:+5,intent:'love',nextUp:4,fb:'El aprecio genuino eleva tanto al que da como al que recibe.'}]},
+      zh:{title:'空洞的奉承',story:'你可以通过虚假奉承某人来赢得好感。',choices:[
+        {text:'😊 虚假奉承',ep:+10,up:+3,intent:'ego',nextUp:0,fb:'虚假奉承是戴着微笑的恐惧。熵值上升，揭示面具与真相之间的差距。'},
+        {text:'💛 给予真诚的认可',ep:-6,up:+5,intent:'love',nextUp:4,fb:'真诚的欣赏同时提升给予者和接受者。基于爱的认可为所有人减少熵值。'}]}},
+    { en:{title:'The easy excuse',story:'You can make a half-hearted apology and avoid consequences.',choices:[
+        {text:'🤥 Make an excuse',ep:+10,up:+2,intent:'fear',nextUp:0,fb:'A small untruth creates entropy. The system notes: real healing requires real honesty.'},
+        {text:'🌟 Be honest and apologize',ep:-6,up:+5,intent:'trust',nextUp:0,fb:'A true apology is an act of love — for yourself and the other. Entropy fell because you chose truth.'}]},
+      da:{title:'Den nemme undskyldning',story:'Du kan lave en halvhjertet undskyldning og undgå konsekvenser.',choices:[
+        {text:'🤥 Kom med en undskyldning',ep:+10,up:+2,intent:'fear',nextUp:0,fb:'En lille usandhed skaber entropi. Systemet bemærker: ægte helbredelse kræver ægte ærlighed.'},
+        {text:'🌟 Vær ærlig og undskyld oprigtigt',ep:-6,up:+5,intent:'trust',nextUp:0,fb:'En ægte undskyldning er en kærlighedshandling — for dig selv og den anden. Entropien faldt fordi du valgte sandheden.'}]},
+      es:{title:'La excusa fácil',story:'Puedes hacer una disculpa a medias y evitar consecuencias.',choices:[
+        {text:'🤥 Poner una excusa',ep:+10,up:+2,intent:'fear',nextUp:0,fb:'Una pequeña mentira crea entropía. La curación real requiere honestidad real.'},
+        {text:'🌟 Ser honesto y disculparse',ep:-6,up:+5,intent:'trust',nextUp:0,fb:'Una disculpa genuina es un acto de amor. La entropía bajó porque elegiste la verdad.'}]},
+      zh:{title:'简单的借口',story:'你可以做一个敷衍的道歉来避免后果。',choices:[
+        {text:'🤥 找个借口',ep:+10,up:+2,intent:'fear',nextUp:0,fb:'小小的不实话会产生熵。系统注意到：真正的愈合需要真正的诚实。'},
+        {text:'🌟 诚实地道歉',ep:-6,up:+5,intent:'trust',nextUp:0,fb:'真诚的道歉是爱的行动——为你自己和对方。你选择了真相，熵值下降了。'}]}},
+  ],
+  development: [
+    { en:{title:'Mirror moment',story:'You notice a pattern in another that you recognise from yourself.',choices:[
+        {text:'🪞 Acknowledge it in yourself',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'Self-awareness is the key to lower entropy. What you see in others is a gift from the system — pointing inward.'},
+        {text:'👁️ Ignore it',ep:+5,up:+1,intent:'fear',nextUp:0,fb:'Unseen patterns continue to run. Entropy rose gently — the mirror will appear again when you are ready.'}]},
+      da:{title:'Spejlmoment',story:'Du ser et mønster hos en anden, som du kender fra dig selv.',choices:[
+        {text:'🪞 Anerkend det i dig selv',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'Selvbevidsthed er nøglen til lavere entropi. Det du ser hos andre er en gave fra systemet — der peger indad.'},
+        {text:'👁️ Ignorer det',ep:+5,up:+1,intent:'fear',nextUp:0,fb:'Usete mønstre fortsætter med at køre. Entropien steg blidt — spejlet vil dukke op igen når du er klar.'}]},
+      es:{title:'Momento espejo',story:'Notas un patrón en otro que reconoces en ti mismo.',choices:[
+        {text:'🪞 Reconocerlo en ti mismo',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'La autoconciencia es la clave para menor entropía. Lo que ves en otros es un regalo del sistema.'},
+        {text:'👁️ Ignorarlo',ep:+5,up:+1,intent:'fear',nextUp:0,fb:'Los patrones invisibles continúan. La entropía subió suavemente — el espejo aparecerá de nuevo cuando estés listo.'}]},
+      zh:{title:'镜像时刻',story:'你注意到另一个人身上有一个你在自己身上认识的模式。',choices:[
+        {text:'🪞 在自己身上承认它',ep:-12,up:+8,intent:'trust',nextUp:0,fb:'自我意识是降低熵的关键。你在他人身上看到的是系统的礼物——指向内心。'},
+        {text:'👁️ 忽略它',ep:+5,up:+1,intent:'fear',nextUp:0,fb:'未被察觉的模式继续运行。熵值轻微上升——当你准备好时，镜子会再次出现。'}]}},
+    { en:{title:'Aha moment',story:'You suddenly understand the connection in something that had confused you.',choices:[
+        {text:'🌟 Integrate the insight',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'New understanding lowers entropy significantly. You let love lead — the insight became part of you.'},
+        {text:'📱 Forget it and check the phone',ep:+5,up:+1,intent:'ego',nextUp:0,fb:'Unused insights drift away. Entropy rose — the system will offer the insight again when attention returns.'}]},
+      da:{title:'Aha-øjeblik',story:'Du forstår pludselig sammenhængen i noget, der har forvirret dig.',choices:[
+        {text:'🌟 Integrer indsigten',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'Ny forståelse sænker entropien markant. Du lod kærlighed lede — indsigten blev en del af dig.'},
+        {text:'📱 Glem det og tjek telefonen',ep:+5,up:+1,intent:'ego',nextUp:0,fb:'Ubrugte indsigter driver væk. Entropien steg — systemet vil tilbyde indsigten igen, når opmærksomheden vender tilbage.'}]},
+      es:{title:'Momento eureka',story:'De repente entiendes la conexión en algo que te había confundido.',choices:[
+        {text:'🌟 Integrar la visión',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'La nueva comprensión reduce significativamente la entropía.'},
+        {text:'📱 Olvidarlo y revisar el teléfono',ep:+5,up:+1,intent:'ego',nextUp:0,fb:'Las visiones sin usar se alejan. La entropía subió.'}]},
+      zh:{title:'顿悟时刻',story:'你突然理解了一直困惑你的事情中的联系。',choices:[
+        {text:'🌟 整合这个洞见',ep:-10,up:+8,intent:'trust',nextUp:0,fb:'新的理解显著降低熵值。你让爱引导——这个洞见成为了你的一部分。'},
+        {text:'📱 忘掉它去看手机',ep:+5,up:+1,intent:'ego',nextUp:0,fb:'未使用的洞见会消散。熵值上升——当注意力回归时，系统会再次提供这个洞见。'}]}},
+    { en:{title:'Meditation',story:'You have time for a deep meditation.',choices:[
+        {text:'😌 Short and surface',ep:-5,up:+3,intent:'trust',nextUp:0,fb:'Any pause toward stillness helps. Even a brief pause is love offered to yourself.'},
+        {text:'🧘 Deep and focused',ep:-12,up:+7,intent:'love',nextUp:0,fb:'Deep meditation powerfully reduces entropy. You chose to go inward — consciousness expanded, love deepened.'}]},
+      da:{title:'Meditation',story:'Du har tid til en dyb meditation.',choices:[
+        {text:'😌 Kort og overfladisk',ep:-5,up:+3,intent:'trust',nextUp:0,fb:'Enhver pause mod stilhed hjælper. Selv en kort pause er kærlighed tilbudt til dig selv.'},
+        {text:'🧘 Dyb og fokuseret',ep:-12,up:+7,intent:'love',nextUp:0,fb:'Dyb meditation reducerer kraftigt entropien. Du valgte at gå indad — bevidstheden udvidede sig, kærligheden fordybede sig.'}]},
+      es:{title:'Meditación',story:'Tienes tiempo para una meditación profunda.',choices:[
+        {text:'😌 Corta y superficial',ep:-5,up:+3,intent:'trust',nextUp:0,fb:'Cualquier pausa hacia la quietud ayuda.'},
+        {text:'🧘 Profunda y concentrada',ep:-12,up:+7,intent:'love',nextUp:0,fb:'La meditación profunda reduce poderosamente la entropía. Elegiste mirar hacia adentro.'}]},
+      zh:{title:'冥想',story:'你有时间进行深度冥想。',choices:[
+        {text:'😌 短暂而表面',ep:-5,up:+3,intent:'trust',nextUp:0,fb:'任何朝向宁静的暂停都有帮助。即使是短暂的暂停也是给自己的爱。'},
+        {text:'🧘 深度而专注',ep:-12,up:+7,intent:'love',nextUp:0,fb:'深度冥想有力地降低熵值。你选择了向内——意识扩展了，爱加深了。'}]}},
+    { en:{title:'Gratitude moment',story:'You pause and find things to be grateful for.',choices:[
+        {text:'💛 Three heartfelt thanks',ep:-10,up:+6,intent:'love',nextUp:0,fb:'Gratitude shifts intention from fear to love — and the system responds immediately. Entropy fell.'},
+        {text:'🤔 Surface-level list',ep:-4,up:+2,intent:'trust',nextUp:0,fb:'Even a brief gratitude practice opens the door. A small step toward love always moves entropy.'}]},
+      da:{title:'Taknemmelighedsøjeblik',story:'Du stopper op og finder ting du er taknemmelig for.',choices:[
+        {text:'💛 Tre inderlige tak',ep:-10,up:+6,intent:'love',nextUp:0,fb:'Taknemmelighed skifter intentionen fra frygt til kærlighed — og systemet reagerer straks. Entropien faldt.'},
+        {text:'🤔 Overfladisk liste',ep:-4,up:+2,intent:'trust',nextUp:0,fb:'Selv en kort taknemmeligheds-øvelse åbner døren. Et lille skridt mod kærlighed bevæger altid entropien.'}]},
+      es:{title:'Momento de gratitud',story:'Haces una pausa y encuentras cosas por las que estar agradecido.',choices:[
+        {text:'💛 Tres gracias sinceras',ep:-10,up:+6,intent:'love',nextUp:0,fb:'La gratitud cambia la intención del miedo al amor — y el sistema responde inmediatamente.'},
+        {text:'🤔 Lista superficial',ep:-4,up:+2,intent:'trust',nextUp:0,fb:'Incluso una breve práctica de gratitud abre la puerta.'}]},
+      zh:{title:'感恩时刻',story:'你停下来，找到值得感恩的事情。',choices:[
+        {text:'💛 三个由衷的感谢',ep:-10,up:+6,intent:'love',nextUp:0,fb:'感恩将意图从恐惧转向爱——系统立即响应。熵值下降了。'},
+        {text:'🤔 表面的清单',ep:-4,up:+2,intent:'trust',nextUp:0,fb:'即使是简短的感恩练习也能打开门。朝向爱的小步骤总会推动熵值移动。'}]}},
+    { en:{title:'Your shadow side',story:'You encounter a part of yourself you normally avoid.',choices:[
+        {text:'🌑 Accept it',ep:-14,up:+9,intent:'trust',nextUp:0,fb:'Integrating the shadow is deeply developmental. What you accept can no longer drive you — entropy fell significantly.'},
+        {text:'🚪 Shut it out',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'What you avoid keeps growing. Entropy rose — the shadow will knock again. Meeting it with love is the path forward.'}]},
+      da:{title:'Din skyggeside',story:'Du møder en side af dig selv, du normalt undgår.',choices:[
+        {text:'🌑 Acceptér den',ep:-14,up:+9,intent:'trust',nextUp:0,fb:'Integrering af skyggen er dybt udviklende. Det du accepterer kan ikke længere drive dig — entropien faldt markant.'},
+        {text:'🚪 Luk den ude',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'Det du undgår, fortsætter med at vokse. Entropien steg — skyggen vil banke på igen. At møde den med kærlighed er vejen frem.'}]},
+      es:{title:'Tu lado oscuro',story:'Te encuentras con una parte de ti mismo que normalmente evitas.',choices:[
+        {text:'🌑 Aceptarla',ep:-14,up:+9,intent:'trust',nextUp:0,fb:'Integrar la sombra es profundamente transformador. La entropía cayó significativamente.'},
+        {text:'🚪 Cerrarle la puerta',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'Lo que evitas sigue creciendo. La entropía subió — la sombra volverá a llamar.'}]},
+      zh:{title:'你的阴暗面',story:'你遇到了自己通常避免面对的那一部分。',choices:[
+        {text:'🌑 接受它',ep:-14,up:+9,intent:'trust',nextUp:0,fb:'整合阴影具有深刻的发展性。你接受的东西不再能驱动你——熵值显著下降。'},
+        {text:'🚪 关上门',ep:+8,up:+1,intent:'fear',nextUp:0,fb:'你避免的东西继续生长。熵值上升——阴影会再次敲门。用爱迎接它是前进的道路。'}]}},
+    { en:{title:'The boundary',story:'You need to set a boundary. It feels uncomfortable.',choices:[
+        {text:'🛑 Set it clearly',ep:-10,up:+7,intent:'trust',nextUp:0,fb:'Healthy boundaries are an act of love — for yourself and others. You chose clarity; entropy fell.'},
+        {text:'😬 Avoid the conflict',ep:+8,up:+2,intent:'fear',nextUp:0,fb:'Avoided conflicts build up as entropy over time. The system invites you to trust that love can hold the boundary.'}]},
+      da:{title:'Grænsen',story:'Du har brug for at sætte en grænse. Det føles ubehageligt.',choices:[
+        {text:'🛑 Sæt grænsen klart',ep:-10,up:+7,intent:'trust',nextUp:0,fb:'Sunde grænser er en kærlighedshandling — for dig selv og andre. Du valgte klarhed; entropien faldt.'},
+        {text:'😬 Undgå konflikten',ep:+8,up:+2,intent:'fear',nextUp:0,fb:'Undgåede konflikter ophobes som entropi over tid. Systemet inviterer dig til at stole på at kærlighed kan holde grænsen.'}]},
+      es:{title:'El límite',story:'Necesitas establecer un límite. Se siente incómodo.',choices:[
+        {text:'🛑 Establecerlo claramente',ep:-10,up:+7,intent:'trust',nextUp:0,fb:'Los límites saludables son un acto de amor. Elegiste la claridad; la entropía bajó.'},
+        {text:'😬 Evitar el conflicto',ep:+8,up:+2,intent:'fear',nextUp:0,fb:'Los conflictos evitados se acumulan como entropía.'}]},
+      zh:{title:'界限',story:'你需要设定一个界限。感觉不舒服。',choices:[
+        {text:'🛑 明确设定它',ep:-10,up:+7,intent:'trust',nextUp:0,fb:'健康的界限是爱的行动——为你自己和他人。你选择了清晰；熵值下降了。'},
+        {text:'😬 避免冲突',ep:+8,up:+2,intent:'fear',nextUp:0,fb:'被避免的冲突会随时间积累为熵。系统邀请你相信爱可以维持界限。'}]}},
+    { en:{title:'New habit',story:'You can start a positive new habit — but it requires consistent effort.',choices:[
+        {text:'🌱 Commit fully',ep:-8,up:+7,intent:'trust',nextUp:0,fb:'A conscious choice toward growth lowers entropy. You aligned action with love — that alignment is the work.'},
+        {text:'🤷 Maybe someday',ep:+4,up:+1,intent:'fear',nextUp:0,fb:'Postponement increases entropy gently. The good news: someday can become today on any turn.'}]},
+      da:{title:'Ny vane',story:'Du kan starte en ny positiv vane – men det kræver konsistent indsats.',choices:[
+        {text:'🌱 Forpligt dig fuldt',ep:-8,up:+7,intent:'trust',nextUp:0,fb:'Et bevidst valg mod vækst sænker entropien. Du tilpassede handling med kærlighed — den tilpasning er arbejdet.'},
+        {text:'🤷 Måske en dag',ep:+4,up:+1,intent:'fear',nextUp:0,fb:'Udskydelset øger entropien blidt. Den gode nyhed: en dag kan blive til i dag på ethvert tur.'}]},
+      es:{title:'Nuevo hábito',story:'Puedes comenzar un nuevo hábito positivo — pero requiere esfuerzo constante.',choices:[
+        {text:'🌱 Comprometerse plenamente',ep:-8,up:+7,intent:'trust',nextUp:0,fb:'Una elección consciente hacia el crecimiento reduce la entropía.'},
+        {text:'🤷 Quizás algún día',ep:+4,up:+1,intent:'fear',nextUp:0,fb:'El aplazamiento aumenta suavemente la entropía.'}]},
+      zh:{title:'新习惯',story:'你可以开始一个积极的新习惯——但需要持续的努力。',choices:[
+        {text:'🌱 全力投入',ep:-8,up:+7,intent:'trust',nextUp:0,fb:'朝向成长的有意识选择降低熵值。你将行动与爱对齐——那种对齐就是功课。'},
+        {text:'🤷 也许有一天',ep:+4,up:+1,intent:'fear',nextUp:0,fb:'拖延会温和地增加熵值。好消息是：任何一回合，"有一天"都可以变成"今天"。'}]}},
+  ],
+  event: [
+    { en:{title:'Global crisis',story:'A crisis hits everyone. Standing together makes you stronger.',choices:[
+        {text:'🌐 Stand together',ep:-8,up:+5,intent:'love',groupEp:-8,fb:'Collective response lowers everyone\'s entropy. All players −8 EP. Love expressed together multiplies.'},
+        {text:'🏠 Protect yourself',ep:+5,up:+2,intent:'fear',groupEp:0,fb:'Isolation increases entropy — the system shows that the path forward runs through connection, not walls.'}]},
+      da:{title:'Global krise',story:'En krise rammer alle. I kan stå stærkere ved at samle jer.',choices:[
+        {text:'🌐 Stå sammen',ep:-8,up:+5,intent:'love',groupEp:-8,fb:'Kollektiv respons sænker alles entropi. Alle spillere −8 EP. Kærlighed udtrykt sammen mangedobles.'},
+        {text:'🏠 Beskyt dig selv',ep:+5,up:+2,intent:'fear',groupEp:0,fb:'Isolation øger entropien — systemet viser at vejen frem løber gennem forbindelsen, ikke mure.'}]},
+      es:{title:'Crisis global',story:'Una crisis afecta a todos. Estar juntos os hace más fuertes.',choices:[
+        {text:'🌐 Estar juntos',ep:-8,up:+5,intent:'love',groupEp:-8,fb:'La respuesta colectiva reduce la entropía de todos. Todos los jugadores −8 EP.'},
+        {text:'🏠 Protegerte',ep:+5,up:+2,intent:'fear',groupEp:0,fb:'El aislamiento aumenta la entropía — el camino pasa por la conexión, no por los muros.'}]},
+      zh:{title:'全球危机',story:'危机影响到所有人。团结在一起让你们更强大。',choices:[
+        {text:'🌐 团结在一起',ep:-8,up:+5,intent:'love',groupEp:-8,fb:'集体响应降低所有人的熵值。所有玩家−8 EP。共同表达的爱会倍增。'},
+        {text:'🏠 保护自己',ep:+5,up:+2,intent:'fear',groupEp:0,fb:'孤立增加熵值——系统显示前进的道路穿越联系，而非高墙。'}]}},
+    { en:{title:'Consciousness wave',story:'A collective awakening is happening. Everyone feels it.',choices:[
+        {text:'🌊 Ride the wave',ep:-10,up:+7,intent:'love',groupEp:-5,fb:'Collective transformation is powerful. All −5 EP. You chose to flow with love rather than resist.'},
+        {text:'😕 Ignore it',ep:+5,up:+1,intent:'ego',groupEp:0,fb:'Ignoring collective opportunities increases entropy gently. The wave will return.'}]},
+      da:{title:'Bevidsthedsbølge',story:'En kollektiv opvågnen sker. Alle mærker det.',choices:[
+        {text:'🌊 Ride bølgen',ep:-10,up:+7,intent:'love',groupEp:-5,fb:'Kollektiv transformation er kraftfuld. Alle −5 EP. Du valgte at flyde med kærlighed frem for at modstå.'},
+        {text:'😕 Ignorer det',ep:+5,up:+1,intent:'ego',groupEp:0,fb:'At ignorere kollektive muligheder øger entropien blidt. Bølgen vil vende tilbage.'}]},
+      es:{title:'Ola de conciencia',story:'Un despertar colectivo está ocurriendo. Todos lo sienten.',choices:[
+        {text:'🌊 Surfear la ola',ep:-10,up:+7,intent:'love',groupEp:-5,fb:'La transformación colectiva es poderosa. Todos −5 EP.'},
+        {text:'😕 Ignorarla',ep:+5,up:+1,intent:'ego',groupEp:0,fb:'Ignorar las oportunidades colectivas aumenta la entropía suavemente.'}]},
+      zh:{title:'意识浪潮',story:'集体觉醒正在发生。所有人都感受到了。',choices:[
+        {text:'🌊 乘浪而行',ep:-10,up:+7,intent:'love',groupEp:-5,fb:'集体转化是强大的。所有人−5 EP。你选择随爱流动而非抵抗。'},
+        {text:'😕 忽视它',ep:+5,up:+1,intent:'ego',groupEp:0,fb:'忽视集体机会会温和地增加熵值。浪潮会回来的。'}]}},
+    { en:{title:'Collective celebration',story:'The group achieved something wonderful. Time to celebrate!',choices:[
+        {text:'🎉 Celebrate fully',ep:-8,up:+8,intent:'love',groupEp:-8,fb:'Collective joy lowers everyone\'s entropy. All −8 EP. Love shared in celebration is pure energy.'},
+        {text:'🤷 Not really a big deal',ep:+4,up:+1,intent:'ego',groupEp:0,fb:'Minimising joy increases entropy. The system notes: every moment of love deserves full presence.'}]},
+      da:{title:'Fælles fejring',story:'Gruppen har opnået noget fantastisk. Tid til at fejre!',choices:[
+        {text:'🎉 Fejr fuldt ud',ep:-8,up:+8,intent:'love',groupEp:-8,fb:'Kollektiv glæde sænker alles entropi. Alle −8 EP. Kærlighed delt i fejring er ren energi.'},
+        {text:'🤷 Det er vel ikke så stort',ep:+4,up:+1,intent:'ego',groupEp:0,fb:'At minimere glæde øger entropien. Systemet bemærker: hvert kærlighedsøjeblik fortjener fuld tilstedeværelse.'}]},
+      es:{title:'Celebración colectiva',story:'El grupo logró algo maravilloso. ¡Hora de celebrar!',choices:[
+        {text:'🎉 Celebrar plenamente',ep:-8,up:+8,intent:'love',groupEp:-8,fb:'La alegría colectiva reduce la entropía de todos. Todos −8 EP.'},
+        {text:'🤷 No es para tanto',ep:+4,up:+1,intent:'ego',groupEp:0,fb:'Minimizar la alegría aumenta la entropía.'}]},
+      zh:{title:'集体庆祝',story:'团体取得了了不起的成就。是时候庆祝了！',choices:[
+        {text:'🎉 尽情庆祝',ep:-8,up:+8,intent:'love',groupEp:-8,fb:'集体喜悦降低所有人的熵值。所有人−8 EP。在庆祝中分享的爱是纯粹的能量。'},
+        {text:'🤷 没什么大不了的',ep:+4,up:+1,intent:'ego',groupEp:0,fb:'最小化喜悦会增加熵值。系统注意到：每一个爱的时刻都值得完全临在。'}]}},
+    { en:{title:'Collective challenge',story:'A challenge can only be solved through cooperation.',choices:[
+        {text:'🤝 Everyone contributes',ep:-5,up:+6,intent:'love',groupEp:-10,fb:'Shared effort. All players −10 EP. This is love made manifest as collective action.'},
+        {text:'👤 Let the others handle it',ep:+8,up:+2,intent:'ego',groupEp:0,fb:'Free-riding increases your entropy. The system points gently: love participates.'}]},
+      da:{title:'Kollektiv udfordring',story:'En udfordring kan kun løses ved samarbejde.',choices:[
+        {text:'🤝 Alle bidrager',ep:-5,up:+6,intent:'love',groupEp:-10,fb:'Fælles indsats. Alle spillere −10 EP. Dette er kærlighed manifesteret som kollektiv handling.'},
+        {text:'👤 Lad de andre klare det',ep:+8,up:+2,intent:'ego',groupEp:0,fb:'Free-riding øger din entropi. Systemet peger blidt: kærlighed deltager.'}]},
+      es:{title:'Desafío colectivo',story:'Un desafío solo puede resolverse con cooperación.',choices:[
+        {text:'🤝 Todos contribuyen',ep:-5,up:+6,intent:'love',groupEp:-10,fb:'Esfuerzo compartido. Todos los jugadores −10 EP. Esto es amor manifestado como acción colectiva.'},
+        {text:'👤 Dejar que los otros lo resuelvan',ep:+8,up:+2,intent:'ego',groupEp:0,fb:'El free-riding aumenta tu entropía.'}]},
+      zh:{title:'集体挑战',story:'一个挑战只能通过合作来解决。',choices:[
+        {text:'🤝 所有人贡献',ep:-5,up:+6,intent:'love',groupEp:-10,fb:'共同努力。所有玩家−10 EP。这就是爱作为集体行动的显现。'},
+        {text:'👤 让其他人来处理',ep:+8,up:+2,intent:'ego',groupEp:0,fb:'搭便车会增加你的熵值。系统温和地指出：爱会参与其中。'}]}},
+    { en:{title:'Important decision',story:'The group must make an important decision.',choices:[
+        {text:'🗳️ Facilitate a real conversation',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'Inclusive decision-making lowers everyone\'s entropy. You led with love — all −5 EP.'},
+        {text:'📣 Push your solution through',ep:+10,up:+5,intent:'ego',groupEp:0,fb:'Dominance increases entropy. The system invites you to trust that collective wisdom reaches further than individual will.'}]},
+      da:{title:'Vigtig beslutning',story:'Gruppen skal tage en vigtig beslutning.',choices:[
+        {text:'🗳️ Faciliter en reel samtale',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'Inkluderende beslutningstagning sænker alles entropi. Du ledte med kærlighed — alle −5 EP.'},
+        {text:'📣 Pres din løsning igennem',ep:+10,up:+5,intent:'ego',groupEp:0,fb:'Dominans øger entropien. Systemet inviterer dig til at stole på at kollektiv visdom rækker længere end individuel vilje.'}]},
+      es:{title:'Decisión importante',story:'El grupo debe tomar una decisión importante.',choices:[
+        {text:'🗳️ Facilitar una conversación real',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'La toma de decisiones inclusiva reduce la entropía de todos.'},
+        {text:'📣 Imponer tu solución',ep:+10,up:+5,intent:'ego',groupEp:0,fb:'La dominación aumenta la entropía.'}]},
+      zh:{title:'重要决定',story:'团体必须做出一个重要决定。',choices:[
+        {text:'🗳️ 促成真正的对话',ep:-8,up:+6,intent:'love',groupEp:-5,fb:'包容性决策降低所有人的熵值。你用爱领导——所有人−5 EP。'},
+        {text:'📣 强行推行你的方案',ep:+10,up:+5,intent:'ego',groupEp:0,fb:'支配性行为增加熵值。系统邀请你相信集体智慧比个人意志达得更远。'}]}},
+  ],
+};
+
+function drawCard(deck) {
+  const cards = CARD_DATA[deck];
+  if (!deckIdx[deck] || !deckIdx[deck].length) {
+    deckIdx[deck] = [...Array(cards.length).keys()];
+    for (let i=deckIdx[deck].length-1;i>0;i--) {
+      const j=Math.floor(Math.random()*(i+1));
+      [deckIdx[deck][i],deckIdx[deck][j]]=[deckIdx[deck][j],deckIdx[deck][i]];
+    }
+  }
+  const card = cards[deckIdx[deck].pop()];
+  return card[I18N.lang] || card.en;
+}
+
+/* =========================================================
+   AUDIO
+   ========================================================= */
+let audioCtx = null;
+function ac() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function tone(freq, dur, type='sine', vol=0.12) {
+  try {
+    const ctx = ac(), osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.connect(g); g.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+function playDice() {
+  try {
+    const ctx = ac();
+    for (let i=0;i<5;i++) {
+      const buf = ctx.createBuffer(1, ctx.sampleRate*.04, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*.05;
+      const s = ctx.createBufferSource(); s.buffer=buf; s.connect(ctx.destination);
+      s.start(ctx.currentTime+i*.11);
+    }
+  } catch(e){}
+}
+function playLand()  { tone(440,.12,'sine',.08); }
+function playGood()  { tone(440,.1); setTimeout(()=>tone(550,.1),90); setTimeout(()=>tone(660,.15),180); }
+function playBad()   { tone(440,.1); setTimeout(()=>tone(390,.1),90); setTimeout(()=>tone(330,.18),180); }
+function playWin()   { [523,659,784,1047].forEach((n,i)=>setTimeout(()=>tone(n,.3,'sine',.18),i*140)); }
+
+/* =========================================================
+   BOARD LAYOUT
+   ========================================================= */
+function fieldPos(id) {
+  if (id===0)  return {col:11,row:11};
+  if (id<=9)   return {col:11-id,row:11};
+  if (id===10) return {col:1,row:11};
+  if (id<=19)  return {col:1,row:11-(id-10)};
+  if (id===20) return {col:1,row:1};
+  if (id<=29)  return {col:1+(id-20),row:1};
+  if (id===30) return {col:11,row:1};
+  if (id<=39)  return {col:11,row:1+(id-30)};
+  return {col:1,row:1};
+}
+
+/* =========================================================
+   GAME STATE
+   ========================================================= */
+const P_COLORS  = ['#ff6a00','#007aff','#34c759','#bf5af2'];
+const P_EMOJIS  = ['🔴','🔵','🟢','🟣'];
+
+let G = null;
+const deckIdx = {};
+
+function intentInfo(v) {
+  if (v<=2) return {e:'😨',l:I18N.t('intent_fear')};
+  if (v<=4) return {e:'😟',l:I18N.t('intent_control')};
+  if (v<=6) return {e:'😐',l:I18N.t('intent_neutral')};
+  if (v<=8) return {e:'🌱',l:I18N.t('intent_trust')};
+  return {e:'💕',l:I18N.t('intent_love')};
+}
+function intentMult(v) {
+  if (v<=2) return .5; if (v<=4) return .75; if (v<=6) return 1; if (v<=8) return 1.25; return 1.5;
+}
+function applyChoice(pi, c) {
+  const p = G.players[pi];
+  const mult = intentMult(p.intent);
+  let ep = c.ep;
+  if (ep < 0) ep = Math.round(ep * mult);
+  p.ep  = Math.min(100, Math.max(-20, p.ep + ep));
+  p.up  = Math.max(0, p.up + (c.up||0));
+  const delta = {love:1,trust:.5,neutral:0,ego:-.5,fear:-1}[c.intent]||0;
+  p.intent = Math.max(1, Math.min(10, parseFloat((p.intent + delta).toFixed(1))));
+  const nxt = G.players[(pi+1) % G.players.length];
+  if (c.nextEp) nxt.ep = Math.min(100, nxt.ep + c.nextEp);
+  if (c.nextUp) nxt.up = Math.max(0, nxt.up + c.nextUp);
+  if (c.groupEp) G.players.forEach(pl => pl.ep = Math.min(100, Math.max(-20, pl.ep + c.groupEp)));
+}
+function drawCard(deck) {
+  if (!deckIdx[deck] || !deckIdx[deck].length) {
+    deckIdx[deck] = [...Array(DECKS[deck].length).keys()];
+    for (let i=deckIdx[deck].length-1;i>0;i--) {
+      const j=Math.floor(Math.random()*(i+1));
+      [deckIdx[deck][i],deckIdx[deck][j]]=[deckIdx[deck][j],deckIdx[deck][i]];
+    }
+  }
+  return DECKS[deck][deckIdx[deck].pop()];
+}
+
+/* =========================================================
+   SETUP UI
+   ========================================================= */
+let setupCount = 3;
+const setupData = [{name:'',emoji:'🔴'},{name:'',emoji:'🔵'},{name:'',emoji:'🟢'},{name:'',emoji:'🟣'}];
+
+function renderSetup() {
+  const rows = document.getElementById('player-rows');
+  rows.innerHTML = '';
+  for (let i=0;i<setupCount;i++) {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <span class="player-row-num" style="color:${P_COLORS[i]}">${i+1}</span>
+      <input class="player-name-input" placeholder="${I18N.t('player_ph',i)}" value="${setupData[i].name}" data-i="${i}">
+      <div class="emoji-row">
+        ${P_EMOJIS.map(e=>`<button class="emoji-btn${setupData[i].emoji===e?' selected':''}" data-i="${i}" data-e="${e}">${e}</button>`).join('')}
+      </div>`;
+    rows.appendChild(row);
+  }
+  rows.querySelectorAll('.player-name-input').forEach(el =>
+    el.addEventListener('input', e => { setupData[+e.target.dataset.i].name = e.target.value; }));
+  rows.querySelectorAll('.emoji-btn').forEach(btn =>
+    btn.addEventListener('click', () => {
+      setupData[+btn.dataset.i].emoji = btn.dataset.e;
+      renderSetup();
+    }));
+}
+document.querySelectorAll('[data-count]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setupCount = +btn.dataset.count;
+    document.querySelectorAll('[data-count]').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    renderSetup();
+  });
+});
+document.getElementById('start-btn').addEventListener('click', startGame);
+renderSetup();
+
+/* =========================================================
+   START GAME
+   ========================================================= */
+function startGame() {
+  G = {
+    players: Array.from({length:setupCount}, (_,i) => ({
+      name:  setupData[i].name || I18N.t('player_ph',i),
+      emoji: setupData[i].emoji,
+      color: P_COLORS[i],
+      ep: 80, up: 0, intent: 5, pos: 0,
+    })),
+    cur: 0, turn: 1,
+    phase: 'roll',   // roll | moving | action | feedback
+    roll: null, feedback: null,
+  };
+  document.getElementById('setup-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  buildBoard();
+  renderGame();
+}
+
+/* =========================================================
+   BUILD BOARD
+   ========================================================= */
+function buildBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  // Center
+  const center = document.createElement('div');
+  center.className = 'board-center';
+  center.innerHTML = `<div class="center-logo">🌌</div><div class="center-title">ENTROPIA</div><div class="center-sub">${I18N.t('center_sub')||'Lower entropy<br>with love'}</div>`;
+  board.appendChild(center);
+  // Fields
+  FIELD_META.forEach(f => {
+    const {col,row} = fieldPos(f.id);
+    const ft = FIELD_TRANS[f.id][I18N.lang] || FIELD_TRANS[f.id].en;
+    const el = document.createElement('div');
+    el.className = `field field-${f.type}`;
+    el.id = `f${f.id}`;
+    el.style.cssText = `grid-column:${col};grid-row:${row}`;
+    el.innerHTML = `<span class="field-icon">${f.icon}</span><span class="field-name">${ft.name}</span>`;
+    el.title = `${ft.name}: ${ft.desc}`;
+    board.appendChild(el);
+  });
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderGame() {
+  const p = G.players[G.cur];
+  document.getElementById('turn-emoji').textContent = p.emoji;
+  document.getElementById('turn-name').textContent  = p.name;
+  document.getElementById('turn-sub').textContent   = I18N.t('turn_sub', G.turn, Math.ceil(G.turn/G.players.length));
+  document.getElementById('ep-val').textContent     = p.ep;
+  document.getElementById('up-val').textContent     = `${p.up} UP`;
+  document.querySelector('[data-ep-label]') && (document.querySelector('[data-ep-label]').textContent = I18N.t('entropy_label'));
+  const pct = Math.max(0, Math.min(100, (80-p.ep)/80*100));
+  document.getElementById('ep-fill').style.width    = pct + '%';
+  const ii = intentInfo(p.intent);
+  document.getElementById('intent-badge').textContent = `${ii.e} ${ii.l} (${Math.round(p.intent)}/10)`;
+  renderStrip();
+  renderPieces();
+  renderAction();
+}
+
+function renderStrip() {
+  const strip = document.getElementById('players-strip');
+  strip.innerHTML = '';
+  G.players.forEach((p,i) => {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip' + (i===G.cur ? ' active-chip' : '');
+    const ii = intentInfo(p.intent);
+    const pct = Math.max(0, Math.min(100, (80-p.ep)/80*100));
+    const epColor = p.ep<=20 ? '#34c759' : p.ep>=70 ? '#ff3b30' : 'var(--text2)';
+    chip.innerHTML = `
+      <div class="chip-top">
+        <span class="chip-emoji">${p.emoji}</span>
+        <span class="chip-name" style="color:${p.color}">${p.name}</span>
+        <span class="chip-ep" style="color:${epColor}">${p.ep}</span>
+      </div>
+      <div class="chip-bar"><div class="chip-fill" style="width:${pct}%"></div></div>
+      <div class="chip-up">${p.up} UP · ${ii.e} ${ii.l}</div>`;
+    strip.appendChild(chip);
+  });
+}
+
+function renderPieces() {
+  document.querySelectorAll('.piece').forEach(el => el.remove());
+  G.players.forEach((p,i) => {
+    const fieldEl = document.getElementById(`f${p.pos}`);
+    if (!fieldEl) return;
+    const piece = document.createElement('div');
+    piece.className = 'piece' + (i===G.cur ? ' active-piece' : '');
+    piece.style.background = p.color;
+    piece.textContent = p.emoji;
+    // Stagger positions to avoid full overlap
+    piece.style.bottom = `${1+(i%2)*13}px`;
+    piece.style.right  = `${1+Math.floor(i/2)*13}px`;
+    fieldEl.appendChild(piece);
+  });
+}
+
+function renderAction() {
+  const area = document.getElementById('action-area');
+  if (G.phase === 'roll') {
+    const r = G.roll;
+    area.innerHTML = `
+      <div class="dice-area">
+        <div class="dice-row">
+          <div class="die" id="die1">${r ? r[0] : '?'}</div>
+          <div class="die" id="die2">${r ? r[1] : '?'}</div>
+        </div>
+        <div class="die-sum">${r ? `${r[0]} + ${r[1]} = ${r[0]+r[1]}` : I18N.t('roll_hint')}</div>
+        <button class="btn btn-primary" id="roll-btn">${I18N.t('roll_btn')}</button>
+      </div>`;
+    document.getElementById('roll-btn').addEventListener('click', doRoll);
+  } else if (G.phase === 'moving') {
+    area.innerHTML = `<div class="dice-area"><div class="die-sum">${I18N.t('moving')}</div></div>`;
+  } else if (G.phase === 'feedback') {
+    const fb = G.feedback;
+    area.innerHTML = `
+      <div class="feedback-card">
+        <div class="feedback-title">${fb.title}</div>
+        <div class="feedback-text">${fb.text}</div>
+        <div class="feedback-effects">${(fb.effects||[]).map(e=>`<span class="effect-pill ${e.cls}">${e.label}</span>`).join('')}</div>
+      </div>
+      <button class="btn btn-primary" id="next-btn" style="width:100%;margin-top:10px">${I18N.t('next_btn')}</button>`;
+    document.getElementById('next-btn').addEventListener('click', nextTurn);
+  }
+}
+
+/* =========================================================
+   ROLL
+   ========================================================= */
+function doRoll() {
+  G.phase = 'moving';
+  renderAction();
+  playDice();
+  const d1 = Math.ceil(Math.random()*6), d2 = Math.ceil(Math.random()*6);
+  G.roll = [d1,d2];
+  const die1 = document.getElementById('die1'), die2 = document.getElementById('die2');
+  if (die1) { die1.classList.add('rolling'); die2.classList.add('rolling'); }
+  const tick = setInterval(() => {
+    if (die1) { die1.textContent = Math.ceil(Math.random()*6); die2.textContent = Math.ceil(Math.random()*6); }
+  }, 100);
+  setTimeout(() => {
+    clearInterval(tick);
+    if (die1) { die1.textContent=d1; die1.classList.remove('rolling'); die2.textContent=d2; die2.classList.remove('rolling'); }
+    setTimeout(() => movePlayer(G.cur, d1+d2), 200);
+  }, 800);
+}
+
+/* =========================================================
+   MOVE
+   ========================================================= */
+function movePlayer(pi, steps) {
+  const p = G.players[pi];
+  let step = 0;
+  const iv = setInterval(() => {
+    const prev = p.pos;
+    p.pos = (p.pos+1) % 40;
+    if (p.pos === 0 && prev === 39) { p.up += 5; showToast(I18N.t('pass_start', p.emoji + ' ' + p.name)); }
+    renderPieces();
+    playLand();
+    step++;
+    if (step >= steps) { clearInterval(iv); setTimeout(() => land(pi), 200); }
+  }, 150);
+}
+
+/* =========================================================
+   LAND
+   ========================================================= */
+function land(pi) {
+  const p = G.players[pi];
+  const f = getField(p.pos);
+  // Highlight
+  const el = document.getElementById(`f${p.pos}`);
+  if (el) { el.classList.add('highlight-field'); setTimeout(()=>el.classList.remove('highlight-field'),500); }
+  showFieldInfo(f);
+
+  if (f.type === 'corner') {
+    landCorner(pi, f);
+  } else if (f.type === 'chal') {
+    p.ep = Math.min(100, p.ep+8);
+    playBad();
+    G.feedback = {title:f.name, text:I18N.t('challenge_text'), effects:[{label:'+8 EP',cls:'effect-bad'}]};
+    G.phase = 'feedback'; renderGame();
+  } else if (f.type === 'coop') {
+    G.players.forEach(pl => pl.ep = Math.min(100, Math.max(-20, pl.ep-5)));
+    playGood();
+    G.feedback = {title:f.name, text:I18N.t('coop_text'), effects:[{label:I18N.t('all_label')||'All −5 EP',cls:'effect-good'}]};
+    G.phase = 'feedback'; renderGame();
+  } else if (f.type === 'help') {
+    landHelp(pi, f);
+  } else if (f.type === 'start') {
+    p.up += 10; playGood();
+    G.feedback = {title:'🌟 START', text:I18N.t('start_land'), effects:[{label:'+10 UP',cls:'effect-good'}]};
+    G.phase = 'feedback'; renderGame();
+  } else {
+    // Draw card
+    const deckMap = {choice:'choice',temp:'temptation',dev:'development',event:'event'};
+    const dn = deckMap[f.type];
+    if (dn) {
+      const card = drawCard(dn);
+      G.phase = 'action';
+      renderGame();
+      showCard(pi, card, f.type);
+    }
+  }
+}
+
+function landCorner(pi, f) {
+  const p = G.players[pi];
+  const ft = FIELD_TRANS[f.id][I18N.lang] || FIELD_TRANS[f.id].en;
+  if (f.id===10) {
+    p.ep = Math.max(-20,p.ep-12); p.up += 5; playGood();
+    G.feedback={title:`🔮 ${ft.name}`,text:I18N.t('corner_reflection'),effects:[{label:'−12 EP',cls:'effect-good'},{label:'+5 UP',cls:'effect-good'}]};
+  } else if (f.id===20) {
+    G.players.forEach(pl=>pl.ep=Math.max(-20,pl.ep-15)); playGood();
+    showToast(`🧘 ${ft.name}`);
+    G.feedback={title:`🧘 ${ft.name}`,text:I18N.t('corner_innerpeace'),effects:[{label:'All −15 EP',cls:'effect-good'}]};
+  } else if (f.id===30) {
+    const nxt = G.players[(pi+1)%G.players.length]; nxt.up+=15; playGood();
+    G.feedback={title:`🎁 ${ft.name}`,text:I18N.t('corner_gift',nxt.name),effects:[{label:`${nxt.name} +15 UP`,cls:'effect-good'}]};
+  }
+  G.phase='feedback'; renderGame();
+}
+
+function landHelp(pi, f) {
+  const p = G.players[pi];
+  const nxt = G.players[(pi+1)%G.players.length];
+  let epD = -5, nxtUp = 5;
+  if (f.id===16) { epD=-10; nxtUp=0; }
+  if (f.id===26) { epD=-6; }
+  const actual = Math.round(epD * intentMult(p.intent));
+  p.ep = Math.max(-20, p.ep+actual);
+  if (nxtUp>0) nxt.up+=nxtUp;
+  playGood();
+  const fx = [{label:`${actual} EP`,cls:'effect-good'}];
+  if (nxtUp>0) fx.push({label:`${nxt.name} +${nxtUp} UP`,cls:'effect-good'});
+  G.feedback={title:f.name,text:f.desc,effects:fx};
+  G.phase='feedback'; renderGame();
+}
+
+/* =========================================================
+   CARD MODAL
+   ========================================================= */
+const DECK_LABELS = () => ({
+  choice:      I18N.t('deck_choice'),
+  temptation:  I18N.t('deck_temptation'),
+  development: I18N.t('deck_development'),
+  event:       I18N.t('deck_event'),
+});
+const DECK_COLORS = {choice:'#ffd60a',temptation:'#ff3b30',development:'#007aff',event:'#0a84ff'};
+const FIELD_DECK  = {choice:'choice',temp:'temptation',dev:'development',event:'event'};
+
+function showCard(pi, card, fieldType) {
+  const dn = FIELD_DECK[fieldType] || fieldType;
+  const col = DECK_COLORS[dn]||'#888';
+  document.getElementById('card-type-tag').textContent = DECK_LABELS()[dn]||dn;
+  document.getElementById('card-type-tag').style.cssText=`background:${col}22;color:${col};border:1px solid ${col}55`;
+  document.getElementById('card-title').textContent = card.title;
+  document.getElementById('card-story').textContent = card.story;
+  const cc = document.getElementById('card-choices');
+  cc.innerHTML='';
+  card.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className='choice-btn'; btn.textContent=c.text;
+    btn.addEventListener('click',()=>{ hideCard(); choiceChosen(pi,c,dn); });
+    cc.appendChild(btn);
+  });
+  document.getElementById('card-overlay').classList.add('show');
+}
+function hideCard() { document.getElementById('card-overlay').classList.remove('show'); }
+
+function choiceChosen(pi, c, dn) {
+  const p = G.players[pi];
+  const prevEp = p.ep;
+  applyChoice(pi, c);
+  const diff = p.ep - prevEp;
+  diff < 0 ? playGood() : playBad();
+  const fx=[];
+  if (diff!==0) fx.push({label:(diff>0?'+':'')+diff+' EP',cls:diff<0?'effect-good':'effect-bad'});
+  if (c.up)     fx.push({label:'+'+c.up+' UP',cls:'effect-good'});
+  if (c.nextUp) fx.push({label:G.players[(pi+1)%G.players.length].name+' +'+c.nextUp+' UP',cls:'effect-good'});
+  if (c.nextEp) fx.push({label:G.players[(pi+1)%G.players.length].name+' +'+c.nextEp+' EP',cls:'effect-bad'});
+  if (c.groupEp) fx.push({label:'Alle '+(c.groupEp>0?'+':'')+c.groupEp+' EP',cls:c.groupEp<0?'effect-good':'effect-bad'});
+  G.feedback={title:c.fb.split('.')[0]+'.',text:c.fb,effects:fx};
+  G.phase='feedback'; renderGame();
+}
+
+/* =========================================================
+   NEXT TURN / WIN CHECK
+   ========================================================= */
+function nextTurn() {
+  hideFieldInfo();
+  const winner = G.players.find(p=>p.ep<=0);
+  const collective = G.players.every(p=>p.ep<=20);
+  if (winner || collective) { endGame(winner,collective); return; }
+  G.cur = (G.cur+1) % G.players.length;
+  G.turn++;
+  G.phase='roll';
+  G.feedback=null;
+  renderGame();
+}
+
+/* =========================================================
+   FIELD INFO
+   ========================================================= */
+function showFieldInfo(f) {
+  const card = document.getElementById('field-info-card');
+  document.getElementById('field-info-card').querySelector('.panel-title').textContent = I18N.t('current_field');
+  document.getElementById('field-info-content').innerHTML=`
+    <div style="font-size:22px;margin-bottom:5px">${f.icon}</div>
+    <div style="font-weight:700;margin-bottom:3px">${f.name}</div>
+    <div style="font-size:12px;color:var(--text2)">${f.desc}</div>`;
+  card.style.display='block';
+}
+function hideFieldInfo() { document.getElementById('field-info-card').style.display='none'; }
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* =========================================================
+   END GAME
+   ========================================================= */
+function endGame(winner, collective) {
+  playWin();
+  document.getElementById('game-screen').classList.remove('active');
+  const end = document.getElementById('end-screen');
+  end.classList.add('active');
+  if (winner) {
+    document.getElementById('end-winner').textContent=winner.emoji+' 🏆';
+    document.getElementById('end-title').textContent=I18N.t('winner_title',winner.name);
+    document.getElementById('end-sub').textContent=I18N.t('winner_sub',winner.ep);
+  } else {
+    document.getElementById('end-winner').textContent='🌍✨';
+    document.getElementById('end-title').textContent=I18N.t('collective_title');
+    document.getElementById('end-sub').textContent=I18N.t('collective_sub');
+  }
+  if (collective) {
+    const banner = document.getElementById('collective-win-banner');
+    banner.textContent = I18N.t('collective_banner');
+    banner.style.display='block';
+  }
+  const sorted = [...G.players].sort((a,b)=>a.ep-b.ep);
+  document.getElementById('results-card').innerHTML =
+    `<div class="panel-title" style="margin-bottom:10px">${I18N.t('final_standings')}</div>` +
+    sorted.map((p,ri)=>{
+      const ii=intentInfo(p.intent);
+      return `<div class="result-row">
+        <span style="font-weight:800;color:var(--text3)">${ri+1}.</span>
+        <span class="result-emoji">${p.emoji}</span>
+        <span class="result-name" style="color:${p.color}">${p.name}</span>
+        <span class="result-stats">${p.ep} EP · ${p.up} UP<br>${ii.e} ${ii.l}</span>
+      </div>`;
+    }).join('');
+  confetti();
+}
+
+function confetti() {
+  const con=document.getElementById('confetti-container');
+  con.innerHTML='';
+  const cols=['#ff6a00','#bf5af2','#0a84ff','#34c759','#ffd60a','#ff3b30'];
+  for (let i=0;i<80;i++) {
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}vw;background:${cols[i%cols.length]};
+      animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*1.5}s;
+      width:${6+Math.random()*7}px;height:${6+Math.random()*7}px`;
+    con.appendChild(p);
+  }
+  setTimeout(()=>con.innerHTML='',5500);
+}
+
+/* =========================================================
+   PLAY AGAIN
+   ========================================================= */
+document.getElementById('play-again-btn').addEventListener('click',()=>{
+  document.getElementById('end-screen').classList.remove('active');
+  document.getElementById('setup-screen').classList.add('active');
+  Object.keys(deckIdx).forEach(k=>delete deckIdx[k]);
+  document.getElementById('collective-win-banner').style.display='none';
+  G=null;
+});
+
+/* Init */
+applyStaticI18n();
+</script>
+</body>
+</html>
