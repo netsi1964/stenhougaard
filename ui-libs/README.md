@@ -1,4 +1,4 @@
-# ui-lib — Web Components UI Library
+# ui-libs — Web Components UI Library
 
 Et letvægts UI-komponentbibliotek bygget med vanilje Web Components, CSS Custom Properties og zero runtime dependencies. Orange accent, tilgængeligt og nemt at tematisere.
 
@@ -12,13 +12,13 @@ Et letvægts UI-komponentbibliotek bygget med vanilje Web Components, CSS Custom
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://unpkg.com/@stenhougaard/ui-lib/src/tokens/tokens.css">
+  <link rel="stylesheet" href="https://unpkg.com/@stenhougaard/ui-libs/src/tokens/tokens.css">
 </head>
 <body>
   <ui-button variant="primary">Hej verden</ui-button>
 
   <script type="module">
-    import 'https://unpkg.com/@stenhougaard/ui-lib/src/components/button/ui-button.js';
+    import 'https://unpkg.com/@stenhougaard/ui-libs/src/components/button/ui-button.js';
   </script>
 </body>
 </html>
@@ -27,15 +27,15 @@ Et letvægts UI-komponentbibliotek bygget med vanilje Web Components, CSS Custom
 ### Via npm
 
 ```bash
-npm install @stenhougaard/ui-lib
+npm install @stenhougaard/ui-libs
 ```
 
 ```html
-<link rel="stylesheet" href="node_modules/@stenhougaard/ui-lib/src/tokens/tokens.css">
+<link rel="stylesheet" href="node_modules/@stenhougaard/ui-libs/src/tokens/tokens.css">
 ```
 
 ```js
-import '@stenhougaard/ui-lib/ui-button';
+import '@stenhougaard/ui-libs/ui-button';
 ```
 
 ---
@@ -109,28 +109,37 @@ ui-button.brand {
 
 ## Tilgængelige komponenter
 
+Importér alle på én gang via entry point:
+
+```html
+<script type="module" src="src/index.js"></script>
+```
+
 | Komponent | Tag | Status |
 |-----------|-----|--------|
-| Button | `<ui-button>` | ✅ Stabil |
+| Button | `<ui-button>` | ✅ Stabil — 5 varianter, loading, ikon-slots |
+| Card | `<ui-card>` | ✅ Stabil — media/header/body/footer slots, container query |
+| Stack | `<ui-stack>` | ✅ Stabil — layout-primitiv til flex-stabling |
+| Badge | `<ui-badge>` | ✅ Stabil — 6 varianter, dot- og pill-mode |
+| Icon | `<ui-icon>` | ✅ Stabil — indbygget ikonsæt, størrelses-tokens |
+| Input | `<ui-input>` | ✅ Stabil — label, validering, form participation |
+| Dialog | `<ui-dialog>` | ✅ Stabil — native `<dialog>`, focus trap, persistent-mode |
 
 ## Planlagte komponenter
 
 | Komponent | Tag | Beskrivelse |
 |-----------|-----|-------------|
-| Card | `<ui-card>` | Kortcontainer med header/body/footer slots |
-| Stack | `<ui-stack>` | Layout-primitiv til flex-stabling |
-| Badge | `<ui-badge>` | Statusindikator med farve-varianter |
-| Icon | `<ui-icon>` | SVG-ikon med størrelses-tokens |
-| Input | `<ui-input>` | Tekstfelt med label og validering |
-| Dialog | `<ui-dialog>` | Modal med focus trap |
+| Select | `<ui-select>` | Dropdown med form participation |
+| Tabs | `<ui-tabs>` | Faneblade med roving tabindex |
+| Toast | `<ui-toast>` | Ikke-blokerende notifikationer |
 
 ---
 
 ## Bidrag
 
 ```bash
-git clone https://github.com/stenhougaard/ui-lib.git
-cd ui-lib
+git clone https://github.com/netsi1964/stenhougaard.git
+cd stenhougaard/ui-libs
 
 # Ingen install nødvendig — åbn docs/index.html direkte
 open docs/index.html

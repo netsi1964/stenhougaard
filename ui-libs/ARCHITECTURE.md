@@ -97,9 +97,11 @@ er bedre end dokumentation der lyver.
 ## Del 2: Filstruktur
 
 ```
-ui-lib/
+ui-libs/
 │
 ├── src/
+│   ├── index.js                    # Entry point — registrerer alle komponenter
+│   │
 │   ├── tokens/
 │   │   └── tokens.css              # Designtokens: farver, afstand, typografi, motion
 │   │
@@ -107,11 +109,16 @@ ui-lib/
 │   │   └── BaseElement.js          # Basisklasse for alle Web Components
 │   │
 │   └── components/
-│       └── button/
-│           └── ui-button.js        # <ui-button> komponent
+│       ├── button/ui-button.js     # <ui-button>  — knap (varianter, loading, ikoner)
+│       ├── card/ui-card.js         # <ui-card>    — kort med slots + container query
+│       ├── stack/ui-stack.js       # <ui-stack>   — layout-primitiv (flex)
+│       ├── badge/ui-badge.js       # <ui-badge>   — statusindikator
+│       ├── icon/ui-icon.js         # <ui-icon>    — SVG-ikoner med indbygget sæt
+│       ├── input/ui-input.js       # <ui-input>   — tekstfelt med form participation
+│       └── dialog/ui-dialog.js     # <ui-dialog>  — modal på native <dialog>
 │
 ├── docs/
-│   └── index.html                  # Selvstændig demo/dokumentationsside
+│   └── index.html                  # Selvstændig demo/dokumentationsside (i18n: EN/DA/ES/ZH)
 │
 ├── tests/
 │   └── ui-button.test.js           # Test suite for ui-button
@@ -169,13 +176,22 @@ at skifte retning. Intet visuelt output — ren layout-logik via flex.
 
 ---
 
-## Næste skridt
+## Komponentstatus
+
+| Komponent | Beskrivelse | Status |
+|-----------|-------------|--------|
+| `<ui-button>` | Knap med 5 varianter, 3 størrelser, loading, ikoner og fuld bredde. | ✅ Implementeret |
+| `<ui-card>` | Kortcontainer med media-, header-, body- og footer-slots. Hover-elevation, klikbar variant og container query-responsivitet. | ✅ Implementeret |
+| `<ui-stack>` | Layout-primitiv til vertikal/horisontal stabling af elementer med token-baseret gap. | ✅ Implementeret |
+| `<ui-badge>` | Lille statusindikator. Varianter: default, success, warning, danger, info, accent. Dot- og pill-mode. | ✅ Implementeret |
+| `<ui-icon>` | SVG-ikon-komponent med indbygget ikonsæt, størrelses- og farvetokens. Bruges som slot-indhold i andre komponenter. | ✅ Implementeret |
+| `<ui-input>` | Tekstinputfelt med label, fejlbesked, help-text og ikon-slots. Integrerer med form participation API (ElementInternals). | ✅ Implementeret |
+| `<ui-dialog>` | Modal-dialog med focus trap, Escape-lukning og backdrop. Bruger native `<dialog>`-elementet. | ✅ Implementeret |
+
+### Næste skridt
 
 | Komponent | Beskrivelse | Prioritet |
 |-----------|-------------|-----------|
-| `<ui-card>` | Kortcontainer med header, body og footer slots. Understøtter hover-elevation og klikbar variant. | Høj |
-| `<ui-stack>` | Layout-primitiv til vertikal/horisontal stabling af elementer med token-baseret gap. | Høj |
-| `<ui-badge>` | Lille statusindikator. Varianter: default, success, warning, danger, info. Understøtter dot-mode. | Medium |
-| `<ui-icon>` | SVG-ikon-komponent med størrelses- og farvetokens. Bruges som slot-indhold i andre komponenter. | Medium |
-| `<ui-input>` | Tekstinputfelt med label, fejlbesked, help-text og ikon-slots. Integrerer med form participation API. | Høj |
-| `<ui-dialog>` | Modal-dialog med focus trap, Escape-lukning og backdrop. Bruger native `<dialog>`-elementet. | Medium |
+| `<ui-select>` | Dropdown-felt bygget på samme form participation-mønster som `<ui-input>`. | Medium |
+| `<ui-tabs>` | Fanebladskomponent med roving tabindex og `aria-selected`. | Medium |
+| `<ui-toast>` | Ikke-blokerende notifikationer med auto-dismiss og `role="status"`. | Lav |

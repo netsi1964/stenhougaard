@@ -430,7 +430,7 @@ footer a{color:var(--orange);text-decoration:none}
 <body>
 
 <header>
-  <a href="index.html" class="back-link">← Labs</a>
+  <a href="labs.html" class="back-link">← Labs</a>
   <div class="brand">ENTRO<span>PIA</span></div>
   <a href="entropia-rules.html" class="back-link" id="rules-link" style="margin-left:4px">📖</a>
   <div class="lang-btns" id="lang-btns">
@@ -538,7 +538,7 @@ footer a{color:var(--orange);text-decoration:none}
 <div class="confetti-container" id="confetti-container"></div>
 
 <footer>
-  <a href="index.html">← Labs</a> · ENTROPIA er et ikke-kommercielt kunstprojekt
+  <a href="labs.html">← Labs</a> · ENTROPIA er et ikke-kommercielt kunstprojekt
 </footer>
 
 <script>
@@ -761,7 +761,7 @@ function applyStaticI18n() {
   if (setupLabels[0]) setupLabels[0].textContent = I18N.t('players_label');
   if (setupLabels[1]) setupLabels[1].textContent = I18N.t('players_section');
   document.getElementById('start-btn').textContent         = I18N.t('start_btn');
-  document.querySelector('footer').innerHTML               = `<a href="index.html">${I18N.t('footer_text')}</a> · <a href="entropia-rules.html">${I18N.t('rules_link')}</a>`;
+  document.querySelector('footer').innerHTML               = `<a href="labs.html">${I18N.t('footer_text')}</a> · <a href="entropia-rules.html">${I18N.t('rules_link')}</a>`;
   document.getElementById('play-again-btn').textContent    = I18N.t('play_again');
   const rlink = document.getElementById('rules-link');
   if (rlink) rlink.title = I18N.t('rules_link');

@@ -1,0 +1,26 @@
+{
+  "name": "@stenhougaard/ui-libs",
+  "version": "1.0.0",
+  "description": "Web Components UI library — zero dependencies, design tokens, dark mode",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./ui-button": "./src/components/button/ui-button.js",
+    "./ui-card": "./src/components/card/ui-card.js",
+    "./ui-stack": "./src/components/stack/ui-stack.js",
+    "./ui-badge": "./src/components/badge/ui-badge.js",
+    "./ui-icon": "./src/components/icon/ui-icon.js",
+    "./ui-input": "./src/components/input/ui-input.js",
+    "./ui-dialog": "./src/components/dialog/ui-dialog.js"
+  },
+  "scripts": {
+    "test": "vitest run --environment happy-dom"
+  },
+  "devDependencies": {
+    "happy-dom": "^20.0.0",
+    "vitest": "^4.0.0"
+  },
+  "license": "MIT"
+}

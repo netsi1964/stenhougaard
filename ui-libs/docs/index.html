@@ -3,19 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="ui-lib — Web Components UI Library Demo" />
-  <title>ui-lib — Komponentbibliotek</title>
+  <meta name="description" content="ui-libs — Web Components UI Library Demo" />
+  <title>ui-libs — Component Library</title>
 
   <!-- Design tokens -->
   <link rel="stylesheet" href="../src/tokens/tokens.css" />
 
   <style>
-    /* -----------------------------------------------------------------------
-       Page base styles — uses token variables throughout
-       ----------------------------------------------------------------------- */
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { box-sizing: border-box; }
 
     html {
       font-family: var(--ui-font-family-sans);
@@ -25,53 +20,53 @@
       background:  var(--ui-surface-page);
       transition:  background-color var(--ui-duration-normal) var(--ui-easing-default),
                    color            var(--ui-duration-normal) var(--ui-easing-default);
+      scroll-behavior: smooth;
     }
 
-    body {
-      margin:  0;
-      padding: 0;
-    }
+    body { margin: 0; padding: 0; }
 
     /* ---- Header ---- */
     .site-header {
-      position:         sticky;
-      top:              0;
-      z-index:          var(--ui-z-sticky);
-      background:       var(--ui-surface-default);
-      border-bottom:    1px solid var(--ui-border-subtle);
-      box-shadow:       var(--ui-shadow-sm);
-      padding:          var(--ui-space-4) var(--ui-space-8);
-      display:          flex;
-      align-items:      center;
-      justify-content:  space-between;
-      gap:              var(--ui-space-4);
+      position:        sticky;
+      top:             0;
+      z-index:         var(--ui-z-sticky);
+      background:      var(--ui-surface-default);
+      border-bottom:   1px solid var(--ui-border-subtle);
+      box-shadow:      var(--ui-shadow-sm);
+      padding:         var(--ui-space-3) var(--ui-space-6);
+      display:         flex;
+      align-items:     center;
+      justify-content: space-between;
+      gap:             var(--ui-space-4);
+      flex-wrap:       wrap;
     }
 
     .site-header__brand {
       display:     flex;
       align-items: center;
       gap:         var(--ui-space-3);
+      text-decoration: none;
+      color: inherit;
     }
 
     .site-header__logo {
-      width:       2rem;
-      height:      2rem;
-      background:  var(--ui-accent);
-      border-radius: var(--ui-radius-sm);
-      display:     flex;
-      align-items: center;
+      width:           2rem;
+      height:          2rem;
+      background:      var(--ui-accent);
+      border-radius:   var(--ui-radius-sm);
+      display:         flex;
+      align-items:     center;
       justify-content: center;
-      color:       var(--ui-accent-text);
-      font-weight: var(--ui-font-weight-bold);
-      font-size:   var(--ui-font-size-sm);
-      flex-shrink: 0;
+      color:           var(--ui-accent-text);
+      font-weight:     var(--ui-font-weight-bold);
+      font-size:       var(--ui-font-size-sm);
+      flex-shrink:     0;
     }
 
     .site-header__title {
       margin:      0;
       font-size:   var(--ui-font-size-lg);
       font-weight: var(--ui-font-weight-semibold);
-      color:       var(--ui-text-primary);
       line-height: var(--ui-line-height-tight);
     }
 
@@ -81,7 +76,23 @@
       margin-top: 0.125rem;
     }
 
-    /* Dark mode toggle */
+    .header-actions {
+      display:     flex;
+      align-items: center;
+      gap:         var(--ui-space-3);
+      flex-wrap:   wrap;
+    }
+
+    .back-link {
+      font-size:       var(--ui-font-size-sm);
+      color:           var(--ui-text-secondary);
+      text-decoration: none;
+      padding:         var(--ui-space-1) var(--ui-space-2);
+      border-radius:   var(--ui-radius-md);
+    }
+    .back-link:hover { color: var(--ui-accent); background: var(--ui-state-hover); }
+
+    /* Theme toggle */
     .theme-toggle {
       display:       flex;
       align-items:   center;
@@ -95,96 +106,121 @@
       color:         var(--ui-text-secondary);
       font-family:   var(--ui-font-family-sans);
       font-weight:   var(--ui-font-weight-medium);
-      transition:    background-color var(--ui-duration-normal) var(--ui-easing-default),
-                     border-color     var(--ui-duration-normal) var(--ui-easing-default),
-                     color            var(--ui-duration-normal) var(--ui-easing-default);
+    }
+    .theme-toggle:hover { background: var(--ui-state-hover); border-color: var(--ui-border-strong); color: var(--ui-text-primary); }
+    .theme-toggle:focus-visible { outline: var(--ui-focus-ring); outline-offset: var(--ui-focus-ring-offset); }
+
+    /* Language switcher */
+    .lang-switch {
+      display:       flex;
+      gap:           2px;
+      background:    var(--ui-surface-sunken);
+      border:        1px solid var(--ui-border-default);
+      border-radius: var(--ui-radius-full);
+      padding:       2px;
     }
 
-    .theme-toggle:hover {
-      background: var(--ui-state-hover);
-      border-color: var(--ui-border-strong);
-      color: var(--ui-text-primary);
+    .lang-btn {
+      border:        none;
+      background:    transparent;
+      font-family:   var(--ui-font-family-sans);
+      font-size:     var(--ui-font-size-xs);
+      font-weight:   var(--ui-font-weight-semibold);
+      color:         var(--ui-text-secondary);
+      padding:       0.25rem 0.55rem;
+      border-radius: var(--ui-radius-full);
+      cursor:        pointer;
+    }
+    .lang-btn:hover { color: var(--ui-text-primary); }
+    .lang-btn.active { background: var(--ui-accent); color: var(--ui-accent-text); }
+    .lang-btn:focus-visible { outline: var(--ui-focus-ring); outline-offset: 1px; }
+
+    /* ---- Component nav ---- */
+    .component-nav {
+      display:   flex;
+      flex-wrap: wrap;
+      gap:       var(--ui-space-2);
+      margin:    var(--ui-space-6) 0 0;
     }
 
-    .theme-toggle:focus-visible {
-      outline:        var(--ui-focus-ring);
-      outline-offset: var(--ui-focus-ring-offset);
+    .nav-chip {
+      font-family:     var(--ui-font-family-mono);
+      font-size:       var(--ui-font-size-xs);
+      color:           var(--ui-text-secondary);
+      background:      var(--ui-surface-default);
+      border:          1px solid var(--ui-border-subtle);
+      border-radius:   var(--ui-radius-full);
+      padding:         0.3rem 0.75rem;
+      text-decoration: none;
     }
-
-    .theme-toggle__icon {
-      font-size: 1rem;
-      line-height: 1;
-    }
+    .nav-chip:hover { color: var(--ui-accent); border-color: var(--ui-accent); }
 
     /* ---- Main layout ---- */
-    .main {
-      max-width: 900px;
-      margin:    0 auto;
-      padding:   var(--ui-space-8);
-    }
+    .main { max-width: 900px; margin: 0 auto; padding: var(--ui-space-8); }
 
     .page-title {
-      margin:      var(--ui-space-8) 0 var(--ui-space-2);
+      margin:      var(--ui-space-6) 0 var(--ui-space-2);
       font-size:   var(--ui-font-size-3xl);
       font-weight: var(--ui-font-weight-bold);
-      color:       var(--ui-text-primary);
       line-height: var(--ui-line-height-tight);
     }
 
     .page-lead {
-      margin:     0 0 var(--ui-space-8);
-      font-size:  var(--ui-font-size-lg);
-      color:      var(--ui-text-secondary);
-      max-width:  60ch;
+      margin:      0;
+      font-size:   var(--ui-font-size-lg);
+      color:       var(--ui-text-secondary);
+      max-width:   60ch;
       line-height: var(--ui-line-height-relaxed);
     }
 
     /* ---- Sections ---- */
-    .section {
-      margin-bottom: var(--ui-space-12);
-    }
+    .section { margin: var(--ui-space-14) 0 0; scroll-margin-top: 5rem; }
 
     .section__header {
-      display:         flex;
-      align-items:     baseline;
-      gap:             var(--ui-space-3);
-      margin-bottom:   var(--ui-space-6);
-      padding-bottom:  var(--ui-space-3);
-      border-bottom:   1px solid var(--ui-border-subtle);
+      display:        flex;
+      align-items:    baseline;
+      gap:            var(--ui-space-3);
+      margin-bottom:  var(--ui-space-2);
+      padding-bottom: var(--ui-space-3);
+      border-bottom:  1px solid var(--ui-border-subtle);
     }
 
     .section__title {
       margin:      0;
+      font-family: var(--ui-font-family-mono);
       font-size:   var(--ui-font-size-xl);
       font-weight: var(--ui-font-weight-semibold);
-      color:       var(--ui-text-primary);
     }
 
     .section__tag {
-      font-size:     var(--ui-font-size-xs);
-      font-weight:   var(--ui-font-weight-semibold);
-      color:         var(--ui-accent);
-      background:    var(--ui-accent-subtle);
-      padding:       0.125rem var(--ui-space-2);
-      border-radius: var(--ui-radius-full);
+      font-size:      var(--ui-font-size-xs);
+      font-weight:    var(--ui-font-weight-semibold);
+      color:          var(--ui-accent);
+      background:     var(--ui-accent-subtle);
+      padding:        0.125rem var(--ui-space-2);
+      border-radius:  var(--ui-radius-full);
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
 
-    /* ---- Demo row ---- */
-    .demo-row {
-      display:   flex;
-      flex-wrap: wrap;
-      gap:       var(--ui-space-3);
-      align-items: center;
+    .section__lead {
+      margin:    0 0 var(--ui-space-5);
+      color:     var(--ui-text-secondary);
+      font-size: var(--ui-font-size-sm);
+      max-width: 65ch;
     }
 
-    .demo-row--column {
-      flex-direction: column;
-      align-items: flex-start;
+    .sub-label {
+      font-size:      var(--ui-font-size-xs);
+      font-weight:    var(--ui-font-weight-semibold);
+      color:          var(--ui-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin:         var(--ui-space-5) 0 var(--ui-space-2);
     }
+    .sub-label:first-child { margin-top: 0; }
 
-    /* ---- Demo card ---- */
+    /* ---- Demo blocks ---- */
     .demo-card {
       background:    var(--ui-surface-default);
       border:        1px solid var(--ui-border-subtle);
@@ -193,11 +229,14 @@
       box-shadow:    var(--ui-shadow-xs);
     }
 
+    .demo-row { display: flex; flex-wrap: wrap; gap: var(--ui-space-3); align-items: center; }
+    .demo-row--column { flex-direction: column; align-items: stretch; }
+
     .demo-label {
-      font-size:    var(--ui-font-size-xs);
-      font-weight:  var(--ui-font-weight-medium);
-      color:        var(--ui-text-tertiary);
-      margin-bottom: var(--ui-space-2);
+      font-size:      var(--ui-font-size-xs);
+      font-weight:    var(--ui-font-weight-medium);
+      color:          var(--ui-text-tertiary);
+      margin-bottom:  var(--ui-space-2);
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
@@ -207,24 +246,22 @@
       background:    var(--ui-surface-sunken);
       border:        1px solid var(--ui-border-subtle);
       border-radius: var(--ui-radius-md);
-      padding:       var(--ui-space-5) var(--ui-space-6);
+      padding:       var(--ui-space-4) var(--ui-space-5);
       overflow-x:    auto;
+      margin-top:    var(--ui-space-4);
     }
 
     .code-block code {
       font-family: var(--ui-font-family-mono);
-      font-size:   var(--ui-font-size-sm);
+      font-size:   var(--ui-font-size-xs);
       color:       var(--ui-text-primary);
       white-space: pre;
       display:     block;
+      line-height: 1.7;
     }
 
-    /* ---- Attributes table ---- */
-    .doc-table {
-      width:           100%;
-      border-collapse: collapse;
-      font-size:       var(--ui-font-size-sm);
-    }
+    /* ---- API table ---- */
+    .doc-table { width: 100%; border-collapse: collapse; font-size: var(--ui-font-size-sm); }
 
     .doc-table th {
       text-align:    left;
@@ -233,18 +270,17 @@
       color:         var(--ui-text-secondary);
       border-bottom: 2px solid var(--ui-border-default);
       white-space:   nowrap;
+      width:         8rem;
     }
 
     .doc-table td {
-      padding:       var(--ui-space-2) var(--ui-space-3);
-      border-bottom: 1px solid var(--ui-border-subtle);
+      padding:        var(--ui-space-2) var(--ui-space-3);
+      border-bottom:  1px solid var(--ui-border-subtle);
       vertical-align: top;
-      color:         var(--ui-text-primary);
+      line-height:    1.9;
     }
 
-    .doc-table tr:last-child td {
-      border-bottom: none;
-    }
+    .doc-table tr:last-child td, .doc-table tr:last-child th { border-bottom: none; }
 
     .doc-table code {
       font-family:   var(--ui-font-family-mono);
@@ -253,26 +289,47 @@
       padding:       0.1em 0.4em;
       border-radius: var(--ui-radius-sm);
       color:         var(--ui-accent);
+      white-space:   nowrap;
     }
 
-    /* ---- Full-width demo ---- */
-    .full-width-demo {
-      max-width: 480px;
+    .api-card { padding: 0; overflow: hidden; margin-top: var(--ui-space-4); }
+
+    /* Icon gallery */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+      gap: var(--ui-space-3);
+    }
+    .icon-cell {
+      display:        flex;
+      flex-direction: column;
+      align-items:    center;
+      gap:            var(--ui-space-2);
+      padding:        var(--ui-space-3);
+      border:         1px solid var(--ui-border-subtle);
+      border-radius:  var(--ui-radius-md);
+      background:     var(--ui-surface-sunken);
+    }
+    .icon-cell span {
+      font-family: var(--ui-font-family-mono);
+      font-size:   10px;
+      color:       var(--ui-text-tertiary);
+      word-break:  break-all;
+      text-align:  center;
     }
 
-    /* ---- Responsive ---- */
+    footer {
+      text-align: center;
+      padding:    var(--ui-space-10) var(--ui-space-4);
+      font-size:  var(--ui-font-size-xs);
+      color:      var(--ui-text-tertiary);
+    }
+    footer a { color: var(--ui-accent); text-decoration: none; }
+
     @media (max-width: 600px) {
-      .site-header {
-        padding: var(--ui-space-3) var(--ui-space-4);
-      }
-
-      .main {
-        padding: var(--ui-space-4);
-      }
-
-      .page-title {
-        font-size: var(--ui-font-size-2xl);
-      }
+      .site-header { padding: var(--ui-space-2) var(--ui-space-3); }
+      .main { padding: var(--ui-space-4); }
+      .page-title { font-size: var(--ui-font-size-2xl); }
     }
   </style>
 </head>
@@ -280,42 +337,60 @@
 
   <!-- ========== Header ========== -->
   <header class="site-header" role="banner">
-    <div class="site-header__brand">
+    <a class="site-header__brand" href="#top">
       <div class="site-header__logo" aria-hidden="true">UI</div>
       <div>
-        <h1 class="site-header__title">ui-lib</h1>
-        <div class="site-header__subtitle">Web Components Komponentbibliotek</div>
+        <h1 class="site-header__title">ui-libs</h1>
+        <div class="site-header__subtitle" data-i18n="subtitle">Web Components komponentbibliotek</div>
       </div>
-    </div>
+    </a>
 
-    <button
-      class="theme-toggle"
-      id="theme-toggle"
-      type="button"
-      aria-label="Skift farvetema"
-      aria-pressed="false"
-    >
-      <span class="theme-toggle__icon" id="theme-icon" aria-hidden="true">🌙</span>
-      <span id="theme-label">Mørk tilstand</span>
-    </button>
+    <div class="header-actions">
+      <a href="../../labs.html" class="back-link" data-i18n="back">← Labs</a>
+
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="da">DA</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="zh">中</button>
+      </div>
+
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+        <span id="theme-icon" aria-hidden="true">🌙</span>
+        <span id="theme-label" data-i18n="theme_dark">Mørk</span>
+      </button>
+    </div>
   </header>
 
   <!-- ========== Main ========== -->
-  <main class="main" id="main-content">
+  <main class="main" id="top">
 
-    <h2 class="page-title">ui-button</h2>
-    <p class="page-lead">
-      En tilgængelig, tematiserbar knapkomponent bygget som Web Component.
-      Understøtter 5 varianter, 3 størrelser, loading-tilstand, ikoner og fuld bredde.
+    <h2 class="page-title">ui-libs</h2>
+    <p class="page-lead" data-i18n="lead">
+      Et tilgængeligt, tematiserbart komponentbibliotek bygget med native Web Components.
+      Zero dependencies — kun webplatformen.
     </p>
 
-    <!-- ---- 1. Varianter ---- -->
-    <section class="section" aria-labelledby="variants-heading">
+    <nav class="component-nav" aria-label="Components">
+      <a class="nav-chip" href="#ui-button">&lt;ui-button&gt;</a>
+      <a class="nav-chip" href="#ui-card">&lt;ui-card&gt;</a>
+      <a class="nav-chip" href="#ui-stack">&lt;ui-stack&gt;</a>
+      <a class="nav-chip" href="#ui-badge">&lt;ui-badge&gt;</a>
+      <a class="nav-chip" href="#ui-icon">&lt;ui-icon&gt;</a>
+      <a class="nav-chip" href="#ui-input">&lt;ui-input&gt;</a>
+      <a class="nav-chip" href="#ui-dialog">&lt;ui-dialog&gt;</a>
+    </nav>
+
+    <!-- ================= ui-button ================= -->
+    <section class="section" id="ui-button" aria-labelledby="button-heading">
       <div class="section__header">
-        <h3 class="section__title" id="variants-heading">Varianter</h3>
-        <span class="section__tag">variant</span>
+        <h3 class="section__title" id="button-heading">&lt;ui-button&gt;</h3>
+        <span class="section__tag">Component</span>
       </div>
+      <p class="section__lead" data-i18n="lead_button">Knap med 5 varianter, 3 størrelser, loading-tilstand, ikon-slots og fuld bredde.</p>
+
       <div class="demo-card">
+        <div class="sub-label" data-i18n="t_variants">Varianter</div>
         <div class="demo-row">
           <ui-button variant="primary">Primary</ui-button>
           <ui-button variant="secondary">Secondary</ui-button>
@@ -323,338 +398,618 @@
           <ui-button variant="danger">Danger</ui-button>
           <ui-button variant="neutral">Neutral</ui-button>
         </div>
-      </div>
-    </section>
 
-    <!-- ---- 2. Størrelser ---- -->
-    <section class="section" aria-labelledby="sizes-heading">
-      <div class="section__header">
-        <h3 class="section__title" id="sizes-heading">Størrelser</h3>
-        <span class="section__tag">size</span>
-      </div>
-      <div class="demo-card">
+        <div class="sub-label" data-i18n="t_sizes">Størrelser</div>
         <div class="demo-row" style="align-items: flex-end;">
-          <div>
-            <div class="demo-label">sm</div>
-            <ui-button variant="primary" size="sm">Lille knap</ui-button>
-          </div>
-          <div>
-            <div class="demo-label">md (standard)</div>
-            <ui-button variant="primary" size="md">Normal knap</ui-button>
-          </div>
-          <div>
-            <div class="demo-label">lg</div>
-            <ui-button variant="primary" size="lg">Stor knap</ui-button>
-          </div>
+          <ui-button variant="primary" size="sm"><span data-i18n="demo_small">Lille</span></ui-button>
+          <ui-button variant="primary" size="md"><span data-i18n="demo_medium">Normal</span></ui-button>
+          <ui-button variant="primary" size="lg"><span data-i18n="demo_large">Stor</span></ui-button>
         </div>
-      </div>
-    </section>
 
-    <!-- ---- 3. Tilstande ---- -->
-    <section class="section" aria-labelledby="states-heading">
-      <div class="section__header">
-        <h3 class="section__title" id="states-heading">Tilstande</h3>
-        <span class="section__tag">disabled · loading</span>
-      </div>
-      <div class="demo-card">
+        <div class="sub-label" data-i18n="t_states">Tilstande</div>
         <div class="demo-row">
-          <div>
-            <div class="demo-label">disabled</div>
-            <ui-button variant="primary" disabled>Deaktiveret</ui-button>
-          </div>
-          <div>
-            <div class="demo-label">loading</div>
-            <ui-button variant="primary" loading>Indlæser...</ui-button>
-          </div>
-          <div>
-            <div class="demo-label">disabled + loading</div>
-            <ui-button variant="secondary" disabled loading>Venter</ui-button>
-          </div>
-          <div>
-            <div class="demo-label">ghost disabled</div>
-            <ui-button variant="ghost" disabled>Ghost</ui-button>
-          </div>
-          <div>
-            <div class="demo-label">danger loading</div>
-            <ui-button variant="danger" loading>Sletter...</ui-button>
-          </div>
+          <ui-button variant="primary" disabled><span data-i18n="demo_disabled">Deaktiveret</span></ui-button>
+          <ui-button variant="primary" loading><span data-i18n="demo_loading">Indlæser…</span></ui-button>
+          <ui-button variant="danger" loading><span data-i18n="demo_deleting">Sletter…</span></ui-button>
         </div>
-      </div>
-    </section>
 
-    <!-- ---- 4. Med ikoner ---- -->
-    <section class="section" aria-labelledby="icons-heading">
-      <div class="section__header">
-        <h3 class="section__title" id="icons-heading">Med ikoner</h3>
-        <span class="section__tag">icon-start · icon-end</span>
-      </div>
-      <div class="demo-card">
+        <div class="sub-label" data-i18n="t_icons">Med ikoner</div>
         <div class="demo-row">
-
           <ui-button variant="primary">
-            <svg slot="icon-start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="16" height="16">
-              <path d="M10 3a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H4a1 1 0 1 1 0-2h5V4a1 1 0 0 1 1-1Z"/>
-            </svg>
-            Ny post
+            <ui-icon slot="icon-start" name="plus" size="sm"></ui-icon>
+            <span data-i18n="demo_new">Ny post</span>
           </ui-button>
-
           <ui-button variant="secondary">
-            Hent fil
-            <svg slot="icon-end" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="16" height="16">
-              <path fill-rule="evenodd" d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414Z" clip-rule="evenodd"/>
-            </svg>
+            <span data-i18n="demo_download">Hent fil</span>
+            <ui-icon slot="icon-end" name="download" size="sm"></ui-icon>
           </ui-button>
-
-          <ui-button variant="ghost">
-            <svg slot="icon-start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="16" height="16">
-              <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
-              <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/>
-            </svg>
-            Forhåndsvis
-          </ui-button>
-
           <ui-button variant="danger">
-            <svg slot="icon-start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="16" height="16">
-              <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193v-.443A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>
-            </svg>
-            Slet
+            <ui-icon slot="icon-start" name="trash" size="sm"></ui-icon>
+            <span data-i18n="demo_delete">Slet</span>
           </ui-button>
-
-          <ui-button variant="neutral" size="sm">
-            <svg slot="icon-start" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="14" height="14">
-              <path d="M5.433 13.917l1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/>
-              <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/>
-            </svg>
-            Rediger
-          </ui-button>
-
         </div>
       </div>
-    </section>
 
-    <!-- ---- 5. Fuld bredde ---- -->
-    <section class="section" aria-labelledby="fullwidth-heading">
-      <div class="section__header">
-        <h3 class="section__title" id="fullwidth-heading">Fuld bredde</h3>
-        <span class="section__tag">full-width</span>
-      </div>
-      <div class="demo-card full-width-demo">
-        <div class="demo-row demo-row--column">
-          <ui-button variant="primary" full-width>Log ind</ui-button>
-          <ui-button variant="secondary" full-width>Opret konto</ui-button>
-          <ui-button variant="ghost" full-width>Annuller</ui-button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ---- 6. Kodeeksempel ---- -->
-    <section class="section" aria-labelledby="code-heading">
-      <div class="section__header">
-        <h3 class="section__title" id="code-heading">Kodeeksempel</h3>
-        <span class="section__tag">HTML</span>
-      </div>
-      <div class="code-block">
-        <code>&lt;!-- Importer komponent --&gt;
-&lt;script type="module" src="src/components/button/ui-button.js"&gt;&lt;/script&gt;
-
-&lt;!-- Primær knap --&gt;
-&lt;ui-button variant="primary"&gt;Klik mig&lt;/ui-button&gt;
-
-&lt;!-- Med ikon og loading --&gt;
-&lt;ui-button variant="primary" loading&gt;
-  &lt;svg slot="icon-start" ...&gt;...&lt;/svg&gt;
-  Gemmer...
+      <div class="code-block"><code>&lt;ui-button variant="primary" size="lg" full-width&gt;
+  &lt;ui-icon slot="icon-start" name="plus" size="sm"&gt;&lt;/ui-icon&gt;
+  Continue
 &lt;/ui-button&gt;
 
-&lt;!-- Fuld bredde, stor --&gt;
-&lt;ui-button variant="primary" size="lg" full-width&gt;
-  Fortsæt
-&lt;/ui-button&gt;
-
-&lt;!-- Lyt på ui-click event --&gt;
 &lt;script&gt;
-  document.querySelector('ui-button').addEventListener('ui-click', (e) =&gt; {
-    console.log('Klikket!', e.detail.originalEvent);
-  });
-&lt;/script&gt;</code>
-      </div>
-    </section>
+  btn.addEventListener('ui-click', (e) =&gt; { ... });
+&lt;/script&gt;</code></div>
 
-    <!-- ---- 7. Attributdokumentation ---- -->
-    <section class="section" aria-labelledby="docs-heading">
-      <div class="section__header">
-        <h3 class="section__title" id="docs-heading">Attributter</h3>
-        <span class="section__tag">API</span>
-      </div>
-      <div class="demo-card" style="padding: 0; overflow: hidden;">
+      <div class="demo-card api-card">
         <table class="doc-table">
-          <thead>
-            <tr>
-              <th>Attribut</th>
-              <th>Type</th>
-              <th>Standard</th>
-              <th>Beskrivelse</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>variant</code></td>
-              <td><code>string</code></td>
-              <td><code>'primary'</code></td>
-              <td>Visuel stil: <code>primary</code>, <code>secondary</code>, <code>ghost</code>, <code>danger</code>, <code>neutral</code></td>
-            </tr>
-            <tr>
-              <td><code>size</code></td>
-              <td><code>string</code></td>
-              <td><code>'md'</code></td>
-              <td>Størrelse: <code>sm</code>, <code>md</code>, <code>lg</code></td>
-            </tr>
-            <tr>
-              <td><code>disabled</code></td>
-              <td><code>boolean</code></td>
-              <td><code>false</code></td>
-              <td>Deaktiverer knappen og blokerer interaktion</td>
-            </tr>
-            <tr>
-              <td><code>loading</code></td>
-              <td><code>boolean</code></td>
-              <td><code>false</code></td>
-              <td>Viser loading-spinner, blokerer klik</td>
-            </tr>
-            <tr>
-              <td><code>full-width</code></td>
-              <td><code>boolean</code></td>
-              <td><code>false</code></td>
-              <td>Strækker knappen til 100% bredde af forælderen</td>
-            </tr>
-            <tr>
-              <td><code>type</code></td>
-              <td><code>string</code></td>
-              <td><code>'button'</code></td>
-              <td>HTML button type: <code>button</code>, <code>submit</code>, <code>reset</code></td>
-            </tr>
-          </tbody>
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>variant</code> <code>size</code> <code>disabled</code> <code>loading</code> <code>full-width</code> <code>type</code></td></tr>
+          <tr><th data-i18n="api_events">Events</th>
+              <td><code>ui-click</code></td></tr>
+          <tr><th data-i18n="api_slots">Slots</th>
+              <td><code>(default)</code> <code>icon-start</code> <code>icon-end</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code></td></tr>
         </table>
       </div>
+    </section>
 
-      <div style="margin-top: var(--ui-space-6);">
-        <h4 style="margin: 0 0 var(--ui-space-3); font-size: var(--ui-font-size-md); color: var(--ui-text-primary);">Events</h4>
-        <div class="demo-card" style="padding: 0; overflow: hidden;">
-          <table class="doc-table">
-            <thead>
-              <tr>
-                <th>Event</th>
-                <th>Detail</th>
-                <th>Hvornår</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>ui-click</code></td>
-                <td><code>{ originalEvent: MouseEvent }</code></td>
-                <td>Ved klik, medmindre <code>disabled</code> eller <code>loading</code></td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- ================= ui-card ================= -->
+    <section class="section" id="ui-card" aria-labelledby="card-heading">
+      <div class="section__header">
+        <h3 class="section__title" id="card-heading">&lt;ui-card&gt;</h3>
+        <span class="section__tag">Component</span>
+      </div>
+      <p class="section__lead" data-i18n="lead_card">Kortcontainer med media-, header-, body- og footer-slots. Container query skifter til horisontalt layout i brede containere.</p>
+
+      <div class="demo-card">
+        <div class="demo-row" style="align-items: stretch;">
+          <ui-card hoverable style="flex: 1; min-width: 240px;">
+            <span slot="header" data-i18n="card_title">Standardkort</span>
+            <span data-i18n="card_body">Hover-elevation, header og footer. Footer vises kun når slotten har indhold.</span>
+            <div slot="footer">
+              <ui-button variant="secondary" size="sm"><span data-i18n="card_action">Læs mere</span></ui-button>
+            </div>
+          </ui-card>
+
+          <ui-card clickable hoverable id="clickable-card" style="flex: 1; min-width: 240px;">
+            <span slot="header" data-i18n="card_click_title">Klikbart kort</span>
+            <span data-i18n="card_click_body">Hele kortet er en knap — klik, Enter eller mellemrum udløser ui-card-click.</span>
+          </ui-card>
+        </div>
+
+        <div class="sub-label" data-i18n="t_responsive">Responsivt (container query)</div>
+        <ui-card responsive hoverable>
+          <div slot="media" style="background: linear-gradient(135deg, var(--orange-400), var(--orange-600)); min-height: 120px;"></div>
+          <span slot="header" data-i18n="card_resp_title">Responsivt kort</span>
+          <span data-i18n="card_resp_body">I containere bredere end 480px lægger media-slotten sig til venstre for indholdet — prøv at ændre vinduets bredde.</span>
+        </ui-card>
+      </div>
+
+      <div class="code-block"><code>&lt;ui-card hoverable clickable responsive&gt;
+  &lt;img slot="media" src="..." alt="..." /&gt;
+  &lt;span slot="header"&gt;Title&lt;/span&gt;
+  Body content
+  &lt;div slot="footer"&gt;&lt;ui-button size="sm"&gt;Action&lt;/ui-button&gt;&lt;/div&gt;
+&lt;/ui-card&gt;</code></div>
+
+      <div class="demo-card api-card">
+        <table class="doc-table">
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>hoverable</code> <code>clickable</code> <code>responsive</code></td></tr>
+          <tr><th data-i18n="api_events">Events</th>
+              <td><code>ui-card-click</code></td></tr>
+          <tr><th data-i18n="api_slots">Slots</th>
+              <td><code>media</code> <code>header</code> <code>(default)</code> <code>footer</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code> <code>header</code> <code>body</code> <code>footer</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= ui-stack ================= -->
+    <section class="section" id="ui-stack" aria-labelledby="stack-heading">
+      <div class="section__header">
+        <h3 class="section__title" id="stack-heading">&lt;ui-stack&gt;</h3>
+        <span class="section__tag">Layout</span>
+      </div>
+      <p class="section__lead" data-i18n="lead_stack">Usynlig layout-primitiv. Stabler børn vertikalt eller horisontalt med token-baseret gap — intet visuelt output.</p>
+
+      <div class="demo-card">
+        <div class="sub-label">direction="horizontal" gap="3"</div>
+        <ui-stack direction="horizontal" gap="3" wrap>
+          <ui-button variant="secondary" size="sm">A</ui-button>
+          <ui-button variant="secondary" size="sm">B</ui-button>
+          <ui-button variant="secondary" size="sm">C</ui-button>
+        </ui-stack>
+
+        <div class="sub-label">direction="vertical" gap="2" align="start"</div>
+        <ui-stack direction="vertical" gap="2" align="start">
+          <ui-badge variant="accent" pill>ui-libs</ui-badge>
+          <ui-badge variant="success" dot><span data-i18n="badge_online">Online</span></ui-badge>
+          <ui-badge variant="info">v1.0</ui-badge>
+        </ui-stack>
+      </div>
+
+      <div class="code-block"><code>&lt;ui-stack direction="horizontal" gap="3" align="center" wrap&gt;
+  &lt;ui-button&gt;One&lt;/ui-button&gt;
+  &lt;ui-button&gt;Two&lt;/ui-button&gt;
+&lt;/ui-stack&gt;</code></div>
+
+      <div class="demo-card api-card">
+        <table class="doc-table">
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>direction</code> <code>gap</code> <code>align</code> <code>justify</code> <code>wrap</code></td></tr>
+          <tr><th data-i18n="api_slots">Slots</th>
+              <td><code>(default)</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= ui-badge ================= -->
+    <section class="section" id="ui-badge" aria-labelledby="badge-heading">
+      <div class="section__header">
+        <h3 class="section__title" id="badge-heading">&lt;ui-badge&gt;</h3>
+        <span class="section__tag">Component</span>
+      </div>
+      <p class="section__lead" data-i18n="lead_badge">Lille statusindikator. 6 varianter, valgfri status-dot og pill-form.</p>
+
+      <div class="demo-card">
+        <div class="sub-label" data-i18n="t_variants">Varianter</div>
+        <div class="demo-row">
+          <ui-badge>Default</ui-badge>
+          <ui-badge variant="success">Success</ui-badge>
+          <ui-badge variant="warning">Warning</ui-badge>
+          <ui-badge variant="danger">Danger</ui-badge>
+          <ui-badge variant="info">Info</ui-badge>
+          <ui-badge variant="accent">Accent</ui-badge>
+        </div>
+
+        <div class="sub-label">dot · pill</div>
+        <div class="demo-row">
+          <ui-badge variant="success" dot><span data-i18n="badge_online">Online</span></ui-badge>
+          <ui-badge variant="danger" dot><span data-i18n="badge_offline">Offline</span></ui-badge>
+          <ui-badge variant="warning" dot pill><span data-i18n="badge_pending">Afventer</span></ui-badge>
+          <ui-badge variant="accent" pill>42</ui-badge>
         </div>
       </div>
 
-      <div style="margin-top: var(--ui-space-6);">
-        <h4 style="margin: 0 0 var(--ui-space-3); font-size: var(--ui-font-size-md); color: var(--ui-text-primary);">CSS Custom Properties</h4>
-        <div class="demo-card" style="padding: 0; overflow: hidden;">
-          <table class="doc-table">
-            <thead>
-              <tr>
-                <th>Egenskab</th>
-                <th>Standard</th>
-                <th>Beskrivelse</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><code>--button-accent</code></td>
-                <td><code>var(--ui-accent)</code></td>
-                <td>Baggrundsfarve for primary variant</td>
-              </tr>
-              <tr>
-                <td><code>--button-radius</code></td>
-                <td><code>var(--ui-radius-md)</code></td>
-                <td>Hjørneradius</td>
-              </tr>
-              <tr>
-                <td><code>--button-font-weight</code></td>
-                <td><code>var(--ui-font-weight-semibold)</code></td>
-                <td>Skriftvægt</td>
-              </tr>
-              <tr>
-                <td><code>--button-focus-ring</code></td>
-                <td><code>var(--ui-focus-ring)</code></td>
-                <td>Focus outline (tilgængelighed)</td>
-              </tr>
-              <tr>
-                <td><code>--button-disabled-bg</code></td>
-                <td><code>var(--ui-state-disabled-bg)</code></td>
-                <td>Baggrund når deaktiveret</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="code-block"><code>&lt;ui-badge variant="success" dot pill&gt;Online&lt;/ui-badge&gt;</code></div>
+
+      <div class="demo-card api-card">
+        <table class="doc-table">
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>variant</code> <code>dot</code> <code>pill</code></td></tr>
+          <tr><th data-i18n="api_slots">Slots</th>
+              <td><code>(default)</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= ui-icon ================= -->
+    <section class="section" id="ui-icon" aria-labelledby="icon-heading">
+      <div class="section__header">
+        <h3 class="section__title" id="icon-heading">&lt;ui-icon&gt;</h3>
+        <span class="section__tag">Component</span>
+      </div>
+      <p class="section__lead" data-i18n="lead_icon">SVG-ikoner med indbygget ikonsæt. Arver tekstfarven via currentColor. Dekorative ikoner er aria-hidden; brug label-attributten for semantiske ikoner.</p>
+
+      <div class="demo-card">
+        <div class="icon-grid" id="icon-gallery"></div>
+
+        <div class="sub-label" data-i18n="t_sizes">Størrelser</div>
+        <div class="demo-row" style="align-items: center; color: var(--ui-accent);">
+          <ui-icon name="star" size="sm"></ui-icon>
+          <ui-icon name="star" size="md"></ui-icon>
+          <ui-icon name="star" size="lg"></ui-icon>
+          <ui-icon name="star" size="3rem"></ui-icon>
         </div>
+      </div>
+
+      <div class="code-block"><code>&lt;ui-icon name="heart" size="lg"&gt;&lt;/ui-icon&gt;
+&lt;ui-icon name="warning" label="Warning"&gt;&lt;/ui-icon&gt;  &lt;!-- semantic --&gt;
+&lt;ui-icon name="check" size="32px" style="--icon-color: green"&gt;&lt;/ui-icon&gt;</code></div>
+
+      <div class="demo-card api-card">
+        <table class="doc-table">
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>name</code> <code>size</code> <code>label</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= ui-input ================= -->
+    <section class="section" id="ui-input" aria-labelledby="input-heading">
+      <div class="section__header">
+        <h3 class="section__title" id="input-heading">&lt;ui-input&gt;</h3>
+        <span class="section__tag">Form</span>
+      </div>
+      <p class="section__lead" data-i18n="lead_input">Tekstfelt med label, hjælpetekst og fejlbesked. Form-associeret via ElementInternals — deltager i native form submit, reset og validering.</p>
+
+      <div class="demo-card">
+        <ui-stack gap="5" style="max-width: 420px;">
+          <ui-input data-i18n-label="in_name" data-i18n-placeholder="in_name_ph" label="Navn" placeholder="Dit fulde navn" required></ui-input>
+          <ui-input type="email" data-i18n-label="in_email" data-i18n-help="in_email_help" label="Email" help-text="Vi deler aldrig din email."></ui-input>
+          <ui-input data-i18n-label="in_user" data-i18n-error="in_user_err" label="Brugernavn" value="sten!" error="Kun bogstaver og tal er tilladt."></ui-input>
+          <ui-input data-i18n-label="in_search" data-i18n-placeholder="in_search_ph" label="Søg" placeholder="Søg…">
+            <ui-icon slot="icon-start" name="search" size="sm"></ui-icon>
+          </ui-input>
+          <ui-input data-i18n-label="in_disabled" label="Deaktiveret" value="Read only" disabled></ui-input>
+        </ui-stack>
+      </div>
+
+      <div class="code-block"><code>&lt;ui-input
+  label="Email"
+  type="email"
+  name="email"
+  required
+  help-text="We never share your email."
+&gt;&lt;/ui-input&gt;
+
+&lt;script&gt;
+  input.addEventListener('ui-input',  (e) =&gt; e.detail.value);
+  input.addEventListener('ui-change', (e) =&gt; e.detail.value);
+&lt;/script&gt;</code></div>
+
+      <div class="demo-card api-card">
+        <table class="doc-table">
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>label</code> <code>type</code> <code>value</code> <code>name</code> <code>placeholder</code> <code>help-text</code> <code>error</code> <code>disabled</code> <code>required</code> <code>readonly</code> <code>size</code></td></tr>
+          <tr><th data-i18n="api_events">Events</th>
+              <td><code>ui-input</code> <code>ui-change</code></td></tr>
+          <tr><th data-i18n="api_slots">Slots</th>
+              <td><code>icon-start</code> <code>icon-end</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code> <code>input</code> <code>label</code></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= ui-dialog ================= -->
+    <section class="section" id="ui-dialog" aria-labelledby="dialog-heading">
+      <div class="section__header">
+        <h3 class="section__title" id="dialog-heading">&lt;ui-dialog&gt;</h3>
+        <span class="section__tag">Overlay</span>
+      </div>
+      <p class="section__lead" data-i18n="lead_dialog">Modal dialog bygget på det native &lt;dialog&gt;-element: fokus-trap, Escape og backdrop følger med gratis. Persistent-tilstand blokerer Escape og backdrop-klik.</p>
+
+      <div class="demo-card">
+        <div class="demo-row">
+          <ui-button variant="primary" id="open-dialog-btn"><span data-i18n="dlg_open">Åbn dialog</span></ui-button>
+          <ui-button variant="secondary" id="open-persistent-btn"><span data-i18n="dlg_open_persistent">Åbn persistent dialog</span></ui-button>
+        </div>
+      </div>
+
+      <ui-dialog id="demo-dialog" data-i18n-heading="dlg_heading" heading="Bekræft handling">
+        <span data-i18n="dlg_body">Er du sikker på, at du vil fortsætte? Denne handling kan ikke fortrydes.</span>
+        <div slot="footer">
+          <ui-button variant="ghost" id="dlg-cancel"><span data-i18n="dlg_cancel">Annuller</span></ui-button>
+          <ui-button variant="primary" id="dlg-confirm"><span data-i18n="dlg_confirm">Bekræft</span></ui-button>
+        </div>
+      </ui-dialog>
+
+      <ui-dialog id="persistent-dialog" persistent data-i18n-heading="dlg_p_heading" heading="Persistent dialog">
+        <span data-i18n="dlg_p_body">Escape og backdrop-klik er deaktiveret — du skal vælge en handling.</span>
+        <div slot="footer">
+          <ui-button variant="primary" id="dlg-p-close"><span data-i18n="dlg_understood">Forstået</span></ui-button>
+        </div>
+      </ui-dialog>
+
+      <div class="code-block"><code>&lt;ui-dialog id="dlg" heading="Confirm action"&gt;
+  Are you sure?
+  &lt;div slot="footer"&gt;
+    &lt;ui-button variant="ghost"&gt;Cancel&lt;/ui-button&gt;
+    &lt;ui-button variant="primary"&gt;Confirm&lt;/ui-button&gt;
+  &lt;/div&gt;
+&lt;/ui-dialog&gt;
+
+&lt;script&gt;
+  dlg.show();   // open as modal
+  dlg.close();  // close
+  dlg.addEventListener('ui-close', () =&gt; { ... });
+&lt;/script&gt;</code></div>
+
+      <div class="demo-card api-card">
+        <table class="doc-table">
+          <tr><th data-i18n="api_attrs">Attributter</th>
+              <td><code>heading</code> <code>open</code> <code>persistent</code></td></tr>
+          <tr><th data-i18n="api_methods">Metoder</th>
+              <td><code>show()</code> <code>close()</code></td></tr>
+          <tr><th data-i18n="api_events">Events</th>
+              <td><code>ui-open</code> <code>ui-close</code></td></tr>
+          <tr><th data-i18n="api_slots">Slots</th>
+              <td><code>(default)</code> <code>footer</code></td></tr>
+          <tr><th data-i18n="api_parts">CSS Parts</th>
+              <td><code>base</code> <code>header</code> <code>body</code> <code>footer</code></td></tr>
+        </table>
       </div>
     </section>
 
   </main>
 
-  <!-- ========== Component JS ========== -->
-  <script type="module" src="../src/components/button/ui-button.js"></script>
+  <footer>
+    <span data-i18n="footer">Bygget med native Web Components — zero dependencies.</span>
+    · <a href="https://github.com/netsi1964/stenhougaard/tree/main/ui-libs" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+
+  <!-- ========== Components ========== -->
+  <script type="module" src="../src/index.js"></script>
 
   <!-- ========== Demo scripts ========== -->
-  <script>
-    // ---------------------------------------------------------------------------
-    // Dark mode toggle
-    // ---------------------------------------------------------------------------
+  <script type="module">
+    import { UiIcon } from '../src/components/icon/ui-icon.js';
+
+    /* ===================== i18n ===================== */
+    const STR = {
+      en: {
+        subtitle: 'Web Components component library',
+        back: '← Labs',
+        theme_dark: 'Dark', theme_light: 'Light',
+        lead: 'An accessible, themeable component library built with native Web Components. Zero dependencies — just the web platform.',
+        t_variants: 'Variants', t_sizes: 'Sizes', t_states: 'States', t_icons: 'With icons',
+        t_responsive: 'Responsive (container query)',
+        api_attrs: 'Attributes', api_events: 'Events', api_slots: 'Slots', api_parts: 'CSS Parts', api_methods: 'Methods',
+        lead_button: 'Button with 5 variants, 3 sizes, loading state, icon slots and full width.',
+        lead_card: 'Card container with media, header, body and footer slots. A container query switches to horizontal layout in wide containers.',
+        lead_stack: 'Invisible layout primitive. Stacks children vertically or horizontally with token-based gap — no visual output.',
+        lead_badge: 'Small status indicator. 6 variants, optional status dot and pill shape.',
+        lead_icon: 'SVG icons with a built-in icon set. Inherits text color via currentColor. Decorative icons are aria-hidden; use the label attribute for semantic icons.',
+        lead_input: 'Text field with label, help text and error message. Form-associated via ElementInternals — participates in native form submit, reset and validation.',
+        lead_dialog: 'Modal dialog built on the native <dialog> element: focus trap, Escape and backdrop come for free. Persistent mode blocks Escape and backdrop clicks.',
+        demo_small: 'Small', demo_medium: 'Medium', demo_large: 'Large',
+        demo_disabled: 'Disabled', demo_loading: 'Loading…', demo_deleting: 'Deleting…',
+        demo_new: 'New entry', demo_download: 'Download', demo_delete: 'Delete',
+        card_title: 'Standard card',
+        card_body: 'Hover elevation, header and footer. The footer only renders when its slot has content.',
+        card_action: 'Read more',
+        card_click_title: 'Clickable card',
+        card_click_body: 'The whole card is a button — click, Enter or Space fires ui-card-click.',
+        card_resp_title: 'Responsive card',
+        card_resp_body: 'In containers wider than 480px the media slot moves to the left of the content — try resizing the window.',
+        badge_online: 'Online', badge_offline: 'Offline', badge_pending: 'Pending',
+        in_name: 'Name', in_name_ph: 'Your full name',
+        in_email: 'Email', in_email_help: 'We never share your email.',
+        in_user: 'Username', in_user_err: 'Only letters and numbers are allowed.',
+        in_search: 'Search', in_search_ph: 'Search…',
+        in_disabled: 'Disabled',
+        dlg_open: 'Open dialog', dlg_open_persistent: 'Open persistent dialog',
+        dlg_heading: 'Confirm action',
+        dlg_body: 'Are you sure you want to continue? This action cannot be undone.',
+        dlg_cancel: 'Cancel', dlg_confirm: 'Confirm',
+        dlg_p_heading: 'Persistent dialog',
+        dlg_p_body: 'Escape and backdrop clicks are disabled — you must choose an action.',
+        dlg_understood: 'Got it',
+        footer: 'Built with native Web Components — zero dependencies.',
+      },
+      da: {
+        subtitle: 'Web Components komponentbibliotek',
+        back: '← Labs',
+        theme_dark: 'Mørk', theme_light: 'Lys',
+        lead: 'Et tilgængeligt, tematiserbart komponentbibliotek bygget med native Web Components. Zero dependencies — kun webplatformen.',
+        t_variants: 'Varianter', t_sizes: 'Størrelser', t_states: 'Tilstande', t_icons: 'Med ikoner',
+        t_responsive: 'Responsivt (container query)',
+        api_attrs: 'Attributter', api_events: 'Events', api_slots: 'Slots', api_parts: 'CSS Parts', api_methods: 'Metoder',
+        lead_button: 'Knap med 5 varianter, 3 størrelser, loading-tilstand, ikon-slots og fuld bredde.',
+        lead_card: 'Kortcontainer med media-, header-, body- og footer-slots. Container query skifter til horisontalt layout i brede containere.',
+        lead_stack: 'Usynlig layout-primitiv. Stabler børn vertikalt eller horisontalt med token-baseret gap — intet visuelt output.',
+        lead_badge: 'Lille statusindikator. 6 varianter, valgfri status-dot og pill-form.',
+        lead_icon: 'SVG-ikoner med indbygget ikonsæt. Arver tekstfarven via currentColor. Dekorative ikoner er aria-hidden; brug label-attributten for semantiske ikoner.',
+        lead_input: 'Tekstfelt med label, hjælpetekst og fejlbesked. Form-associeret via ElementInternals — deltager i native form submit, reset og validering.',
+        lead_dialog: 'Modal dialog bygget på det native <dialog>-element: fokus-trap, Escape og backdrop følger med gratis. Persistent-tilstand blokerer Escape og backdrop-klik.',
+        demo_small: 'Lille', demo_medium: 'Normal', demo_large: 'Stor',
+        demo_disabled: 'Deaktiveret', demo_loading: 'Indlæser…', demo_deleting: 'Sletter…',
+        demo_new: 'Ny post', demo_download: 'Hent fil', demo_delete: 'Slet',
+        card_title: 'Standardkort',
+        card_body: 'Hover-elevation, header og footer. Footer vises kun når slotten har indhold.',
+        card_action: 'Læs mere',
+        card_click_title: 'Klikbart kort',
+        card_click_body: 'Hele kortet er en knap — klik, Enter eller mellemrum udløser ui-card-click.',
+        card_resp_title: 'Responsivt kort',
+        card_resp_body: 'I containere bredere end 480px lægger media-slotten sig til venstre for indholdet — prøv at ændre vinduets bredde.',
+        badge_online: 'Online', badge_offline: 'Offline', badge_pending: 'Afventer',
+        in_name: 'Navn', in_name_ph: 'Dit fulde navn',
+        in_email: 'Email', in_email_help: 'Vi deler aldrig din email.',
+        in_user: 'Brugernavn', in_user_err: 'Kun bogstaver og tal er tilladt.',
+        in_search: 'Søg', in_search_ph: 'Søg…',
+        in_disabled: 'Deaktiveret',
+        dlg_open: 'Åbn dialog', dlg_open_persistent: 'Åbn persistent dialog',
+        dlg_heading: 'Bekræft handling',
+        dlg_body: 'Er du sikker på, at du vil fortsætte? Denne handling kan ikke fortrydes.',
+        dlg_cancel: 'Annuller', dlg_confirm: 'Bekræft',
+        dlg_p_heading: 'Persistent dialog',
+        dlg_p_body: 'Escape og backdrop-klik er deaktiveret — du skal vælge en handling.',
+        dlg_understood: 'Forstået',
+        footer: 'Bygget med native Web Components — zero dependencies.',
+      },
+      es: {
+        subtitle: 'Biblioteca de componentes Web Components',
+        back: '← Labs',
+        theme_dark: 'Oscuro', theme_light: 'Claro',
+        lead: 'Una biblioteca de componentes accesible y tematizable construida con Web Components nativos. Cero dependencias — solo la plataforma web.',
+        t_variants: 'Variantes', t_sizes: 'Tamaños', t_states: 'Estados', t_icons: 'Con iconos',
+        t_responsive: 'Responsivo (container query)',
+        api_attrs: 'Atributos', api_events: 'Eventos', api_slots: 'Slots', api_parts: 'CSS Parts', api_methods: 'Métodos',
+        lead_button: 'Botón con 5 variantes, 3 tamaños, estado de carga, slots de iconos y ancho completo.',
+        lead_card: 'Contenedor de tarjeta con slots de media, header, body y footer. Una container query cambia a diseño horizontal en contenedores anchos.',
+        lead_stack: 'Primitiva de layout invisible. Apila hijos vertical u horizontalmente con gap basado en tokens — sin salida visual.',
+        lead_badge: 'Pequeño indicador de estado. 6 variantes, punto de estado opcional y forma de píldora.',
+        lead_icon: 'Iconos SVG con set integrado. Hereda el color del texto vía currentColor. Los iconos decorativos son aria-hidden; usa el atributo label para iconos semánticos.',
+        lead_input: 'Campo de texto con etiqueta, texto de ayuda y mensaje de error. Asociado a formularios vía ElementInternals — participa en submit, reset y validación nativos.',
+        lead_dialog: 'Diálogo modal construido sobre el elemento <dialog> nativo: focus trap, Escape y backdrop vienen gratis. El modo persistente bloquea Escape y clics en el backdrop.',
+        demo_small: 'Pequeño', demo_medium: 'Mediano', demo_large: 'Grande',
+        demo_disabled: 'Desactivado', demo_loading: 'Cargando…', demo_deleting: 'Eliminando…',
+        demo_new: 'Nueva entrada', demo_download: 'Descargar', demo_delete: 'Eliminar',
+        card_title: 'Tarjeta estándar',
+        card_body: 'Elevación al pasar el cursor, header y footer. El footer solo se muestra cuando su slot tiene contenido.',
+        card_action: 'Leer más',
+        card_click_title: 'Tarjeta clicable',
+        card_click_body: 'Toda la tarjeta es un botón — clic, Enter o espacio dispara ui-card-click.',
+        card_resp_title: 'Tarjeta responsiva',
+        card_resp_body: 'En contenedores de más de 480px el slot de media se coloca a la izquierda del contenido — prueba a cambiar el ancho de la ventana.',
+        badge_online: 'En línea', badge_offline: 'Desconectado', badge_pending: 'Pendiente',
+        in_name: 'Nombre', in_name_ph: 'Tu nombre completo',
+        in_email: 'Email', in_email_help: 'Nunca compartimos tu email.',
+        in_user: 'Usuario', in_user_err: 'Solo se permiten letras y números.',
+        in_search: 'Buscar', in_search_ph: 'Buscar…',
+        in_disabled: 'Desactivado',
+        dlg_open: 'Abrir diálogo', dlg_open_persistent: 'Abrir diálogo persistente',
+        dlg_heading: 'Confirmar acción',
+        dlg_body: '¿Seguro que quieres continuar? Esta acción no se puede deshacer.',
+        dlg_cancel: 'Cancelar', dlg_confirm: 'Confirmar',
+        dlg_p_heading: 'Diálogo persistente',
+        dlg_p_body: 'Escape y los clics en el backdrop están desactivados — debes elegir una acción.',
+        dlg_understood: 'Entendido',
+        footer: 'Construido con Web Components nativos — cero dependencias.',
+      },
+      zh: {
+        subtitle: 'Web Components 组件库',
+        back: '← 实验室',
+        theme_dark: '深色', theme_light: '浅色',
+        lead: '一个无障碍、可主题化的组件库，基于原生 Web Components 构建。零依赖 — 只用 Web 平台本身。',
+        t_variants: '变体', t_sizes: '尺寸', t_states: '状态', t_icons: '带图标',
+        t_responsive: '响应式（容器查询）',
+        api_attrs: '属性', api_events: '事件', api_slots: '插槽', api_parts: 'CSS Parts', api_methods: '方法',
+        lead_button: '按钮：5 种变体、3 种尺寸、加载状态、图标插槽和全宽模式。',
+        lead_card: '卡片容器，带 media、header、body 和 footer 插槽。容器查询在宽容器中切换为水平布局。',
+        lead_stack: '不可见的布局原语。以基于 token 的间距垂直或水平排列子元素 — 无视觉输出。',
+        lead_badge: '小型状态指示器。6 种变体，可选状态圆点和胶囊形状。',
+        lead_icon: '带内置图标集的 SVG 图标。通过 currentColor 继承文字颜色。装饰性图标为 aria-hidden；语义图标请使用 label 属性。',
+        lead_input: '带标签、帮助文本和错误信息的文本框。通过 ElementInternals 与表单关联 — 参与原生表单提交、重置和验证。',
+        lead_dialog: '基于原生 <dialog> 元素的模态对话框：焦点陷阱、Escape 和遮罩免费可用。持久模式会阻止 Escape 和遮罩点击。',
+        demo_small: '小', demo_medium: '中', demo_large: '大',
+        demo_disabled: '已禁用', demo_loading: '加载中…', demo_deleting: '删除中…',
+        demo_new: '新建条目', demo_download: '下载文件', demo_delete: '删除',
+        card_title: '标准卡片',
+        card_body: '悬停浮起、页眉和页脚。页脚仅在插槽有内容时显示。',
+        card_action: '了解更多',
+        card_click_title: '可点击卡片',
+        card_click_body: '整张卡片是一个按钮 — 点击、Enter 或空格触发 ui-card-click。',
+        card_resp_title: '响应式卡片',
+        card_resp_body: '在宽于 480px 的容器中，media 插槽移到内容左侧 — 试着调整窗口宽度。',
+        badge_online: '在线', badge_offline: '离线', badge_pending: '待处理',
+        in_name: '姓名', in_name_ph: '你的全名',
+        in_email: '邮箱', in_email_help: '我们绝不会分享你的邮箱。',
+        in_user: '用户名', in_user_err: '只允许字母和数字。',
+        in_search: '搜索', in_search_ph: '搜索…',
+        in_disabled: '已禁用',
+        dlg_open: '打开对话框', dlg_open_persistent: '打开持久对话框',
+        dlg_heading: '确认操作',
+        dlg_body: '确定要继续吗？此操作无法撤销。',
+        dlg_cancel: '取消', dlg_confirm: '确认',
+        dlg_p_heading: '持久对话框',
+        dlg_p_body: 'Escape 和遮罩点击已禁用 — 你必须选择一个操作。',
+        dlg_understood: '知道了',
+        footer: '使用原生 Web Components 构建 — 零依赖。',
+      },
+    };
+
+    const I18N = {
+      lang: localStorage.getItem('uilibs_lang') || 'da',
+      t(k) { return (STR[this.lang] && STR[this.lang][k]) || STR.en[k] || k; },
+      set(l) {
+        this.lang = l;
+        localStorage.setItem('uilibs_lang', l);
+        document.documentElement.lang = l;
+        applyI18n();
+      },
+    };
+
+    /* Attribute-targeted i18n: data-i18n-<x>="key" → element attribute */
+    const ATTR_MAP = {
+      'data-i18n-label':       'label',
+      'data-i18n-placeholder': 'placeholder',
+      'data-i18n-help':        'help-text',
+      'data-i18n-error':       'error',
+      'data-i18n-heading':     'heading',
+    };
+
+    function applyI18n() {
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        el.textContent = I18N.t(el.dataset.i18n);
+      });
+      for (const [dataAttr, targetAttr] of Object.entries(ATTR_MAP)) {
+        document.querySelectorAll(`[${dataAttr}]`).forEach((el) => {
+          el.setAttribute(targetAttr, I18N.t(el.getAttribute(dataAttr)));
+        });
+      }
+      document.querySelectorAll('.lang-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.lang === I18N.lang);
+      });
+      // Theme label depends on current theme
+      updateThemeLabel();
+    }
+
+    document.querySelectorAll('.lang-btn').forEach((b) => {
+      b.addEventListener('click', () => I18N.set(b.dataset.lang));
+    });
+
+    /* ===================== Theme ===================== */
     const STORAGE_KEY = 'ui-lib-theme';
-    const toggleBtn   = document.getElementById('theme-toggle');
-    const themeIcon   = document.getElementById('theme-icon');
-    const themeLabel  = document.getElementById('theme-label');
+    const toggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeLabel = document.getElementById('theme-label');
+
+    function isDark() {
+      return document.documentElement.getAttribute('data-theme') === 'dark';
+    }
+
+    function updateThemeLabel() {
+      themeIcon.textContent = isDark() ? '☀️' : '🌙';
+      themeLabel.textContent = I18N.t(isDark() ? 'theme_light' : 'theme_dark');
+      toggleBtn.setAttribute('aria-pressed', String(isDark()));
+    }
 
     function applyTheme(dark) {
       if (dark) {
         document.documentElement.setAttribute('data-theme', 'dark');
-        themeIcon.textContent  = '☀️';
-        themeLabel.textContent = 'Lys tilstand';
-        toggleBtn.setAttribute('aria-pressed', 'true');
       } else {
         document.documentElement.removeAttribute('data-theme');
-        themeIcon.textContent  = '🌙';
-        themeLabel.textContent = 'Mørk tilstand';
-        toggleBtn.setAttribute('aria-pressed', 'false');
       }
+      updateThemeLabel();
     }
 
-    // Restore saved preference
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === 'dark') {
-      applyTheme(true);
-    } else if (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (saved === 'dark' || (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       applyTheme(true);
     }
 
     toggleBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.hasAttribute('data-theme');
-      applyTheme(!isDark);
-      localStorage.setItem(STORAGE_KEY, !isDark ? 'dark' : 'light');
+      applyTheme(!isDark());
+      localStorage.setItem(STORAGE_KEY, isDark() ? 'dark' : 'light');
     });
 
-    // ---------------------------------------------------------------------------
-    // Event demo — all ui-click events logged to console
-    // ---------------------------------------------------------------------------
-    document.addEventListener('ui-click', (e) => {
-      console.log('[ui-lib demo] ui-click received:', {
-        variant:       e.target.variant,
-        size:          e.target.size,
-        originalEvent: e.detail.originalEvent,
-      });
+    /* ===================== Icon gallery ===================== */
+    const gallery = document.getElementById('icon-gallery');
+    for (const name of UiIcon.iconNames) {
+      const cell = document.createElement('div');
+      cell.className = 'icon-cell';
+      cell.innerHTML = `<ui-icon name="${name}"></ui-icon><span>${name}</span>`;
+      gallery.appendChild(cell);
+    }
+
+    /* ===================== Dialog demos ===================== */
+    const demoDialog = document.getElementById('demo-dialog');
+    const persistentDialog = document.getElementById('persistent-dialog');
+
+    document.getElementById('open-dialog-btn').addEventListener('ui-click', () => demoDialog.show());
+    document.getElementById('open-persistent-btn').addEventListener('ui-click', () => persistentDialog.show());
+    document.getElementById('dlg-cancel').addEventListener('ui-click', () => demoDialog.close());
+    document.getElementById('dlg-confirm').addEventListener('ui-click', () => demoDialog.close());
+    document.getElementById('dlg-p-close').addEventListener('ui-click', () => persistentDialog.close());
+
+    /* ===================== Clickable card demo ===================== */
+    document.getElementById('clickable-card').addEventListener('ui-card-click', (e) => {
+      console.log('[ui-libs demo] ui-card-click', e);
     });
+
+    /* ===================== Init ===================== */
+    document.documentElement.lang = I18N.lang;
+    applyI18n();
   </script>
 
 </body>

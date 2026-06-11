@@ -26,6 +26,9 @@
 // ---------------------------------------------------------------------------
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
+// Register the component before any test runs
+import '../src/components/button/ui-button.js';
+
 // ---------------------------------------------------------------------------
 // Helper: create a connected ui-button element
 // Assumes the component is registered (import side-effect in setup or here).
